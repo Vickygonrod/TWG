@@ -1,31 +1,38 @@
 import React from "react";
 import "../styles/landingStyle.css"
-import ebookimg from "../images/booksNBG.png"
+import ebookimgEs from "../images/booksNBG-es.png";
+import ebookimgEn from "../images/booksNBG-en.png";
 import logo from "../images/logo.png"
 import { NavbarLanding } from "../components/NavbarLanding";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-
 export const Landing = () => {
 
-    const BACKEND_URL = "https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev"; 
-    const { t } = useTranslation();
+    const BACKEND_URL = "https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev";
+    const { t, i18n } = useTranslation();
+
+    // Lógica para seleccionar la imagen según el idioma actual
+    const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
+
+    // --- IDs REALES DE STRIPE ---
+    const STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb'; // ID para español
+    const STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr';  // ID para inglés
 
     const handlePurchaseClick = async () => {
         try {
-            // Envía una solicitud POST a tu backend para crear la sesión de checkout de Stripe
+            // Determina el Price ID de Stripe basado en el idioma actual
+            const priceIdToSend = i18n.language === 'en' ? STRIPE_PRICE_ID_EN : STRIPE_PRICE_ID_ES;
+
+            // Envía el Price ID al backend
             const response = await axios.post(`${BACKEND_URL}/api/create-checkout-session`, {
-                // Puedes enviar aquí un ID de producto si tuvieras varios,
-                // pero por ahora el backend ya sabe que es el "ebook_pack"
-                product_id: 'ebook_pack' 
+                price_id: priceIdToSend // Enviando el Price ID correcto
             });
 
-            const { checkout_url } = response.data; // El backend nos devuelve la URL de Stripe
+            const { checkout_url } = response.data;
 
             if (checkout_url) {
-                // Redirige al usuario directamente a la página de pago de Stripe
                 window.location.href = checkout_url;
             } else {
                 console.error("No se recibió una URL de checkout de Stripe.");
@@ -34,7 +41,6 @@ export const Landing = () => {
 
         } catch (error) {
             console.error("Error al crear la sesión de checkout:", error);
-            // Muestra un mensaje de error más amigable al usuario
             if (error.response && error.response.data && error.response.data.error) {
                 alert(`Error: ${error.response.data.error}`);
             } else {
@@ -42,7 +48,6 @@ export const Landing = () => {
             }
         }
     };
-
 
     return(
         <>
@@ -58,7 +63,7 @@ export const Landing = () => {
                         <h4 className="subtitle">{t('landing_ebook_3')}</h4>
                     </div>
                     <div className="col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
-                    <img src={ebookimg} className=""/>
+                    <img src={currentEbookImage} alt={t('landing_ebook_1')} className=""/>
                     </div>
                 </div>
                 <div className="cta-header">
@@ -88,8 +93,7 @@ export const Landing = () => {
                             {t('landing_ebook_14')}
                             <br />
                             <br />
-                            <ul> 
-
+                            <ul>
                             <li><span className="bold">{t('landing_ebook_15')}</span> {t('landing_ebook_16')}</li>
                             <br />
                             <li><span className="bold">{t('landing_ebook_17')}</span> {t('landing_ebook_18')}</li>
@@ -97,27 +101,27 @@ export const Landing = () => {
                             <li><span className="bold">{t('landing_ebook_19')}</span> {t('landing_ebook_20')}</li>
                             <br />
                             <li><span className="bold">{t('landing_ebook_21')}</span> {t('landing_ebook_22')}</li></ul>
-                            </p> 
-                      
-                        
+                            </p>
+
+
                         </div>
 
                         <div className="feature-item">
                             <h4>{t('landing_ebook_23')}</h4>
                             <br /> <br />
-                            <p>{t('landing_ebook_24')} <br /> 
+                            <p>{t('landing_ebook_24')} <br />
                                 <br />{t('landing_ebook_25')} <span className="bold">{t('landing_ebook_26')}</span> {t('landing_ebook_27')}
                                 <br /><br />{t('landing_ebook_28')} <span className="bold">{t('landing_ebook_29')}</span>{t('landing_ebook_30')}
                                 <br />{t('landing_ebook_31')} <br />
                                 <br /><span className="bold">{t('landing_ebook_32')}</span></p>
-                          
+
                         </div>
-                    
+
                     </div>
                 </div>
             </section>
 
-            
+
 
             {/* --- Sección Sobre la Autora/Comunidad --- */}
             <section className="about-author-section">
@@ -129,7 +133,7 @@ export const Landing = () => {
                             <p>{t('landing_ebook_34')} <br />
                             <br /> {t('landing_ebook_35')} <br />
                             <br />{t('landing_ebook_36')}</p>
-                        <Link to="/community" className="btn btn-secondary"> {t('landing_ebook_37')}</Link>  
+                        <Link to="/community" className="btn btn-secondary"> {t('landing_ebook_37')}</Link>
                         </div>
                     </div>
                 </div>
@@ -145,8 +149,8 @@ export const Landing = () => {
                             {t('landing_ebook_39')}
                             <br /><br />{t('landing_ebook_40')}
                             {t('landing_ebook_41')}
-                            <br /><br /> {t('landing_ebook_42')}                     
-                            </p> 
+                            <br /><br /> {t('landing_ebook_42')}
+                            </p>
                         </div>
 
                         <div className="testimonial-item col-md-4 col-lg-4 col-xl-4 col-sm-12 col-xs-12">
@@ -155,8 +159,8 @@ export const Landing = () => {
                             <br />
                             {t('landing_ebook_44')}
                             <br /><br />{t('landing_ebook_45')}
-                            <br /><br /> {t('landing_ebook_46')}                       
-                            </p> 
+                            <br /><br /> {t('landing_ebook_46')}
+                            </p>
                         </div>
 
                          <div className="testimonial-item col-md-4 col-lg-4 col-xl-4 col-sm-12 col-xs-12">
@@ -165,11 +169,11 @@ export const Landing = () => {
                             <br />
                             {t('landing_ebook_48')}
                             <br /><br />{t('landing_ebook_49')}
-                            <br /><br /> {t('landing_ebook_50')}                       
-                            </p> 
+                            <br /><br /> {t('landing_ebook_50')}
+                            </p>
                         </div>
 
-                    
+
                     </div>
             </section>
 
@@ -185,7 +189,7 @@ export const Landing = () => {
                         </div>
                         <button className="btn btn-orange"
                         onClick={handlePurchaseClick}
-                        >{t('landing_ebook_5')}</button>  
+                        >{t('landing_ebook_5')}</button>
                         </div>
                 </div>
             </section>

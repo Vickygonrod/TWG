@@ -1,55 +1,64 @@
-// src/pages/Success.jsx
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import axios from 'axios';
-import { Link } from 'react-router-dom'; // Asegúrate de importar Link si vas a usarlo
-import "../styles/landingStyle.css"
-import ebookimg from "../images/booksNBG.png"
+import React, { useEffect, useState } from "react";
+import { useLocation, Link } from "react-router-dom";
+import axios from "axios";
+import "../styles/landingStyle.css"; // Asegúrate de que los estilos sean los correctos
 import { useTranslation } from 'react-i18next';
 
-export const Success = () => {
+// IMPORTA AMBAS IMÁGENES AQUÍ
+import ebookimgEs from "../images/booksNBG-es.png"; // Imagen para español
+import ebookimgEn from "../images/booksNBG-en.png"; // Imagen para inglés
+
+
+export const Success = () => { // Asumiendo que este es tu componente Success
     const location = useLocation();
     const [sessionId, setSessionId] = useState(null);
     const [downloading, setDownloading] = useState(false);
-    const [downloadInitiated, setDownloadInitiated] = useState(false); // Nuevo estado
+    const [downloadInitiated, setDownloadInitiated] = useState(false); // Para controlar si el botón de descarga ya se hizo clic
     const [error, setError] = useState(null);
-    const { t } = useTranslation();
+
+    const { t, i18n } = useTranslation(); // Desestructura i18n aquí para acceder al idioma
+
+    // Lógica para seleccionar la imagen basada en el idioma actual
+    const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
+
 
     useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const id = queryParams.get('session_id');
+        const query = new URLSearchParams(location.search);
+        const id = query.get('session_id');
         if (id) {
             setSessionId(id);
-            console.log("DEBUG FRONTEND: Session ID en URL:", id);
         } else {
-            setError("No se encontró el ID de sesión en la URL.");
+            setError("No se encontró ID de sesión. La compra no se pudo verificar.");
         }
     }, [location]);
 
     const handleDownload = async () => {
         if (!sessionId) {
-            setError("No hay ID de sesión para la descarga.");
+            setError("No hay ID de sesión para iniciar la descarga.");
             return;
         }
 
         setDownloading(true);
-        setError(null);
+        setDownloadInitiated(true); // Indica que la descarga ha sido iniciada
 
         try {
-            const BACKEND_URL = "https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev"; // ¡Verifica tu URL!
-            const downloadUrl = `${BACKEND_URL}/api/download-ebook/${sessionId}`;
-            console.log("DEBUG FRONTEND: Intentando descargar desde:", downloadUrl);
+            const response = await axios.get(`https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev/api/download-ebook?session_id=${sessionId}`, {
+                responseType: 'blob', // Importante para manejar archivos
+            });
 
-            // Inicia la descarga
-            window.location.href = downloadUrl;
-
-            // Marca que la descarga se ha iniciado.
-            // Aunque no sabemos si ha finalizado, esto es suficiente para cambiar el UI.
-            setDownloadInitiated(true);
+            // Crea un objeto URL para el blob y crea un enlace de descarga
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Juega_a_Crear_Pack.zip'); // Nombre del archivo de descarga
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url); // Libera la URL del objeto
 
         } catch (err) {
-            console.error("Error al iniciar la descarga:", err);
-            setError("No se pudo iniciar la descarga del eBook. Por favor, contacta con soporte.");
+            console.error("Error durante la descarga:", err);
+            setError("Error al descargar el archivo. Por favor, contacta con soporte.");
         } finally {
             setDownloading(false);
         }
@@ -59,12 +68,12 @@ export const Success = () => {
         <div className="container containersuccess mt-5 text-center">
             <h1>{t('success_1')}</h1>
             <h3>{t('success_2')}</h3>
-            <img src={ebookimg} className="ebookimgSuccess"/>
+            {/* Usa la imagen seleccionada dinámicamente aquí */}
+            <img src={currentEbookImage} alt={t('success_1')} className="ebookimgSuccess"/>
             {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
             {sessionId ? (
-                // Condicionalmente renderizamos el botón de descarga O el botón de "Ir a la comunidad"
-                !downloadInitiated ? ( // Si la descarga NO se ha iniciado aún
+                !downloadInitiated ? (
                     <button
                         className="btn btn-orange btn-lg mt-4"
                         onClick={handleDownload}
@@ -72,7 +81,7 @@ export const Success = () => {
                     >
                         {downloading ? t('success_3') : t('success_3b')}
                     </button>
-                ) : ( // Si la descarga YA se ha iniciado
+                ) : (
                     <Link to="/community" className="btn btn-secondary btn-lg mt-4">
                         {t('success_4')}
                     </Link>
