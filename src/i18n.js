@@ -1,7 +1,9 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import HttpBackend from 'i18next-http-backend';
+  import i18n from 'i18next';
+  import { initReactI18next } from 'react-i18next';
+  import LanguageDetector from 'i18next-browser-languagedetector';
+  import HttpBackend from 'i18next-http-backend';
+
+
 
 i18n
   // Carga las traducciones a través de http (para archivos locales o remotos)
@@ -19,7 +21,7 @@ i18n
     },
     // Idioma por defecto si no se detecta uno o no está disponible
     fallbackLng: 'es', // Español como idioma de respaldo
-    debug: false, // Desactiva el debug en producción
+    debug: true, // Desactiva el debug en producción
     interpolation: {
       escapeValue: false, // React ya escapa los valores para prevenir XSS
     },
