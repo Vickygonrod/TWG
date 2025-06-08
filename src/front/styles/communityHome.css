@@ -1,0 +1,186 @@
+.community-home-container {
+    max-width: 1200px;
+    margin: 40px auto; /* Centra el contenedor y añade espacio arriba/abajo */
+    padding: 20px;
+    font-family: Arial, sans-serif; /* Fuente básica, puedes cambiarla */
+    color: #ffffff; /* Color de texto principal */
+    line-height: 1.6;
+}
+
+/* Header */
+.community-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px 20px;
+    background-color: white; /* Un color de fondo suave */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.community-header h1 {
+    font-size: 3em;
+    color: #c55336; /* Un color oscuro para el título */
+    margin-bottom: 15px;
+}
+
+.community-header .header-description {
+    font-size: 1.4em;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 10px;
+}
+
+/* News Section */
+.community-news {
+    margin-bottom: 60px;
+}
+
+.community-news h2 {
+    text-align: center;
+    font-size: 2.5em;
+    color: #34495e;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+/* Subrayado decorativo para los títulos de sección */
+.community-news h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: #3498db; /* Un color de acento */
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas responsivas */
+    gap: 30px; /* Espacio entre las tarjetas de noticias */
+}
+
+.news-item {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Empuja la fecha abajo si el contenido es variable */
+}
+
+.news-item:hover {
+    transform: translateY(-5px); /* Pequeño efecto al pasar el ratón */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.news-item h3 {
+    font-size: 1.5em;
+    color: #2980b9;
+    margin-bottom: 10px;
+}
+
+.news-item p {
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 15px;
+    flex-grow: 1; /* Permite que el párrafo ocupe el espacio disponible */
+}
+
+.news-item .news-date {
+    font-size: 0.9em;
+    color: #999;
+    text-align: right;
+    display: block; /* Asegura que la fecha esté en su propia línea y a la derecha */
+}
+
+/* Call to Action (CTA) Section */
+.community-cta {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #eaf6fd; /* Fondo claro para el CTA */
+    border-radius: 8px;
+    margin-bottom: 50px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.community-cta h2 {
+    font-size: 2.2em;
+    color: #c55336;
+    margin-bottom: 20px;
+}
+
+.community-cta p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+
+
+.btn-orange {
+  background-color: #c55336;
+  color: #fff;
+  font-size: 1.5em;
+}
+
+.btn-orange:hover {
+  background-color: #8a3925; /* Naranja más oscuro */
+  color: #c7c6c6;
+}
+
+.btn-secondary {
+  background-color: #e4d9d9;
+  color: #c55336;
+}
+
+.btn-secondary:hover {
+  background-color: #cf7a65;
+  color: #e4d9d9;
+}
+
+
+/* Footer */
+.community-footer {
+    text-align: center;
+    padding: 30px 20px;
+    border-top: 1px solid #eee;
+    color: #777;
+    font-size: 0.9em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .community-header h1 {
+        font-size: 2.5em;
+    }
+    .community-news h2, .community-cta h2 {
+        font-size: 2em;
+    }
+    .news-grid {
+        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    }
+    .community-home-container {
+        margin: 20px auto;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .community-header h1 {
+        font-size: 2em;
+    }
+    .community-header .header-description {
+        font-size: 1em;
+    }
+    .news-item h3 {
+        font-size: 1.3em;
+    }
+    .btn-primary {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
+}

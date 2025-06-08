@@ -1,0 +1,24 @@
+body {
+  background-color: white;
+}
+
+.navbar-logo {
+  width: 100px; /* Puedes ajustar este valor (ej. 50px, 60px, 100px) */
+  height: auto; /* Mantiene la proporción original de la imagen */
+  margin-right: 15px; /* Opcional: añade un poco de espacio a la derecha del logo */
+}
+
+.navbar .container {
+  display: flex;
+  align-items: center; /* Alinea los items verticalmente en el centro */
+  /* *** CAMBIO CLAVE AQUÍ *** */
+  justify-content: flex-start; /* Alinea los items al principio (izquierda) del contenedor */
+  /* Opcional: si quieres un espacio fijo a la derecha para el botón, puedes usar gap */
+  /* gap: 20px; */
+  color: #c55336;
+}
+
+.text {
+  color: #c55336;
+  font-size: 1.5em;
+}
