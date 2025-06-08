@@ -3,22 +3,71 @@ body {
 }
 
 .navbar-logo {
-  width: 100px; /* Puedes ajustar este valor (ej. 50px, 60px, 100px) */
-  height: auto; /* Mantiene la proporción original de la imagen */
-  margin-right: 15px; /* Opcional: añade un poco de espacio a la derecha del logo */
+  width: 120px;
+  height: auto;
+  /* No margin-right here if it's in its own column */
 }
 
-.navbar .container {
+/* Ensure the main navbar container is also a flex container if needed,
+   but with Bootstrap's row/col, the row itself should handle distribution. */
+.navbar .row {
+  width: 100%; /* Ensure the row takes full width */
+  display: flex; /* Make the row a flex container */
+  align-items: center; /* Vertically align items in the row */
+  /* If you want the logo to stick left and the rightcontainer content to stick right,
+     you don't need justify-content on the row itself if using columns */
+}
+
+.rightcontainer {
+  display: flex; /* Makes its children (links and language switcher) flex items */
+  align-items: center; /* Vertically aligns links and language switcher */
+  justify-content: flex-end; /* Pushes the links and language switcher to the right within this column */
+  padding: 0 15px; /* Maintains horizontal padding within this column */
+  height: 100%; /* Ensure it takes full height of its parent for vertical alignment */
+}
+
+/* No longer needed as we're not grouping logo and links together in the same way */
+/* .navbar-left-group {
   display: flex;
-  align-items: center; /* Alinea los items verticalmente en el centro */
-  /* *** CAMBIO CLAVE AQUÍ *** */
-  justify-content: flex-start; /* Alinea los items al principio (izquierda) del contenedor */
-  /* Opcional: si quieres un espacio fijo a la derecha para el botón, puedes usar gap */
-  /* gap: 20px; */
-  color: #c55336;
+  align-items: center;
+} */
+
+.navbar-links {
+  display: flex;
+  gap: 20px; /* Spacing between the links (Ebook, Contact) */
+  /* Remove margin-left/right auto here */
+  margin-right: 20px; /* Add some space between the links and the language switcher */
 }
 
-.text {
+.navbar .text {
   color: #c55336;
   font-size: 1.5em;
+  text-decoration: none; /* Removes underline */
+  white-space: nowrap;
+}
+
+.navbar a {
+  text-decoration: none;
+}
+
+/* Corrected selector for languageSwitcher, removed space */
+.languageSwitcher {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Spacing between flags */
+  flex-shrink: 0;
+  /* No margin-left here unless you want additional space beyond the gap from navbar-links */
+}
+
+.languageSwitcher img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.languageSwitcher a:hover img {
+    transform: scale(1.1);
+    transition: transform 0.2s ease-in-out;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export const ContactForm = () => {
     const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export const ContactForm = () => {
     });
     const [status, setStatus] = useState(''); // Para mostrar mensajes de éxito o error
     const [loading, setLoading] = useState(false); // Para el estado de carga
+    const { t } = useTranslation();
 
     const BACKEND_URL = "https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev"; // ¡Verifica tu URL actual del backend!
 
@@ -58,11 +60,11 @@ export const ContactForm = () => {
 
     return (
         <div className="container mt-5">
-            <h2 className="mb-4 text-center">Contáctanos</h2>
+            <h2 className="mb-4 text-center">{t('contact_form_1')}</h2>
             <form onSubmit={handleSubmit}>
                 <div className="row mb-3">
                     <div className="col-md-6">
-                        <label htmlFor="firstName" className="form-label">Nombre</label>
+                        <label htmlFor="firstName" className="form-label">{t('contact_form_2')}</label>
                         <input
                             type="text"
                             className="form-control"
@@ -74,7 +76,7 @@ export const ContactForm = () => {
                         />
                     </div>
                     <div className="col-md-6">
-                        <label htmlFor="lastName" className="form-label">Apellido</label>
+                        <label htmlFor="lastName" className="form-label">{t('contact_form_3')}</label>
                         <input
                             type="text"
                             className="form-control"
@@ -87,7 +89,7 @@ export const ContactForm = () => {
                     </div>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Correo Electrónico</label>
+                    <label htmlFor="email" className="form-label">{t('contact_form_4')}</label>
                     <input
                         type="email"
                         className="form-control"
@@ -99,7 +101,7 @@ export const ContactForm = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="message" className="form-label">Tu Mensaje</label>
+                    <label htmlFor="message" className="form-label">{t('contact_form_5')}</label>
                     <textarea
                         className="form-control"
                         id="message"
@@ -120,11 +122,11 @@ export const ContactForm = () => {
                         onChange={handleChange}
                     />
                     <label className="form-check-label" htmlFor="subscribeToNewsletter">
-                        Sí, quiero suscribirme a la lista de correo para recibir novedades.
+                        {t('contact_form_6')}
                     </label>
                 </div>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? 'Enviando...' : 'Enviar Mensaje'}
+                <button type="submit" className="btn btn-orange" disabled={loading}>
+                    {loading ? t('contact_form_7') : t('contact_form_8')}
                 </button>
             </form>
 

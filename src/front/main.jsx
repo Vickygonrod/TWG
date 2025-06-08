@@ -8,6 +8,10 @@ import { StoreProvider } from './hooks/useGlobalReducer'; // Import the StorePro
 import { BackendURL } from './components/BackendURL'; // Assuming this component exists
 import { CookieConsentContext } from './components/CookieConsentContext'; // Import the new context
 
+import '../i18n.js'; // Importa la configuración de i18n
+import { I18nextProvider } from 'react-i18next'; // Importa el proveedor de contexto de i18next
+import i18n from 'i18next'; // Importa la instancia de i18n configurada
+
 // --- Funciones de inicialización de scripts de terceros (EJEMPLOS) ---
 // **IMPORTANTE:** Reemplaza estas funciones con el código real de tus scripts.
 
