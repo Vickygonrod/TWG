@@ -10,13 +10,20 @@ class Config:
     STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
     FRONTEND_URL = os.getenv('FRONTEND_URL')
 
-    # Configuración del producto (puedes moverlo a una DB más adelante si tienes muchos productos)
+    STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb'
+    STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr'
+
     PRODUCT_INFO = {
-        "ebook_pack": {
-            "name": "Pack eBook + Cuaderno de Ejercicios",
-            "price_cents": 1500, # Precio en centavos (15.00 EUR)
-            "currency": "eur",
-            "description": "Tu guía esencial para reconectar con la creatividad.",
-            "image_url": "https://example.com/your-ebook-image.png" # URL pública de una imagen de tu producto
+        'price_1RXrctCdOcKHFOeVgQHbd1Lb': { # Usa el Price ID como clave
+        'name': 'Juega a Crear Pack (Español)',
+        'description': 'Pack de Ebooks en español',
+        'file_path': 'files/Juega_a_Crear_Pack.zip' # Para la descarga
+        },
+
+        'price_1RXrdaCdOcKHFOeV2PJwznvr': { # Usa el Price ID como clave
+        'name': 'Play and Create (English)',
+        'description': 'eBook pack',
+        'file_path': 'files/Play_and_Create_Pack.zip' # Para la descarga
+        },
         }
-    }
+    
