@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link si vas a usarlo
 import "../styles/landingStyle.css"
 import ebookimg from "../images/booksNBG.png"
+import { useTranslation } from 'react-i18next';
 
 export const Success = () => {
     const location = useLocation();
@@ -12,6 +13,7 @@ export const Success = () => {
     const [downloading, setDownloading] = useState(false);
     const [downloadInitiated, setDownloadInitiated] = useState(false); // Nuevo estado
     const [error, setError] = useState(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -55,8 +57,8 @@ export const Success = () => {
 
     return (
         <div className="container containersuccess mt-5 text-center">
-            <h1>¡Gracias por tu compra!</h1>
-            <h3>Tu pedido Juega a Crear: eBook + Cuaderno de Actividades ha sido procesado exitosamente. Puedes descargarlo a continuación:</h3>
+            <h1>{t('success_1')}</h1>
+            <h3>{t('success_2')}</h3>
             <img src={ebookimg} className="ebookimgSuccess"/>
             {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
@@ -68,18 +70,18 @@ export const Success = () => {
                         onClick={handleDownload}
                         disabled={downloading}
                     >
-                        {downloading ? 'Descargando...' : 'Descargar Pack eBook'}
+                        {downloading ? t('success_3') : t('success_3b')}
                     </button>
                 ) : ( // Si la descarga YA se ha iniciado
                     <Link to="/community" className="btn btn-secondary btn-lg mt-4">
-                        Ir a la Comunidad
+                        {t('success_4')}
                     </Link>
                 )
             ) : (
-                <p className="mt-4">Cargando detalles del pedido...</p>
+                <p className="mt-4">{t('success_5')}</p>
             )}
 
-            <p className="mt-5">Si tienes algún problema, por favor <Link to="/contact">contacta con nosotros</Link>.</p>
+            <p className="mt-5">{t('success_6')} <Link to="/contact">{t('success_7')}</Link>.</p>
         </div>
-    );href="#"
+    );
 };

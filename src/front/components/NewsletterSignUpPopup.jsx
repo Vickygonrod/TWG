@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/NewsletterSignUpPopup.css'; // Importa el archivo CSS para los estilos del pop-up
 import axios from 'axios'; // ¡IMPORTA AXIOS!
+import { useTranslation } from 'react-i18next';
 
 const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
     // Estados para los campos del formulario
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
+    const {t} = useTranslation();
 
     // Estados para mensajes de feedback al usuario
     const [message, setMessage] = useState('');
@@ -117,9 +119,9 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
         <div className="popup-overlay">
             <div className="popup-content">
                 <button className="close-btn" onClick={onClose}>&times;</button>
-                <h2 className="popup-title">¡No te pierdas nada de la comunidad!</h2>
+                <h2 className="popup-title">{t('newsletter_popup_1')}</h2>
                 <p className="popup-description">
-                    Únete a nuestra mailing list para recibir novedades, eventos exclusivos y recursos gratuitos.
+                    {t('newsletter_popup_2')}
                 </p>
 
                 {/* Muestra el mensaje de feedback (éxito/error) */}
@@ -131,7 +133,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
 
                 <form onSubmit={handleSubmit} className="newsletter-form">
                     <div className="form-group">
-                        <label htmlFor="popupFirstName">Nombre:</label>
+                        <label htmlFor="popupFirstName">{t('newsletter_popup_3')}</label>
                         <input
                             type="text"
                             id="popupFirstName"
@@ -142,7 +144,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="popupLastName">Apellido:</label>
+                        <label htmlFor="popupLastName">{t('newsletter_popup_4')}</label>
                         <input
                             type="text"
                             id="popupLastName"
@@ -153,7 +155,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="popupEmail">Email:</label>
+                        <label htmlFor="popupEmail">{t('newsletter_popup_5')}</label>
                         <input
                             type="email"
                             id="popupEmail"
@@ -164,7 +166,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                         />
                     </div>
                     <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                        {isSubmitting ? 'Suscribiendo...' : 'Suscribirme'}
+                        {isSubmitting ? t('newsletter_popup_6') : t('newsletter_popup_7')}
                     </button>
                 </form>
             </div>
