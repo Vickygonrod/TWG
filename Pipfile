@@ -19,9 +19,9 @@ sqlalchemy = "*"
 flask = "*"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
-psycopg2-binary = "*"
 stripe = "*"
 mailersend = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.13"
