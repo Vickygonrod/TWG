@@ -8,7 +8,6 @@ verify_ssl = true
 [packages]
 flask-migrate = "*"
 flask-swagger = "*"
-flask-cors = "*"
 gunicorn = "*"
 cloudinary = "*"
 flask-admin = "*"
@@ -22,6 +21,7 @@ python-dotenv = "*"
 stripe = "*"
 mailersend = "*"
 psycopg2-binary = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.13"

@@ -20,6 +20,9 @@ export const Landing = () => {
     const STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb'; // ID para español
     const STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr';  // ID para inglés
 
+
+
+
     const handlePurchaseClick = async () => {
         try {
             // Determina el Price ID de Stripe basado en el idioma actual

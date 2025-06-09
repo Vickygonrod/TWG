@@ -13,6 +13,7 @@ class Config:
     STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb'
     STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr'
 
+
     PRODUCT_INFO = {
         'price_1RXrctCdOcKHFOeVgQHbd1Lb': { # Usa el Price ID como clave
         'name': 'Juega a Crear Pack (Español)',
