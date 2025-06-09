@@ -75,7 +75,7 @@ dist/*
 .now
 
 # backend stuff
-.venv
+.venv/
 database.database
 database.db
 diagram.png
