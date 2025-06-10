@@ -26,7 +26,7 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_URL")}}) # Permite todos los paths de la API desde tu frontend
+CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_URL", "*")}})
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
