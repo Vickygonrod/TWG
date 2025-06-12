@@ -21,6 +21,12 @@ export const Success = () => { // Asumiendo que este es tu componente Success
     // Lógica para seleccionar la imagen basada en el idioma actual
     const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
 
+    // --- CAMBIO CLAVE AQUÍ ---
+    // Obtenemos la URL del backend desde las variables de entorno de Vite.
+    // Esto se resolverá a la URL de Render en producción, y a la de Codespaces/local
+    // en desarrollo (si tienes un .env local con VITE_BACKEND_URL).
+    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL; // <--- MODIFICADO
+
 
     useEffect(() => {
         const query = new URLSearchParams(location.search);
@@ -42,7 +48,10 @@ export const Success = () => { // Asumiendo que este es tu componente Success
         setDownloadInitiated(true); // Indica que la descarga ha sido iniciada
 
         try {
-            const response = await axios.get(`https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev/api/download-ebook?session_id=${sessionId}`, {
+            // --- CAMBIO CLAVE AQUÍ ---
+            // Usamos la variable BACKEND_BASE_URL para construir la URL completa de la API.
+            // Esto asegura que apunte a tu backend de Render en producción.
+            const response = await axios.get(`${BACKEND_BASE_URL}/api/download-ebook?session_id=${sessionId}`, { // <--- MODIFICADO
                 responseType: 'blob', // Importante para manejar archivos
             });
 

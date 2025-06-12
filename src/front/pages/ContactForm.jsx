@@ -14,7 +14,11 @@ export const ContactForm = () => {
     const [loading, setLoading] = useState(false); // Para el estado de carga
     const { t } = useTranslation();
 
-    const BACKEND_URL = "https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev"; // ¡Verifica tu URL actual del backend!
+    // --- CAMBIO CLAVE AQUÍ ---
+    // Obtenemos la URL del backend desde las variables de entorno de Vite.
+    // Esto se resolverá a la URL de Render en producción, y a la de Codespaces/local
+    // en desarrollo (si tienes un .env local con VITE_BACKEND_URL).
+    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL; // <--- MODIFICADO
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -30,7 +34,10 @@ export const ContactForm = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${BACKEND_URL}/api/contact`, formData);
+            // --- CAMBIO CLAVE AQUÍ ---
+            // Usamos la variable BACKEND_BASE_URL para construir la URL completa de la API.
+            // Esto asegura que apunte a tu backend de Render en producción.
+            const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, formData); // <--- MODIFICADO
             if (response.status === 200) {
                 setStatus('¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.');
                 setFormData({ // Limpiar el formulario

@@ -15,27 +15,36 @@ export const CookieConsentBanner = () => {
     const consent = localStorage.getItem('cookie_consent');
     if (!consent) {
       setIsVisible(true);
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'; // <--- Esto es lo que desactiva el scroll
     }
-  }, []);
+
+    // --- AGREGADO: Función de limpieza para restaurar el scroll cuando el componente se desmonte o la visibilidad cambie ---
+    return () => {
+      document.body.style.overflow = ''; // O 'auto'. Lo vacío lo devuelve a su valor por defecto.
+    };
+  }, []); // El array vacío asegura que esto se ejecuta solo una vez al montar y la limpieza al desmontar
 
   // Función para manejar la aceptación de cookies
   const handleAcceptCookies = () => {
     localStorage.setItem('cookie_consent', 'accepted');
     setIsVisible(false);
-    // Notifica al componente padre (Main) que el consentimiento ha sido aceptado
     setCookieConsentStatus('accepted');
+    document.body.style.overflow = ''; // <--- AGREGADO: Restaurar el scroll al aceptar
   };
 
   // Función para manejar el rechazo de cookies
   const handleDeclineCookies = () => {
     localStorage.setItem('cookie_consent', 'declined');
     setIsVisible(false);
-    // Notifica al componente padre (Main) que el consentimiento ha sido rechazado
     setCookieConsentStatus('declined');
+    document.body.style.overflow = ''; // <--- AGREGADO: Restaurar el scroll al rechazar
   };
 
   if (!isVisible) {
+    // --- AGREGADO: Asegúrate de que el scroll se restablezca si el componente no es visible ---
+    // Esto es importante si isVisible cambia a false por alguna razón distinta a los botones.
+    // Aunque el return del useEffect ya lo hace, esto es una capa de seguridad extra.
+    document.body.style.overflow = '';
     return null;
   }
 
@@ -64,4 +73,3 @@ export const CookieConsentBanner = () => {
     </div>
   );
 }
-

@@ -17,8 +17,10 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // --- ¡CAMBIO CRÍTICO AQUÍ! ---
-    // Usa la URL de tu backend que sabes que funciona (la de GitHub Codespaces/despliegue)
-    const BACKEND_URL = "https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev"; // <--- ¡Cópiala de tu ContactForm!
+    // Obtenemos la URL del backend desde las variables de entorno de Vite.
+    // Esto se resolverá a la URL de Render en producción, y a la de Codespaces/local
+    // en desarrollo (si tienes un .env local con VITE_BACKEND_URL).
+    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL; // <--- MODIFICADO
 
     // Efecto para limpiar el formulario y mensajes cuando el pop-up se abre
     useEffect(() => {
@@ -71,12 +73,14 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
 
         // --- DEBUGGING: Revisa estos logs en la Consola de tu navegador (F12) ---
         console.log("DEBUG POPUP Frontend: Datos a enviar:", requestBody);
-        console.log("DEBUG POPUP Frontend: URL de envío:", `${BACKEND_URL}/api/contact`); // Usando la URL hardcodeada
+        // Usando la URL de la variable de entorno
+        console.log("DEBUG POPUP Frontend: URL de envío:", `${BACKEND_BASE_URL}/api/contact`); // <--- MODIFICADO
         // -------------------------------------------------------------------------
 
         try {
             // Realiza la solicitud POST al endpoint de contacto en tu backend usando AXIOS
-            const response = await axios.post(`${BACKEND_URL}/api/contact`, requestBody);
+            // --- CAMBIO CRÍTICO AQUÍ! ---
+            const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, requestBody); // <--- MODIFICADO
 
             if (response.status === 200) { // Axios usa response.status para el código HTTP
                 // Si la respuesta es exitosa (código 200)
