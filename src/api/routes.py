@@ -1,13 +1,13 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import os # Asegúrate de que esto esté importado
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
 from api.models import db, User, Subscriber # Asegúrate de que Subscriber y User están bien definidos
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config # Asegúrate de que Config está accesible y correcto
 import stripe
-import os
 
 # Asegúrate de que estos imports sean correctos para tu estructura
 from api.services.email_service import send_contact_form_email, add_subscriber_to_mailerlite
@@ -69,6 +69,7 @@ def create_checkout_session():
                 },
             ],
             mode='payment',
+            # --- ASEGÚRATE QUE Config.FRONTEND_URL TIENE https://tudominio.com ---
             success_url=f"{Config.FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{Config.FRONTEND_URL}/cancel",
             ui_mode='hosted',
