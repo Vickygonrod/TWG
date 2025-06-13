@@ -1,3 +1,31 @@
 .footer {
     background-color: rgb(255, 228, 196);
 }
+
+body{
+  font-family: "Lora", sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  color: #333;
+  background-color: #f4f4f4;
+}
+
+h1,
+h2,
+h3,
+h4,
+span {
+  font-family: "Playfair Display", serif;
+  font-optical-sizing: auto;
+  font-weight: bold;
+  font-style: normal;
+  color: #c55336;
+}
+
+button {
+    font-family: "Lora", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: bold;
+  font-style: normal;
+}

@@ -15,21 +15,21 @@ export const CookieConsentBanner = () => {
     const consent = localStorage.getItem('cookie_consent');
     if (!consent) {
       setIsVisible(true);
-      document.body.style.overflow = 'hidden'; // <--- Esto es lo que desactiva el scroll
+      // *** LÍNEA ELIMINADA: document.body.style.overflow = 'hidden'; ***
     }
 
-    // --- AGREGADO: Función de limpieza para restaurar el scroll cuando el componente se desmonte o la visibilidad cambie ---
-    return () => {
-      document.body.style.overflow = ''; // O 'auto'. Lo vacío lo devuelve a su valor por defecto.
-    };
-  }, []); // El array vacío asegura que esto se ejecuta solo una vez al montar y la limpieza al desmontar
+    // *** FUNCIÓN DE LIMPIEZA ELIMINADA: No es necesario restaurar el scroll si no lo bloqueamos ***
+    // return () => {
+    //   document.body.style.overflow = '';
+    // };
+  }, []);
 
   // Función para manejar la aceptación de cookies
   const handleAcceptCookies = () => {
     localStorage.setItem('cookie_consent', 'accepted');
     setIsVisible(false);
     setCookieConsentStatus('accepted');
-    document.body.style.overflow = ''; // <--- AGREGADO: Restaurar el scroll al aceptar
+    // *** LÍNEA ELIMINADA: document.body.style.overflow = ''; ***
   };
 
   // Función para manejar el rechazo de cookies
@@ -37,14 +37,11 @@ export const CookieConsentBanner = () => {
     localStorage.setItem('cookie_consent', 'declined');
     setIsVisible(false);
     setCookieConsentStatus('declined');
-    document.body.style.overflow = ''; // <--- AGREGADO: Restaurar el scroll al rechazar
+    // *** LÍNEA ELIMINADA: document.body.style.overflow = ''; ***
   };
 
   if (!isVisible) {
-    // --- AGREGADO: Asegúrate de que el scroll se restablezca si el componente no es visible ---
-    // Esto es importante si isVisible cambia a false por alguna razón distinta a los botones.
-    // Aunque el return del useEffect ya lo hace, esto es una capa de seguridad extra.
-    document.body.style.overflow = '';
+    // *** LÍNEA ELIMINADA: document.body.style.overflow = ''; ***
     return null;
   }
 
@@ -52,7 +49,7 @@ export const CookieConsentBanner = () => {
     <div className="fixed inset-0 bottom-0 left-0 right-0 bg-gray-900 bg-opacity-90 p-4 sm:p-6 shadow-lg z-100">
       <div className="cookietext max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
         <p className="text-sm sm:text-base text-center sm:text-left leading-relaxed">
-            {t('cookie_banner_text') }         
+            {t('cookie_banner_text') }
             <a href="/cookies" className="text-blue-400 hover:text-blue-300 underline ml-1">{t('cookie_banner_1')}</a>.
         </p>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">

@@ -1,11 +1,10 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css");
 
 /* Importar fuentes de Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Montserrat:wght@700&display=swap");
 
 /* --- Estilos Generales --- */
 body {
-  font-family: "Open Sans", sans-serif;
+  font-family: "Lora", sans-serif;
   line-height: 1.6;
   margin: 0;
   padding: 0;
@@ -18,7 +17,10 @@ h2,
 h3,
 h4,
 span {
-  font-family: "Montserrat", sans-serif;
+  font-family: "Playfair Display", serif;
+  font-optical-sizing: auto;
+  font-weight: bold;
+  font-style: normal;
   color: #c55336;
 }
 
@@ -100,6 +102,7 @@ span {
 
 /* --- Botones Generales --- */
 .btn {
+  font-family: "Lora", sans-serif;
   display: inline-block;
   padding: 12px 25px;
   border-radius: 5px;

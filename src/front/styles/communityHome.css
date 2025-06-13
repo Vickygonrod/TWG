@@ -2,9 +2,10 @@
     max-width: 1200px;
     margin: 40px auto; /* Centra el contenedor y añade espacio arriba/abajo */
     padding: 20px;
-    font-family: Arial, sans-serif; /* Fuente básica, puedes cambiarla */
     color: #ffffff; /* Color de texto principal */
     line-height: 1.6;
+    font-family: "Lora", sans-serif;
+    font-size: 1.2em;
 }
 
 /* Header */
@@ -29,6 +30,14 @@
     max-width: 800px;
     margin: 0 auto;
     padding-top: 10px;
+}
+
+.community-header .logo {
+    /* CAMBIO CLAVE AQUÍ: Limitar el ancho máximo del logo a un porcentaje */
+    max-width: 80%; /* Asegura que el logo no ocupe más del 80% del ancho del header */
+    height: auto; /* Mantiene la proporción de la imagen */
+    margin: 20px auto 0 auto; /* Centra el logo horizontalmente y añade espacio */
+    display: block; /* Asegura que el margin auto funcione correctamente para centrar */
 }
 
 /* News Section */
@@ -182,5 +191,12 @@
     .btn-primary {
         padding: 12px 25px;
         font-size: 1em;
+    }
+}
+
+@media (max-width: 768px) {
+    .community-header .logo {
+        max-width: 90%; /* Un poco más grande en móviles si quieres que ocupe más */
+        margin-top: 15px; /* Ajuste de margen en móvil */
     }
 }
