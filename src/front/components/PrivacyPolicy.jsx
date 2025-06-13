@@ -96,7 +96,7 @@ export const PrivacyPolicy = () => {
             <h2>{t('privacy_70')}</h2>
             <p>{t('privacy_71')}</p>
 
-            <p><strong>{t('privacy_72')}</strong></p>
+            <p><strong>The Women's Ground</strong></p>
         </div>
     );
 };

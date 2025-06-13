@@ -5,20 +5,20 @@ import { useTranslation } from 'react-i18next'; // Importa useTranslation para l
 import "../styles/footer.css"
 
 export const Footer = () => {
-    const { t } = useTranslation(); // Inicializa el hook de traducción
+	const { t } = useTranslation(); // Inicializa el hook de traducción
 
-    return (
-        <footer className="footer bg-white mt-auto py-3 text-center">
-            <p className="text">
-                © 2025 The Women's Ground - {" "}
-                {/* Enlace a la política de privacidad usando la traducción */}
-                <Link to="/privacy" className="footer-link text">
-                    {t('footer_privacy_policy')} - 
-                </Link>
-				<Link to="/contact" className="text" >
-				{t('navbar_contact')}
+	return (
+		<footer className="footer bg-white mt-auto py-3 text-center">
+			<p className="text">
+				© 2025 The Women's Ground - {" "}
+				{/* Enlace a la política de privacidad usando la traducción */}
+				<Link to="/privacy" className="footer-link text">
+					{t('footer_privacy_policy')} -
 				</Link>
-            </p>
-        </footer>
-    );
+				<Link to="/contact" className="text" >
+					{t('navbar_contact')}
+				</Link>
+			</p>
+		</footer>
+	);
 };
