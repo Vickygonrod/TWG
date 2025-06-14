@@ -7,7 +7,7 @@ import { NavbarLanding } from "../components/NavbarLanding";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useRef } from "react"; // Importar useRef
+import { useRef } from "react";
 
 export const Landing = () => {
 
@@ -18,12 +18,12 @@ export const Landing = () => {
     const STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb';
     const STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr';
 
-    // Ref para el contenedor del carrusel de testimonios
     const testimonialsRef = useRef(null);
 
     const handlePurchaseClick = async () => {
         try {
-            const priceIdToSend = i18n.language === 'en' ? STRIPE_PRICE_ID_EN : STRIPE_PRICE_ES;
+            // ¡EL CAMBIO CLAVE ESTÁ AQUÍ!
+            const priceIdToSend = i18n.language === 'en' ? STRIPE_PRICE_ID_EN : STRIPE_PRICE_ID_ES; // ANTES: STRIPE_PRICE_ES
             const response = await axios.post(`${BACKEND_BASE_URL}/api/create-checkout-session`, {
                 price_id: priceIdToSend
             });
@@ -44,10 +44,9 @@ export const Landing = () => {
         }
     };
 
-    // Funciones para el scroll con flechas
     const scrollTestimonials = (direction) => {
         if (testimonialsRef.current) {
-            const scrollAmount = testimonialsRef.current.offsetWidth * 0.8; // Desplazarse un 80% del ancho del contenedor
+            const scrollAmount = testimonialsRef.current.offsetWidth * 0.8;
             if (direction === 'left') {
                 testimonialsRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             } else {
@@ -140,12 +139,12 @@ export const Landing = () => {
 
                 {/* --- Testimonials --- */}
                 <section className="landing-section testimonial-section">
-                    <h3>{t('landing_ebook_38')}</h3> {/* El título del testimonio, mejor fuera del carrusel */}
-                    <div className="testimonial-carousel-wrapper"> {/* Nuevo contenedor para carrusel y flechas */}
-                        <button className="carousel-arrow left" onClick={() => scrollTestimonials('left')}>&#9664;</button> {/* Flecha izquierda */}
+                    <h3>{t('landing_ebook_38')}</h3>
+                    <div className="testimonial-carousel-wrapper">
+                        <button className="carousel-arrow left" onClick={() => scrollTestimonials('left')}>&#9664;</button>
                         <div className="testimonial-container" ref={testimonialsRef}>
                             <div className="testimonial-item">
-                                <h5>{t('landing_ebook_38')}</h5> {/* Texto del testimonio */}
+                                <h5>{t('landing_ebook_38')}</h5>
                                 <p>
                                     <br />
                                     {t('landing_ebook_39')}
@@ -173,7 +172,7 @@ export const Landing = () => {
                                 </p>
                             </div>
                         </div>
-                        <button className="carousel-arrow right" onClick={() => scrollTestimonials('right')}>&#9654;</button> {/* Flecha derecha */}
+                        <button className="carousel-arrow right" onClick={() => scrollTestimonials('right')}>&#9654;</button>
                     </div>
                 </section>
 
