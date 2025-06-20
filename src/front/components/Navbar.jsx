@@ -26,6 +26,9 @@ export const Navbar = () => {
 				<Link to="/ebook">
 					<span className="text px-4 mb-0">{t('navbar')}</span>
 				</Link>
+				<Link to="/eventregistration">
+					<span className="text px-4 mb-0">{t('navbar_events')}</span>
+				</Link>
 				<Link to="/contact">
 					<span className="text px-4 mb-0">{t('navbar_contact')}</span>
 				</Link>

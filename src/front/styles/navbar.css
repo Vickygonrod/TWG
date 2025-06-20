@@ -1,10 +1,11 @@
 body {
-  background-color: white;
+  background-color: f4f4f4;
 }
 
 .navbar-logo {
-  width: 120px;
+  width: 70px;
   height: auto;
+  padding-left: 20px;
   /* No margin-right here if it's in its own column */
 }
 
@@ -41,7 +42,7 @@ body {
 
 .navbar .text {
   color: #c55336;
-  font-size: 1.5em;
+  font-size: 1.2em;
   text-decoration: none; /* Removes underline */
   white-space: nowrap;
 }
@@ -60,8 +61,8 @@ body {
 }
 
 .languageSwitcher img {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

@@ -1,0 +1,270 @@
+/* --- EventRegistrationForm.css --- */
+
+/* Importación de fuentes si no están ya en tu CSS principal o HTML */
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+
+/* Contenedor principal del formulario (event-registration-form) */
+.event-registration-form {
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la vista */
+    padding: 20px; /* Padding general para que no se pegue a los bordes */
+    box-sizing: border-box; /* Incluir padding en el tamaño total */
+}
+
+/* La tarjeta blanca del formulario (bg-white.rounded-xl.shadow-2xl) */
+.event-registration-form > div { /* El primer div hijo dentro de .event-registration-form */
+    padding: 30px;
+    max-width: 800px; /* Incrementado de 600px a 800px para que sea más ancho */
+    width: 100%; /* Sigue ocupando el ancho disponible hasta el max-width */
+}
+
+
+.event-registration-form h2 {
+    font-family: "Playfair Display", serif;
+    color: #c55336;
+    font-size: 2.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.event-registration-form p.text-gray-600 {
+    font-family: "Lora", sans-serif;
+    color: #555;
+    font-size: 1.3em;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Espaciado superior para cada sección de campo del formulario */
+.event-registration-form form > div {
+    margin-top: 25px;
+}
+
+/* El primer div del formulario (que contiene el dropdown de evento) no necesita margin-top */
+.event-registration-form form > div:first-child {
+    margin-top: 0;
+}
+
+
+/* Estilos para etiquetas (labels) */
+.event-registration-form label {
+    font-family: "Lora", sans-serif !important; /* Añadimos !important para forzar la aplicación */
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Estilos para campos de texto, email, textarea, select */
+.event-registration-form input[type="text"],
+.event-registration-form input[type="email"],
+.event-registration-form textarea,
+.event-registration-form select {
+    font-family: "Lora", sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    color: #333;
+    background-color: #fcfcfc;
+}
+
+.event-registration-form input[type="text"]:focus,
+.event-registration-form input[type="email"]:focus,
+.event-registration-form textarea:focus,
+.event-registration-form select:focus {
+    border-color: #c55336;
+    box-shadow: 0 0 0 3px rgba(197, 83, 54, 0.2);
+    outline: none;
+}
+
+/* Estilos específicos para la caja de texto "Otra" en expresión artística */
+.event-registration-form input[type="text"][placeholder="Especifica"] {
+    width: calc(100% - 30px);
+    margin-left: 10px;
+    display: inline-block;
+}
+
+/* Checkboxes y sus etiquetas (para expresiones artísticas y suscripción) */
+.event-registration-form input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #c55336;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+    margin-right: 8px;
+    background-color: #fff;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.event-registration-form input[type="checkbox"]:checked {
+    background-color: #c55336;
+    border-color: #c55336;
+}
+
+.event-registration-form input[type="checkbox"]:checked::after {
+    content: '\2713';
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.event-registration-form input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(197, 83, 54, 0.3);
+}
+
+/* Estilos para el contenedor de checkboxes de expresiones artísticas */
+.event-registration-form .grid.grid-cols-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+.event-registration-form .grid.grid-cols-2 > div {
+    display: flex;
+    align-items: center;
+}
+
+
+/* Mensajes de éxito y error */
+.event-registration-form .bg-green-100 {
+    background-color: #e6ffed;
+    border-color: #38a169;
+    color: #2f855a;
+    padding: 12px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.event-registration-form .bg-red-100 {
+    background-color: #fff0f5;
+    border-color: #e53e3e;
+    color: #c53030;
+    padding: 12px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+/* Botón de envío (Submit Button) */
+.event-registration-form button[type="submit"] {
+    background-color: #c55336;
+    font-family: "Lora", sans-serif;
+    color: #fff;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.event-registration-form button[type="submit"]:hover {
+    background-color: #8a3925;
+    color: #c7c6c6;
+    transform: scale(1.02);
+}
+
+.event-registration-form button[type="submit"]:disabled {
+    background-color: #d1d1d1;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner de carga */
+.event-registration-form .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* --- ESTILOS PARA LA OPCIÓN DE SUSCRIPCIÓN (APLICADOS DESDE CSS) --- */
+.event-registration-form .subscription-option {
+    display: flex; /* Usamos flexbox para alinear los ítems */
+    align-items: flex-start; /* Alinea los ítems al inicio del contenedor (arriba) */
+    gap: 15px; /* Espacio entre el checkbox y el texto */
+    margin-top: 25px; /* Mantén el margen superior consistente con otros campos */
+}
+
+.event-registration-form .subscription-option input[type="checkbox"] {
+    margin-top: 4px; /* Pequeño ajuste para alinear el checkbox con la primera línea de texto */
+    flex-shrink: 0; /* Evita que el checkbox se encoja */
+}
+
+.event-registration-form .subscription-option .text-content {
+    display: flex;
+    flex-direction: column; /* Para que el label y el p estén uno encima del otro */
+    gap: 2px; /* Espacio entre el label y el p */
+}
+
+.event-registration-form .subscription-option label {
+    margin-left: 0 !important; /* Asegura que no haya margen izquierdo de Tailwind */
+    margin-bottom: 0 !important; /* Elimina margen inferior del label si lo tiene por defecto */
+}
+
+.event-registration-form .subscription-option p {
+    font-size: 0.9em; /* Quizás un poco más pequeño para la descripción */
+    color: #666;
+    margin-top: 0 !important; /* Asegura que no haya margin-top extra */
+}
+/* --- FIN ESTILOS SUSCRIPCIÓN --- */
+
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+    .event-registration-form h2 {
+        font-size: 2em;
+    }
+
+    .event-registration-form p.text-gray-600 {
+        font-size: 1em;
+    }
+
+    .event-registration-form button[type="submit"] {
+        font-size: 1.2em;
+        padding: 10px 20px;
+    }
+
+    /* Ajustes para la caja "Otra" en móvil si es necesario */
+    .event-registration-form input[type="text"][placeholder="Especifica"] {
+        width: calc(100% - 25px);
+        margin-left: 5px;
+    }
+
+    /* En pantallas pequeñas, volvemos a 2 columnas para expresiones artísticas */
+    .event-registration-form .grid.grid-cols-2 {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+}
+
+/* Aseguramos 3 columnas para expresiones artísticas en pantallas más grandes */
+@media (min-width: 769px) {
+    .event-registration-form .grid.grid-cols-2 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

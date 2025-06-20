@@ -5,7 +5,7 @@
     color: #ffffff; /* Color de texto principal */
     line-height: 1.6;
     font-family: "Lora", sans-serif;
-    font-size: 1.2em;
+    font-size: 1em;
 }
 
 /* Header */
@@ -13,19 +13,18 @@
     text-align: center;
     margin-bottom: 50px;
     padding: 40px 20px;
-    background-color: white; /* Un color de fondo suave */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .community-header h1 {
-    font-size: 3em;
+    font-size: 2.5em;
     color: #c55336; /* Un color oscuro para el título */
     margin-bottom: 15px;
 }
 
 .community-header .header-description {
-    font-size: 1.4em;
+    font-size: 1.2em;
     color: #555;
     max-width: 800px;
     margin: 0 auto;
@@ -110,7 +109,6 @@
 .community-cta {
     text-align: center;
     padding: 60px 20px;
-    background-color: #eaf6fd; /* Fondo claro para el CTA */
     border-radius: 8px;
     margin-bottom: 50px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
@@ -133,7 +131,8 @@
 .btn-orange {
   background-color: #c55336;
   color: #fff;
-  font-size: 1.5em;
+  font-size: 1.1em;
+  font-family: 'Lora', sans-serif;
 }
 
 .btn-orange:hover {

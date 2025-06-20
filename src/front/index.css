@@ -8,7 +8,6 @@ body{
   margin: 0;
   padding: 0;
   color: #333;
-  background-color: #f4f4f4;
 }
 
 h1,
@@ -24,8 +23,13 @@ span {
 }
 
 button {
-    font-family: "Lora", sans-serif;
+  font-family: "Lora", sans-serif;
   font-optical-sizing: auto;
-  font-weight: bold;
   font-style: normal;
+}
+
+.contact-form {
+  max-width: 66%; /* Esto ya lo tienes */
+  margin-left: auto; /* Nuevo para centrar horizontalmente */
+  margin-right: auto; /* Nuevo para centrar horizontalmente */
 }

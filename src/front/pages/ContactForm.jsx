@@ -66,7 +66,8 @@ export const ContactForm = () => {
     };
 
     return (
-        <div className="container mt-5">
+         <div className="contact-form min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center p-4">
+            <div className="rounded-xl shadow-2xl p-6 sm:p-8 lg:p-10 max-w-lg w-full transform transition-all duration-300 hover:scale-105">
             <h2 className="mb-4 text-center">{t('contact_form_1')}</h2>
             <form onSubmit={handleSubmit}>
                 <div className="row mb-3">
@@ -142,6 +143,7 @@ export const ContactForm = () => {
                     {status}
                 </div>
             )}
+        </div>
         </div>
     );
 };

@@ -1,7 +1,8 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css");
 
 /* --- Estilos Generales --- */
-body, html {
+body,
+html {
   font-family: "Lora", sans-serif;
   line-height: 1.6;
   margin: 0;
@@ -37,7 +38,6 @@ span {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 20px;
   box-sizing: border-box;
 }
 
@@ -46,7 +46,6 @@ span {
   background-color: #e9eaea;
   color: #c55336;
   text-align: center;
-  padding: 50px 40px 20px 20px;
   min-height: 100vh;
 }
 
@@ -65,7 +64,6 @@ span {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 30px;
 }
 
 .pack-title {
@@ -259,7 +257,7 @@ section h3 {
 }
 
 .about-author-section .btn {
-  margin-top: 30px
+  margin-top: 30px;
 }
 
 .author-content div {
@@ -445,7 +443,7 @@ section h3 {
 }
 
 /*Success Page */
-.containersuccess{
+.containersuccess {
   max-width: 70%;
 }
 
@@ -462,142 +460,217 @@ section h3 {
 
 /* --- Mobile: Estilos (hasta 768px) --- */
 @media (max-width: 768px) {
-    /* --- SECCIONES GENERALES EN MÓVIL --- */
-    .landing-section {
-        min-height: 100vh;
-        padding: 40px 15px;
-    }
+  /* --- SECCIONES GENERALES EN MÓVIL --- */
+  .landing-section {
+    min-height: 100vh;
+    padding: 40px 15px;
+  }
 
-    /* --- SECCIÓN DE CARACTERÍSTICAS EN MÓVIL (1 item visible, carrusel) --- */
-    .feature-carousel-wrapper {
-        justify-content: space-between;
-    }
+  /* --- SECCIÓN DE CARACTERÍSTICAS EN MÓVIL (1 item visible, carrusel) --- */
+  .feature-carousel-wrapper {
+    justify-content: space-between;
+  }
 
-    .feature-grid {
-        flex-direction: row;
-        flex-wrap: nowrap;
-        scroll-snap-type: x mandatory;
-        justify-content: flex-start;
-        gap: 20px; /* Espacio más compacto para móvil */
-    }
+  .feature-grid {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    justify-content: flex-start;
+    gap: 20px; /* Espacio más compacto para móvil */
+  }
 
-    .feature-item {
-        width: calc(100vw - 60px); /* Un ítem por pantalla, incluyendo márgenes laterales */
-        max-width: 380px; /* Mantiene un límite de crecimiento razonable para móviles */
-        /* margin: 0; ya lo manejamos con gap */
-        scroll-snap-align: center;
-    }
+  .feature-item {
+    width: calc(
+      100vw - 60px
+    ); /* Un ítem por pantalla, incluyendo márgenes laterales */
+    max-width: 380px; /* Mantiene un límite de crecimiento razonable para móviles */
+    /* margin: 0; ya lo manejamos con gap */
+    scroll-snap-align: center;
+  }
 
-    /* --- SECCIÓN DE TESTIMONIOS EN MÓVIL (1 item visible) --- */
-    .testimonial-item {
-        width: calc(100vw - 60px);
-        margin: 0 10px;
-    }
+  /* --- SECCIÓN DE TESTIMONIOS EN MÓVIL (1 item visible) --- */
+  .testimonial-item {
+    width: calc(100vw - 60px);
+    margin: 0 10px;
+  }
 
-    /* Flechas: más pequeñas o un poco ajustadas para móvil */
-    .carousel-arrow {
-        width: 30px;
-        height: 30px;
-        font-size: 1.2em;
-    }
-    .carousel-arrow.left { left: 5px; }
-    .carousel-arrow.right { right: 5px; }
+  /* Flechas: más pequeñas o un poco ajustadas para móvil */
+  .carousel-arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 1.2em;
+  }
+  .carousel-arrow.left {
+    left: 5px;
+  }
+  .carousel-arrow.right {
+    right: 5px;
+  }
 
-    /* Ajustar tamaños de texto en móviles para que todo quepa */
-    .hero h1 { font-size: 2.5em; }
-    .hero h2 { font-size: 1.8em; }
-    .hero h3 { font-size: 1.5em; }
-    .hero h4 { font-size: 1em; }
-    .pack-title { font-size: 1.5em; }
-    .current-price { font-size: 2em; }
-    .original-price { font-size: 1.3em; }
-    .btn-orange { font-size: 1.2em; padding: 10px 20px; }
-    section h3 { font-size: 1.8em; }
-    .intro { font-size: 1.1em; }
-    .feature-item h4 { font-size: 1.3em; }
-    .feature-item p { font-size: 1em; }
-    .author-content div p { font-size: 1em; }
-    .testimonial-item h5 { font-size: 1.2em; }
-    .testimonial-item p { font-size: 1em; }
-    .cta-section p { font-size: 1.1em; }
+  /* Ajustar tamaños de texto en móviles para que todo quepa */
+  .hero h1 {
+    font-size: 2.5em;
+  }
+  .hero h2 {
+    font-size: 1.8em;
+  }
+  .hero h3 {
+    font-size: 1.5em;
+  }
+  .hero h4 {
+    font-size: 1em;
+  }
+  .pack-title {
+    font-size: 1.5em;
+  }
+  .current-price {
+    font-size: 2em;
+  }
+  .original-price {
+    font-size: 1.3em;
+  }
+  .btn-orange {
+    font-size: 1.2em;
+    padding: 10px 20px;
+  }
+  section h3 {
+    font-size: 1.8em;
+  }
+  .intro {
+    font-size: 1.1em;
+  }
+  .feature-item h4 {
+    font-size: 1.3em;
+  }
+  .feature-item p {
+    font-size: 1em;
+  }
+  .author-content div p {
+    font-size: 1em;
+  }
+  .testimonial-item h5 {
+    font-size: 1.2em;
+  }
+  .testimonial-item p {
+    font-size: 1em;
+  }
+  .cta-section p {
+    font-size: 1.1em;
+  }
 }
 
 /* --- Desktop: Estilos (a partir de 769px) --- */
 @media (min-width: 769px) {
-    /* --- SECCIONES GENERALES EN DESKTOP --- */
-    .landing-section {
-        min-height: 100vh;
-        padding: 50px 20px;
-    }
+  /* --- SECCIONES GENERALES EN DESKTOP --- */
+  .landing-section {
+    min-height: 100vh;
+    padding: 50px 20px;
+  }
 
-    .hero .row.headerRow {
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-    }
+  .hero .row.headerRow {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .leftheader {
-        padding-top: 0;
-    }
+  .leftheader {
+    padding-top: 0;
+  }
 
-    /* --- SECCIÓN DE CARACTERÍSTICAS EN DESKTOP (2 items visibles, centrados, sin scroll propio) --- */
-    .feature-carousel-wrapper {
-        justify-content: center;
-        max-width: 1200px; /* Mismo ancho que el contenedor testimonial, o incluso más si necesitas */
-        margin: 0 auto;
-    }
+  /* --- SECCIÓN DE CARACTERÍSTICAS EN DESKTOP (2 items visibles, centrados, sin scroll propio) --- */
+  .feature-carousel-wrapper {
+    justify-content: center;
+    max-width: 1200px; /* Mismo ancho que el contenedor testimonial, o incluso más si necesitas */
+    margin: 0 auto;
+  }
 
-    .feature-grid {
-        flex-direction: row;
-        flex-wrap: wrap; /* Permite que las tarjetas se envuelvan para estar lado a lado */
-        overflow-x: hidden; /* Importante! Oculta el scroll horizontal en desktop */
-        scroll-snap-type: none; /* Desactiva el snap */
-        justify-content: center; /* Centra las tarjetas dentro de su contenedor */
-        gap: 30px; /* Espacio entre las tarjetas */
-        width: 100%; /* Ocupa el 100% del feature-carousel-wrapper */
-        padding-bottom: 0; /* Elimina padding extra si no hay scroll */
-    }
+  .feature-grid {
+    flex-direction: row;
+    flex-wrap: wrap; /* Permite que las tarjetas se envuelvan para estar lado a lado */
+    overflow-x: hidden; /* Importante! Oculta el scroll horizontal en desktop */
+    scroll-snap-type: none; /* Desactiva el snap */
+    justify-content: center; /* Centra las tarjetas dentro de su contenedor */
+    gap: 30px; /* Espacio entre las tarjetas */
+    width: 100%; /* Ocupa el 100% del feature-carousel-wrapper */
+    padding-bottom: 0; /* Elimina padding extra si no hay scroll */
+  }
 
-    .feature-item {
-        /* ¡Cambios clave aquí para hacerlas más horizontales! */
-        flex: 1 1 calc(50% - 15px); /* Cada tarjeta ocupa el 50% menos la mitad del gap */
-        max-width: none; /* ¡Elimina el max-width para que se estiren al máximo! */
-        margin: 0; /* El gap del grid lo maneja */
-        scroll-snap-align: none; /* Desactiva el snap individual */
-    }
+  .feature-item {
+    /* ¡Cambios clave aquí para hacerlas más horizontales! */
+    flex: 1 1 calc(50% - 15px); /* Cada tarjeta ocupa el 50% menos la mitad del gap */
+    max-width: none; /* ¡Elimina el max-width para que se estiren al máximo! */
+    margin: 0; /* El gap del grid lo maneja */
+    scroll-snap-align: none; /* Desactiva el snap individual */
+  }
 
-    /* Ocultar flechas en desktop para las características si no las quieres */
-    .feature-carousel-wrapper .carousel-arrow {
-        display: none;
-    }
+  /* Ocultar flechas en desktop para las características si no las quieres */
+  .feature-carousel-wrapper .carousel-arrow {
+    display: none;
+  }
 
-    /* --- SECCIÓN DE TESTIMONIOS EN DESKTOP (2 items visibles) --- */
-    .testimonial-item {
-        width: calc(50% - 40px);
-        max-width: 450px;
-        margin: 0 20px;
-    }
-    
-    /* Flechas para testimonios en desktop */
-    .testimonial-carousel-wrapper .carousel-arrow.left { left: -50px; }
-    .testimonial-carousel-wrapper .carousel-arrow.right { right: -50px; }
+  /* --- SECCIÓN DE TESTIMONIOS EN DESKTOP (2 items visibles) --- */
+  .testimonial-item {
+    width: calc(50% - 40px);
+    max-width: 450px;
+    margin: 0 20px;
+  }
 
+  /* Flechas para testimonios en desktop */
+  .testimonial-carousel-wrapper .carousel-arrow.left {
+    left: -50px;
+  }
+  .testimonial-carousel-wrapper .carousel-arrow.right {
+    right: -50px;
+  }
 
-    /* Ajustes de tamaño de texto para desktop */
-    .hero h1 { font-size: 3.5em; }
-    .hero h2 { font-size: 2.5em; }
-    .hero h3 { font-size: 1.8rem; }
-    .hero h4 { font-size: 1.5rem; }
-    .pack-title { font-size: 2em; }
-    .current-price { font-size: 2.5em; }
-    .original-price { font-size: 1.8em; }
-    .btn-orange { font-size: 1.5em; padding: 12px 25px; }
-    section h3 { font-size: 2.2em; }
-    .intro { font-size: 1.3em; }
-    .feature-item h4 { font-size: 1.5em; }
-    .feature-item p { font-size: 1.2em; }
-    .author-content div p { font-size: 1.2em; }
-    .testimonial-item h5 { font-size: 1.5em; }
-    .testimonial-item p { font-size: 1.2em; }
-    .cta-section p { font-size: 1.3em; }
+  /* Ajustes de tamaño de texto para desktop */
+  .hero h1 {
+    font-size: 3.5em;
+  }
+  .hero h2 {
+    font-size: 2.5em;
+  }
+  .hero h3 {
+    font-size: 1.8rem;
+  }
+  .hero h4 {
+    font-size: 1.5rem;
+  }
+  .pack-title {
+    font-size: 2em;
+  }
+  .current-price {
+    font-size: 2.5em;
+  }
+  .original-price {
+    font-size: 1.8em;
+  }
+  .btn-orange {
+    font-size: 1.5em;
+    padding: 12px 25px;
+  }
+  section h3 {
+    font-size: 2.2em;
+  }
+  .intro {
+    font-size: 1.3em;
+  }
+  .feature-item h4 {
+    font-size: 1.5em;
+  }
+  .feature-item p {
+    font-size: 1.2em;
+  }
+  .author-content div p {
+    font-size: 1.2em;
+  }
+  .testimonial-item h5 {
+    font-size: 1.5em;
+  }
+  .testimonial-item p {
+    font-size: 1.2em;
+  }
+  .cta-section p {
+    font-size: 1.3em;
+  }
 }
