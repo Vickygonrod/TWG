@@ -16,6 +16,7 @@ import { ContactForm } from "./pages/ContactForm";
 import { CommunityHome } from "./pages/CommunityHome";
 import { Cookies } from "./pages/Cookies.jsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.jsx";
+import { EventRegistration } from "./pages/EventRegistration.jsx";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,6 +40,7 @@ export const router = createBrowserRouter(
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/cookies" element={<Cookies />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/eventregistration" element={<EventRegistration />} />
     </Route>
   )
 );

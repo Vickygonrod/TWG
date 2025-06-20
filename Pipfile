@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-flask-migrate = "*"
 flask-swagger = "*"
 gunicorn = "*"
 cloudinary = "*"
@@ -22,6 +21,7 @@ stripe = "*"
 mailersend = "*"
 psycopg2-binary = "*"
 flask-cors = "*"
+flask-migrate = "*"
 
 [requires]
 python_version = "3.13"

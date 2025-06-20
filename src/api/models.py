@@ -63,3 +63,32 @@ class Subscriber(db.Model):
             "email": self.email,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
+
+# --- Event Registrations ---
+class EventRegistration(db.Model):
+    __tablename__ = 'event_registrations' # Table name in the database
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=False, nullable=False) # Not unique, one person can register for multiple events
+    event_name = db.Column(db.String(120), nullable=False)
+    how_did_you_hear = db.Column(db.String(255), nullable=True) # E.g., "Social Media", "Friend"
+    artistic_expression = db.Column(db.String(255), nullable=True) # E.g., "Painting", "Writing"
+    why_interested = db.Column(db.Text, nullable=True) # Longer text field for motivations
+    comments = db.Column(db.Text, nullable=True) # Additional comments
+    registration_date = db.Column(db.DateTime, default=db.func.now(), nullable=False) # Auto-set timestamp
+
+    def __repr__(self):
+        return f'<EventRegistration {self.full_name} - {self.event_name}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "full_name": self.full_name,
+            "email": self.email,
+            "event_name": self.event_name,
+            "how_did_you_hear": self.how_did_you_hear,
+            "artistic_expression": self.artistic_expression,
+            "why_interested": self.why_interested,
+            "comments": self.comments,
+            "registration_date": self.registration_date.isoformat() if self.registration_date else None
+        }

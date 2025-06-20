@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os # Asegúrate de que esto esté importado
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Subscriber # Asegúrate de que Subscriber y User están bien definidos
+from api.models import db, User, Subscriber, EventRegistration # Asegúrate de que Subscriber y User están bien definidos
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config # Asegúrate de que Config está accesible y correcto
@@ -228,3 +228,58 @@ def handle_contact_form():
     except Exception as e:
         print(f"ERROR GENERAL en /api/contact: {e}")
         return jsonify(error="Ocurrió un error inesperado al procesar tu mensaje."), 500
+
+
+@api.route('/event-registration', methods=['POST']) # <-- Nueva ruta siguiendo tu formato
+def handle_event_registration():
+    print("DEBUG: Entrando a handle_event_registration.")
+    try:
+        data = request.json
+
+        # Extraer los campos del formulario. Nombres de las claves deben coincidir con el frontend.
+        full_name = data.get('fullName')
+        email = data.get('email')
+        event_name = data.get('eventName')
+        how_did_you_hear = data.get('howDidYouHear', None)
+        artistic_expression = data.get('artisticExpression', None)
+        why_interested = data.get('whyInterested', None)
+        comments = data.get('comments', None)
+
+        # Validación básica de campos obligatorios
+        if not all([full_name, email, event_name]):
+            print("ERROR: Missing required fields for event registration.")
+            return jsonify(error="Missing required fields: fullName, email, eventName."), 400
+        
+        # Validación de formato de email simple
+        if not '@' in email or not '.' in email:
+            print("ERROR: Invalid email format.")
+            return jsonify(error="Invalid email format."), 400
+
+        # Crear una nueva instancia del modelo EventRegistration
+        new_registration = EventRegistration(
+            full_name=full_name,
+            email=email,
+            event_name=event_name,
+            how_did_you_hear=how_did_you_hear,
+            artistic_expression=artistic_expression,
+            why_interested=why_interested,
+            comments=comments
+            # registration_date se establece automáticamente por default=db.func.now()
+        )
+
+        # Añadir a la sesión de la base de datos y guardar
+        db.session.add(new_registration)
+        db.session.commit()
+        
+        print(f"DEBUG: New event registration saved to DB: {new_registration.email} for {new_registration.event_name}")
+
+        # Opcional: Aquí podrías añadir lógica para enviar un email de confirmación
+        # al usuario o una notificación al administrador usando MailerSend.
+        # Adapta tu función send_contact_form_email o crea una nueva para esto.
+
+        return jsonify(message="Event registration successful!"), 201 # 201 Created
+
+    except Exception as e:
+        db.session.rollback() # Ensure rollback in case of error
+        print(f"ERROR GENERAL in /api/event-registration: {e}")
+        return jsonify(error="An unexpected error occurred during registration."), 500
