@@ -59,7 +59,7 @@ export const Success = () => { // Asumiendo que este es tu componente Success
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'Juega_a_Crear_Pack.zip'); // Nombre del archivo de descarga
+            link.setAttribute('download', 'Juega_a_Crear_Pack_ES.zip'); // Nombre del archivo de descarga
             document.body.appendChild(link);
             link.click();
             link.remove();

@@ -57,7 +57,7 @@ Thumbs.db
 *.jar
 *.rar
 *.tar
-*.zip
+# *.zip
 
 # ignore node/grunt dependency directories
 node_modules/
