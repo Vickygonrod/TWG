@@ -1,74 +1,104 @@
 body {
-  background-color: f4f4f4;
+    background-color: #f4f4f4; /* Asegúrate que sea un valor hexadecimal válido */
 }
 
 .navbar-logo {
-  width: 70px;
-  height: auto;
-  padding-left: 20px;
-  /* No margin-right here if it's in its own column */
+    width: 70px;
+    height: auto;
+    padding-left: 20px;
 }
 
-/* Ensure the main navbar container is also a flex container if needed,
-   but with Bootstrap's row/col, the row itself should handle distribution. */
-.navbar .row {
-  width: 100%; /* Ensure the row takes full width */
-  display: flex; /* Make the row a flex container */
-  align-items: center; /* Vertically align items in the row */
-  /* If you want the logo to stick left and the rightcontainer content to stick right,
-     you don't need justify-content on the row itself if using columns */
+/* El .navbar-brand de Bootstrap ya maneja el alineado del logo,
+   pero si necesitas más padding, puedes ajustar aquí. */
+.navbar-brand {
+    padding-left: 20px; /* Asegura que el logo tenga padding en móviles también */
 }
 
-.rightcontainer {
-  display: flex; /* Makes its children (links and language switcher) flex items */
-  align-items: center; /* Vertically aligns links and language switcher */
-  justify-content: flex-end; /* Pushes the links and language switcher to the right within this column */
-  padding: 0 15px; /* Maintains horizontal padding within this column */
-  height: 100%; /* Ensure it takes full height of its parent for vertical alignment */
-}
 
-/* No longer needed as we're not grouping logo and links together in the same way */
-/* .navbar-left-group {
-  display: flex;
-  align-items: center;
-} */
-
-.navbar-links {
-  display: flex;
-  gap: 20px; /* Spacing between the links (Ebook, Contact) */
-  /* Remove margin-left/right auto here */
-  margin-right: 20px; /* Add some space between the links and the language switcher */
-}
-
+/* Estilo general para los enlaces de texto de la navbar */
 .navbar .text {
-  color: #c55336;
-  font-size: 1.2em;
-  text-decoration: none; /* Removes underline */
-  white-space: nowrap;
+    color: #c55336;
+    font-size: 1.2em;
+    text-decoration: none; /* Elimina subrayado */
+    white-space: nowrap; /* Evita que el texto se rompa */
+    padding: 0 10px; /* Ajusta el padding horizontal de los textos */
 }
 
-.navbar a {
-  text-decoration: none;
+/* Enlaces de Bootstrap: nav-link, para asegurar que el padding sea uniforme */
+.navbar-nav .nav-link {
+    padding-left: 1rem; /* Bootstrap default es 0.5rem, puedes ajustarlo si quieres más espacio */
+    padding-right: 1rem;
+    color: #c55336; /* Asegura el color del texto */
 }
 
-/* Corrected selector for languageSwitcher, removed space */
+.navbar-nav .nav-link .text {
+    /* El span .text ya está dentro de .nav-link, no necesita más padding aquí si el nav-link ya lo tiene */
+    padding: 0;
+}
+
+/* Hover effect for links */
+.navbar-nav .nav-link:hover .text {
+    text-decoration: underline; /* O algún otro efecto de hover */
+}
+
+/* Language Switcher styles */
 .languageSwitcher {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Spacing between flags */
-  flex-shrink: 0;
-  /* No margin-left here unless you want additional space beyond the gap from navbar-links */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espaciado entre banderas */
+    flex-shrink: 0;
+    /* En móvil, Bootstrap ya manejará esto, pero puedes ajustar el margen superior/inferior si es necesario */
+    /* margin-top: 0.5rem; */
+    /* margin-bottom: 0.5rem; */
 }
 
 .languageSwitcher img {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .languageSwitcher a:hover img {
     transform: scale(1.1);
     transition: transform 0.2s ease-in-out;
+}
+
+/* Media query para ocultar el toggler y ajustar el menú en pantallas grandes (desktop) */
+@media (min-width: 992px) { /* breakpoint 'lg' de Bootstrap */
+    .navbar-toggler {
+        display: none; /* Oculta el botón de hamburguesa en desktop */
+    }
+    .navbar-collapse {
+        display: flex !important; /* Asegura que el menú se muestre en desktop */
+    }
+    .navbar-nav {
+        flex-direction: row; /* Asegura que los enlaces estén en fila en desktop */
+    }
+    .languageSwitcher {
+        margin-left: 1.5rem; /* Margen a la izquierda para separar del último enlace en desktop */
+    }
+}
+
+/* Estilos para el menú colapsado en pantallas pequeñas (opcional, para personalizar) */
+@media (max-width: 991.98px) { /* por debajo de 'lg' de Bootstrap */
+    .navbar-collapse {
+        background-color: #f8f9fa; /* Color de fondo para el menú desplegado */
+        border-top: 1px solid #e7e7e7;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .navbar-nav {
+        width: 100%;
+    }
+    .navbar-nav .nav-link {
+        padding: 0.5rem 1rem; /* Ajusta el padding vertical en móvil */
+        width: 100%; /* Hace que los enlaces ocupen todo el ancho */
+        text-align: center; /* Centra el texto de los enlaces en móvil */
+    }
+    .languageSwitcher {
+        justify-content: center; /* Centra el selector de idioma en móvil */
+        padding: 0.5rem 0;
+    }
 }
