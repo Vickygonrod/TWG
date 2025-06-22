@@ -3,27 +3,17 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_swagger import swagger # Esto puede que no lo uses, pero lo mantengo
-from api.utils import APIException, generate_sitemap
-from api.models import db, Order, Subscriber
-from api.routes import api
-from api.admin import setup_admin
-from api.commands import setup_commands
-from api.config import Config
+
+# --- CORRECCIÓN CLAVE AQUÍ: 'from api.' CAMBIA A 'from src.api.' ---
+from src.api.utils import APIException, generate_sitemap
+from src.api.models import db, Order, Subscriber
+from src.api.routes import api
+from src.api.admin import setup_admin
+from src.api.commands import setup_commands
+from src.api.config import Config
+# --- FIN DE LAS CORRECCIONES DE IMPORTACIÓN ---
+
 import stripe
-
-# --- NUEVO BLOQUE DE CÓDIGO PARA GESTIÓN DE RUTAS ---
-import sys
-from pathlib import Path
-
-# Calcular la ruta raíz del proyecto dinámicamente
-# __file__ es la ruta a este archivo (src/app.py)
-# .parent te lleva a 'src/'
-# .parent.parent te lleva a la carpeta principal de tu proyecto (donde están 'src/' y 'api/')
-project_root = Path(__file__).parent.parent
-# Añadir la raíz del proyecto al sys.path
-# Esto asegura que Python pueda encontrar 'api' y 'src' como módulos de primer nivel
-sys.path.insert(0, str(project_root))
-# --- FIN DEL NUEVO BLOQUE ---
 
 # Stripe conf
 stripe.api_key = Config.STRIPE_SECRET_KEY
@@ -98,7 +88,7 @@ def stripe_webhook():
     try:
         # CONSTRUYE EL OBJETO DE EVENTO DE STRIPE Y VERIFICA LA FIRMA DEL WEBHOOK.
         # Esto es CRÍTICO para la seguridad: asegura que la notificación es de Stripe
-        # y no ha sido manipulada por un tercero malintencionado.
+        # y no ha sido manipulado por un tercero malintencionado.
         event = stripe.Webhook.construct_event(
             payload, sig_header, Config.STRIPE_WEBHOOK_SECRET
         )
