@@ -1,9 +1,8 @@
-
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_swagger import swagger
+from flask_swagger import swagger # Esto puede que no lo uses, pero lo mantengo
 from api.utils import APIException, generate_sitemap
 from api.models import db, Order, Subscriber
 from api.routes import api
@@ -12,11 +11,22 @@ from api.commands import setup_commands
 from api.config import Config
 import stripe
 
+# --- NUEVO BLOQUE DE CÓDIGO PARA GESTIÓN DE RUTAS ---
+import sys
+from pathlib import Path
+
+# Calcular la ruta raíz del proyecto dinámicamente
+# __file__ es la ruta a este archivo (src/app.py)
+# .parent te lleva a 'src/'
+# .parent.parent te lleva a la carpeta principal de tu proyecto (donde están 'src/' y 'api/')
+project_root = Path(__file__).parent.parent
+# Añadir la raíz del proyecto al sys.path
+# Esto asegura que Python pueda encontrar 'api' y 'src' como módulos de primer nivel
+sys.path.insert(0, str(project_root))
+# --- FIN DEL NUEVO BLOQUE ---
 
 # Stripe conf
 stripe.api_key = Config.STRIPE_SECRET_KEY
-
-# from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -168,9 +178,6 @@ def stripe_webhook():
     return jsonify(success=True), 200
 
 # --- FIN DEL ENDPOINT DE WEBHOOK ---
-
-
-
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
