@@ -1,22 +1,22 @@
+
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_swagger import swagger # Esto puede que no lo uses, pero lo mantengo
-
-# --- CORRECCIÓN CLAVE AQUÍ: 'from api.' CAMBIA A 'from src.api.' ---
-from src.api.utils import APIException, generate_sitemap
-from src.api.models import db, Order, Subscriber
-from src.api.routes import api
-from src.api.admin import setup_admin
-from src.api.commands import setup_commands
-from src.api.config import Config
-# --- FIN DE LAS CORRECCIONES DE IMPORTACIÓN ---
-
+from flask_swagger import swagger
+from api.utils import APIException, generate_sitemap
+from api.models import db, Order, Subscriber
+from api.routes import api
+from api.admin import setup_admin
+from api.commands import setup_commands
+from api.config import Config
 import stripe
+
 
 # Stripe conf
 stripe.api_key = Config.STRIPE_SECRET_KEY
+
+# from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -88,7 +88,7 @@ def stripe_webhook():
     try:
         # CONSTRUYE EL OBJETO DE EVENTO DE STRIPE Y VERIFICA LA FIRMA DEL WEBHOOK.
         # Esto es CRÍTICO para la seguridad: asegura que la notificación es de Stripe
-        # y no ha sido manipulado por un tercero malintencionado.
+        # y no ha sido manipulada por un tercero malintencionado.
         event = stripe.Webhook.construct_event(
             payload, sig_header, Config.STRIPE_WEBHOOK_SECRET
         )
@@ -168,6 +168,9 @@ def stripe_webhook():
     return jsonify(success=True), 200
 
 # --- FIN DEL ENDPOINT DE WEBHOOK ---
+
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
