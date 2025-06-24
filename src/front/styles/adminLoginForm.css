@@ -1,0 +1,150 @@
+/* --- adminLoginForm.css --- */
+
+/* Importación de fuentes (si no están ya en tu CSS principal o HTML) */
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+
+/* Contenedor principal de la página de login */
+.admin-login-page {
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la vista */
+    padding: 20px; /* Padding general */
+    box-sizing: border-box; /* Incluir padding en el tamaño total */
+}
+
+/* La tarjeta blanca del formulario (el div principal dentro de .admin-login-page) */
+.admin-login-page > div {
+    padding: 30px;
+    max-width: 500px; /* Un poco más estrecho que el de registro de eventos */
+    width: 100%;
+}
+
+.admin-login-page h2 {
+    font-family: "Playfair Display", serif;
+    color: #c55336; /* Tu color principal */
+    font-size: 2.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.admin-login-page p.text-gray-600 {
+    font-family: "Lora", sans-serif;
+    color: #555;
+    font-size: 1.1em; /* Un poco más pequeño que el de registro de eventos */
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Espaciado superior para cada sección de campo del formulario */
+.admin-login-page form > div {
+    margin-top: 20px; /* Un poco menos de espacio que el otro formulario */
+}
+
+/* El primer div del formulario (que contiene el email) no necesita margin-top */
+.admin-login-page form > div:first-child {
+    margin-top: 0;
+}
+
+/* Estilos para etiquetas (labels) */
+.admin-login-page label {
+    font-family: "Lora", sans-serif !important;
+    font-size: 1em;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Estilos para campos de texto, email, password */
+.admin-login-page input[type="text"],
+.admin-login-page input[type="email"],
+.admin-login-page input[type="password"] {
+    font-family: "Lora", sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    color: #333;
+    background-color: #fcfcfc;
+}
+
+.admin-login-page input[type="text"]:focus,
+.admin-login-page input[type="email"]:focus,
+.admin-login-page input[type="password"]:focus {
+    border-color: #c55336;
+    box-shadow: 0 0 0 3px rgba(197, 83, 54, 0.2);
+    outline: none;
+}
+
+/* Mensajes de error */
+.admin-login-page .bg-red-100 {
+    background-color: #fff0f5;
+    border-color: #e53e3e;
+    color: #c53030;
+    padding: 12px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+/* Botón de envío (Submit Button) */
+.admin-login-page button[type="submit"] {
+    background-color: #c55336; /* Tu color principal */
+    font-family: "Lora", sans-serif;
+    color: #fff;
+    font-size: 1.3em; /* Un poco más pequeño que el de registro de eventos */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.admin-login-page button[type="submit"]:hover {
+    background-color: #8a3925; /* Un tono más oscuro de tu color principal */
+    color: #c7c6c6;
+    transform: scale(1.02);
+}
+
+.admin-login-page button[type="submit"]:disabled {
+    background-color: #d1d1d1;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner de carga */
+.admin-login-page .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Keyframes de spin se definen una vez en tu CSS general o aquí */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+    .admin-login-page h2 {
+        font-size: 2em;
+    }
+
+    .admin-login-page p.text-gray-600 {
+        font-size: 0.9em;
+    }
+
+    .admin-login-page button[type="submit"] {
+        font-size: 1.1em;
+        padding: 10px 20px;
+    }
+}

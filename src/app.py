@@ -4,6 +4,8 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_swagger import swagger
+from flask_jwt_extended import JWTManager
+from datetime import timedelta 
 from api.utils import APIException, generate_sitemap
 from api.models import db, Order, Subscriber
 from api.routes import api
@@ -23,6 +25,16 @@ static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=48)
+jwt = JWTManager(app)
+
+# --- CONFIGURACIÓN DE FLASK-LOGIN (PARA EL PANEL DE FLASK-ADMIN) ---
+# Flask-Admin usa Flask-Login para su propio sistema de autenticación de sesiones.
+# Necesitas una clave secreta para las sesiones de Flask.
+app.secret_key = os.getenv("FLASK_SECRET_KEY", os.urandom(24)) # MUY IMPORTANTE: ¡Define FLASK_SECRET_KEY en tu .env!
+                                                           
 
 CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_URL", "*")}})
 

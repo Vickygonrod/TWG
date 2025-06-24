@@ -3,15 +3,18 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os # Asegúrate de que esto esté importado
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Subscriber, EventRegistration # Asegúrate de que Subscriber y User están bien definidos
+from api.models import db, User, Subscriber, EventRegistration, Admins
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config # Asegúrate de que Config está accesible y correcto
 import stripe
 
-# Asegúrate de que estos imports sean correctos para tu estructura
 from api.services.email_service import send_contact_form_email, add_subscriber_to_mailerlite
 
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager 
 
 api = Blueprint('api', __name__)
 
@@ -35,6 +38,32 @@ def handle_hello():
     response_body = {
         "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
     }
+    return jsonify(response_body), 200
+
+@api.route("/adminlogin", methods=["POST"])
+def admin_login():
+    response_body = {}
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    # Busca al administrador por email
+    # Usamos Admins porque así se llama tu clase ahora
+    admin = db.session.execute(db.select(Admins).where(Admins.email == email)).scalar_one_or_none()
+
+    if admin is None:
+        return jsonify({"msg": "Email no registrado."}), 401
+    
+    # Verifica la contraseña hasheada usando el método de tu modelo Admins
+    if not admin.verify_password(password):
+        return jsonify({"msg": "Contraseña incorrecta."}), 401
+    
+    # Si las credenciales son correctas, crea el token de acceso JWT
+    access_token = create_access_token(identity={'admin_id': admin.id, 'email': admin.email})
+    
+    response_body['message'] = 'Admin logueado con éxito.'
+    response_body['access_token'] = access_token
+    response_body['data'] = admin.serialize() # Envía los datos serializados del admin (sin la contraseña)
+
     return jsonify(response_body), 200
 
 
@@ -283,3 +312,5 @@ def handle_event_registration():
         db.session.rollback() # Ensure rollback in case of error
         print(f"ERROR GENERAL in /api/event-registration: {e}")
         return jsonify(error="An unexpected error occurred during registration."), 500
+
+

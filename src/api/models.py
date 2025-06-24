@@ -2,22 +2,81 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
 
 class User(db.Model):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(
-        String(120), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    # Cambiamos 'password' a '_password' para la propiedad segura
+    _password = db.Column("password", db.String(255), unique=False, nullable=False) # Guardará el hash
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True) # Añadido default
+    name = db.Column(db.String(100), unique=False, nullable=True) # Asumo un límite de 100 caracteres
+    lastname = db.Column(db.String(100), unique=False, nullable=True) # Asumo un límite de 100 caracteres
+    
+    def __repr__(self):
+        return f'<User {self.email}>'
+
+    # Propiedad para establecer la contraseña (la hashea automáticamente)
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self._password = generate_password_hash(password)
+
+    # Método para verificar la contraseña
+    def verify_password(self, password):
+        return check_password_hash(self._password, password)
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
-            # do not serialize the password, its a security breach
+            "name": self.name,
+            "lastname": self.lastname,
+            "is_active": self.is_active
+            # NO SERIALIZAR LA CONTRASEÑA POR SEGURIDAD
+        }
+
+
+class Admins(db.Model): # Cambiado de Admins a Admin (singular, más convencional para un modelo)
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    # Cambiamos 'password' a '_password' para la propiedad segura
+    _password = db.Column("password", db.String(255), unique=False, nullable=False) # Guardará el hash
+    name = db.Column(db.String(100), nullable=True)
+    title = db.Column(db.String(100), nullable=True) # Asumo un límite de 100 caracteres
+    department = db.Column(db.String(100), nullable=True) # Asumo un límite de 100 caracteres
+
+    def __repr__(self):
+        # Es mejor incluir el email en __repr__ para facilitar la depuración
+        return f'<Admin {self.email} - {self.name}>' 
+
+    # Propiedad para establecer la contraseña (la hashea automáticamente)
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self._password = generate_password_hash(password)
+
+    # Método para verificar la contraseña
+    def verify_password(self, password):
+        return check_password_hash(self._password, password)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            # NUNCA SERIALIZAR LA CONTRASEÑA EN EL MÉTODO SERIALIZE DEL MODELO
+            "name": self.name,
+            "title": self.title,
+            "department": self.department
         }
 
 

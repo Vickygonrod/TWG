@@ -1,6 +1,6 @@
 import os
-import requests # Necesario para la API de MailerLite (gestión de suscriptores)
-from mailersend import emails # <-- ¡ESTA ES LA IMPORTACIÓN CORRECTA SEGÚN TU DOC!
+import requests 
+from mailersend import emails 
 
 # --- FUNCIÓN PARA ENVIAR EMAILS TRANSACCIONALES (NOTIFICACIÓN DE CONTACTO) CON MAILERSEND ---
 def send_contact_form_email(
@@ -10,48 +10,31 @@ def send_contact_form_email(
     subject,
     template_data
 ):
-    """
-    Envía un email usando MailerSend (para notificaciones transaccionales como el formulario de contacto).
-
-    :param to_email: La dirección de correo del destinatario (tú).
-    :param from_email: La dirección de correo verificada en MailerLite/MailerSend (tu Sender Identity).
-    :param from_name: El nombre que aparecerá como remitente.
-    :param subject: El asunto del email.
-    :param template_data: Un diccionario con los datos a mostrar en el email.
-    """
-
     mailersend_api_key = os.getenv("MAILERSEND_API_KEY")
+    print(f"DEBUG: MAILERSEND_API_KEY cargada: {'Sí' if mailersend_api_key else 'No'} (Longitud: {len(mailersend_api_key) if mailersend_api_key else 0})") # <--- AÑADE ESTA LÍNEA
     if not mailersend_api_key:
         print("ERROR: MAILERSEND_API_KEY no configurada. No se puede enviar el email de notificación.")
         return False
-
+        
     try:
-        # Crea una instancia de NewEmail (según la documentación)
         mailer = emails.NewEmail(mailersend_api_key)
-
-        # Define el cuerpo del email como un diccionario vacío para poblar
         mail_body = {}
 
-        # Remitente
         mail_from = {
             "name": from_name,
             "email": from_email,
         }
         mailer.set_mail_from(mail_from, mail_body)
 
-        # Destinatario
         recipients = [
             {
-                "name": template_data.get('first_name'), # Podemos usar el nombre del remitente del form
+                "name": template_data.get('first_name'),
                 "email": to_email,
             }
         ]
         mailer.set_mail_to(recipients, mail_body)
-
-        # Asunto
         mailer.set_subject(subject, mail_body)
 
-        # Contenido HTML
         html_content = f"""
         <html>
         <body>
@@ -68,27 +51,18 @@ def send_contact_form_email(
         """
         mailer.set_html_content(html_content, mail_body)
 
-        # Envía el email
-        response = mailer.send(mail_body) # <-- EL MÉTODO SEND RECIBE EL mail_body
+        # Si el envío es exitoso, el SDK no lanzará una excepción
+        response = mailer.send(mail_body)
 
-        # La documentación sugiere que print(mailer.send(mail_body)) devuelve el estado y los datos
-        # Así que 'response' debería contener esa información.
-        # Por ejemplo, si imprime un diccionario, podríamos buscar 'status_code' o similar.
-        print(f"DEBUG: Email de notificación enviado con MailerSend. Respuesta: {response}")
+        print(f"DEBUG: Email de notificación enviado con MailerSend. Respuesta API: {response}")
 
-        # La librería MailerSend devuelve un diccionario o None si hay error.
-        # Si la respuesta es un diccionario con 'message' o similar y no hay excepción,
-        # asumimos que fue exitoso.
-        if response and "message" in response and "success" in response.get("message", "").lower():
-            return True
-        elif response and "status_code" in response and response["status_code"] in [200, 202]: # Por si acaso lo devuelve así
-            return True
-        else:
-            print(f"ERROR: Fallo al enviar email con MailerSend. Detalles: {response}")
-            return False
+        # Si llegamos a este punto sin que se lance ninguna excepción, el envío fue exitoso.
+        return True
 
-    except Exception as e: # Captura cualquier excepción que pueda ocurrir durante el envío
-        print(f"ERROR inesperado al enviar email con MailerSend: {e}")
+    except Exception as e: # <-- Capturamos la excepción general aquí. Esto es seguro.
+        # Esto capturará cualquier error, incluyendo los de la librería MailerSend
+        # o problemas de red. El mensaje 'e' contendrá los detalles.
+        print(f"ERROR al enviar email con MailerSend: {e}")
         return False
 
 # --- FUNCIÓN PARA AÑADIR SUSCRIPTORES A MAILERLITE (PLATAFORMA DE MARKETING) ---
