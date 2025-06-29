@@ -123,18 +123,18 @@ class Subscriber(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
-# --- Event Registrations ---
 class EventRegistration(db.Model):
     __tablename__ = 'event_registrations' # Table name in the database
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=False, nullable=False) # Not unique, one person can register for multiple events
+    email = db.Column(db.String(120), unique=False, nullable=False)
     event_name = db.Column(db.String(120), nullable=False)
-    how_did_you_hear = db.Column(db.String(255), nullable=True) # E.g., "Social Media", "Friend"
-    artistic_expression = db.Column(db.String(255), nullable=True) # E.g., "Painting", "Writing"
-    why_interested = db.Column(db.Text, nullable=True) # Longer text field for motivations
-    comments = db.Column(db.Text, nullable=True) # Additional comments
-    registration_date = db.Column(db.DateTime, default=db.func.now(), nullable=False) # Auto-set timestamp
+    how_did_you_hear = db.Column(db.String(255), nullable=True)
+    artistic_expression = db.Column(db.String(255), nullable=True)
+    why_interested = db.Column(db.Text, nullable=True)
+    comments = db.Column(db.Text, nullable=True)
+    registration_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
+    is_read = db.Column(db.Boolean, default=False, nullable=False) # <--- AÑADE ESTA LÍNEA
 
     def __repr__(self):
         return f'<EventRegistration {self.full_name} - {self.event_name}>'
@@ -149,5 +149,31 @@ class EventRegistration(db.Model):
             "artistic_expression": self.artistic_expression,
             "why_interested": self.why_interested,
             "comments": self.comments,
-            "registration_date": self.registration_date.isoformat() if self.registration_date else None
+            "registration_date": self.registration_date.isoformat() if self.registration_date else None,
+            "is_read": self.is_read # <--- AÑADE ESTA LÍNEA
+        }
+
+# --- Contact Messages ---
+
+class Contact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    subject = db.Column(db.String(250), nullable=True)
+    message = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False, nullable=False) # <--- AÑADE ESTA LÍNEA
+
+    def __repr__(self):
+        return f'<Contact {self.email}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "subject": self.subject,
+            "message": self.message,
+            "created_at": self.created_at.isoformat(),
+            "is_read": self.is_read # <--- AÑADE ESTA LÍNEA
         }

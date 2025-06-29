@@ -1,7 +1,7 @@
 
 import os
 from flask_admin import Admin
-from .models import db, User, Order, Subscriber, EventRegistration, Admins
+from .models import db, User, Order, Subscriber, EventRegistration, Admins, Contact
 from flask_admin.contrib.sqla import ModelView
 from api.config import Config
 
@@ -17,4 +17,5 @@ def setup_admin(app):
     admin.add_view(ModelView(Subscriber, db.session))
     admin.add_view(ModelView(EventRegistration, db.session))
     admin.add_view(ModelView(Admins, db.session))
+    admin.add_view(ModelView(Contact, db.session))
 

@@ -3,10 +3,10 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os # Asegúrate de que esto esté importado
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Subscriber, EventRegistration, Admins
+from api.models import db, User, Subscriber, EventRegistration, Admins, Contact
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from api.config import Config # Asegúrate de que Config está accesible y correcto
+from api.config import Config 
 import stripe
 
 from api.services.email_service import send_contact_form_email, add_subscriber_to_mailerlite
@@ -189,9 +189,36 @@ def handle_contact_form():
         message_content = data.get('message')
         subscribe_to_newsletter = data.get('subscribeToNewsletter')
 
+        # VALIDACIÓN DE CAMPOS OBLIGATORIOS
         if not all([first_name, last_name, email, message_content]):
             return jsonify(error="Faltan campos obligatorios."), 400
 
+        # --- NUEVA LÓGICA: GUARDAR MENSAJE EN LA BASE DE DATOS ---
+        try:
+            full_name = f"{first_name} {last_name}" # Combina nombre y apellido si tu modelo Contact solo tiene 'name'
+
+            new_contact_message = Contact(
+                name=full_name, # O usa first_name y last_name si los añades al modelo Contact
+                email=email,
+                # Si tienes un campo 'subject' en tu modelo Contact y no lo recibes del frontend,
+                # puedes dejarlo como None o definir un asunto por defecto.
+                # Aquí lo estoy omitiendo si no viene, asumiendo que tu modelo Contact.subject es nullable=True
+                # subject=data.get('subject'), # Descomenta si tu frontend envía un campo 'subject'
+                message=message_content
+            )
+            db.session.add(new_contact_message)
+            db.session.commit()
+            print("DEBUG: Mensaje de contacto guardado en la base de datos exitosamente.")
+        except Exception as db_save_e:
+            db.session.rollback() # Si falla al guardar en DB, haz rollback
+            print(f"ERROR: Fallo al guardar mensaje de contacto en la base de datos: {db_save_e}")
+            # Puedes decidir si quieres devolver un error aquí o continuar
+            # Por ahora, dejemos que la función continúe, ya que el objetivo principal
+            # puede ser enviar el email, y la DB es un backup/registro.
+            # Si la DB es crítica, podrías retornar un error aquí:
+            # return jsonify(error="Fallo al guardar tu mensaje. Inténtalo de nuevo."), 500
+
+        # --- LÓGICA EXISTENTE: ENVÍO DE EMAIL ---
         email_data = {
             "first_name": first_name,
             "last_name": last_name,
@@ -214,7 +241,7 @@ def handle_contact_form():
         else:
             print("ERROR: Fallo al enviar email de notificación de contacto (vía MailerSend).")
 
-        # --- GESTIÓN DE SUSCRIPCIÓN A NEWSLETTER (EN TU DB Y MAILERLITE) ---
+        # --- LÓGICA EXISTENTE: GESTIÓN DE SUSCRIPCIÓN A NEWSLETTER (EN TU DB Y MAILERLITE) ---
         if subscribe_to_newsletter:
             print(f"DEBUG: Procesando suscripción a newsletter para {email}...")
             try:
