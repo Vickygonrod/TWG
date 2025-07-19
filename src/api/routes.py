@@ -1,7 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-import os # Asegúrate de que esto esté importado
+import os
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
 from api.models import db, User, Subscriber, EventRegistration, Admins, Contact
 from api.utils import generate_sitemap, APIException
@@ -21,16 +21,20 @@ api = Blueprint('api', __name__)
 # Allow CORS requests to this API
 CORS(api)
 
-# Carga las variables de entorno para los emails
+# Carga las variables de entorno para los emails y grupos de MailerLite
 YOUR_RECEIVING_EMAIL = os.getenv("YOUR_RECEIVING_EMAIL")
 MAILERSEND_SENDER_EMAIL = os.getenv("MAILERSEND_SENDER_EMAIL")
 MAILERSEND_SENDER_NAME = os.getenv("MAILERSEND_SENDER_NAME", "Victoria from The Women Ground")
-# Asegúrate de que esta variable de entorno o valor por defecto esté configurada
-MAILERLITE_NEWSLETTER_GROUP_ID = os.getenv("MAILERLITE_NEWSLETTER_GROUP_ID")
+
+# --- NUEVAS VARIABLES DE ENTORNO PARA GRUPOS DE IDIOMA ---
+MAILERLITE_GROUP_ES = os.getenv("MAILERLITE_GROUP_ES") # ID del grupo para suscriptores en español
+MAILERLITE_GROUP_EN = os.getenv("MAILERLITE_GROUP_EN") # ID del grupo para suscriptores en inglés
+# Opcional: un grupo por defecto si el idioma no se reconoce o no se envía
+MAILERLITE_DEFAULT_GROUP_ID = os.getenv("MAILERLITE_DEFAULT_GROUP_ID") 
 
 
 # Configura la clave secreta de Stripe al inicio
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY") # Es más seguro cargarla desde variables de entorno
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -46,23 +50,19 @@ def admin_login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
-    # Busca al administrador por email
-    # Usamos Admins porque así se llama tu clase ahora
     admin = db.session.execute(db.select(Admins).where(Admins.email == email)).scalar_one_or_none()
 
     if admin is None:
         return jsonify({"msg": "Email no registrado."}), 401
     
-    # Verifica la contraseña hasheada usando el método de tu modelo Admins
     if not admin.verify_password(password):
         return jsonify({"msg": "Contraseña incorrecta."}), 401
     
-    # Si las credenciales son correctas, crea el token de acceso JWT
     access_token = create_access_token(identity={'admin_id': admin.id, 'email': admin.email})
     
     response_body['message'] = 'Admin logueado con éxito.'
     response_body['access_token'] = access_token
-    response_body['data'] = admin.serialize() # Envía los datos serializados del admin (sin la contraseña)
+    response_body['data'] = admin.serialize()
 
     return jsonify(response_body), 200
 
@@ -74,14 +74,12 @@ def create_checkout_session():
     print("DEBUG: Entrando a create_checkout_session.")
     try:
         data = request.json
-        # --- CAMBIO CLAVE AQUÍ: Espera 'price_id' en lugar de 'product_id' ---
-        price_id = data.get('price_id') # <--- CORRECTO: Ahora obtenemos 'price_id'
+        price_id = data.get('price_id')
 
         if not price_id:
             print("ERROR: No se recibió price_id del frontend.")
             return jsonify(error="Price ID missing"), 400
 
-        # Validación: Asegurarse de que el price_id sea uno de los esperados
         allowed_price_ids = [Config.STRIPE_PRICE_ID_ES, Config.STRIPE_PRICE_ID_EN]
         if price_id not in allowed_price_ids:
             print(f"ERROR: Price ID {price_id} no autorizado.")
@@ -93,18 +91,17 @@ def create_checkout_session():
             payment_method_types=['card'],
             line_items=[
                 {
-                    'price': price_id, # Usamos el Price ID directamente aquí
+                    'price': price_id,
                     'quantity': 1,
                 },
             ],
             mode='payment',
-            # --- ASEGÚRATE QUE Config.FRONTEND_URL TIENE https://tudominio.com ---
             success_url=f"{Config.FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{Config.FRONTEND_URL}/cancel",
             ui_mode='hosted',
             customer_creation='if_required',
             metadata={
-                'requested_price_id': price_id, # Guarda el Price ID en los metadatos de la sesión para futura referencia
+                'requested_price_id': price_id,
             }
         )
         print(f"DEBUG: Sesión de Stripe creada, URL: {checkout_session.url}")
@@ -128,7 +125,6 @@ def download_ebook():
 
     print(f"DEBUG: Intentando descargar eBook para session_id: {session_id}")
     try:
-        # --- LÍNEA CORREGIDA (asegúrate de que todo lo siguiente esté indentado correctamente) ---
         session = stripe.checkout.Session.retrieve(session_id, expand=['line_items'])
 
         if session.payment_status == 'paid' and session.status == 'complete':
@@ -138,12 +134,12 @@ def download_ebook():
             if session.line_items and len(session.line_items.data) > 0:
                 purchased_price_id = session.line_items.data[0].price.id
 
-            ebook_filename = None # Variable para almacenar el nombre del archivo final
+            ebook_filename = None
             if purchased_price_id == Config.STRIPE_PRICE_ID_ES:
-                ebook_filename = 'Juega_a_Crear_Pack_ES.zip' # Archivo para español
+                ebook_filename = 'Juega_a_Crear_Pack_ES.zip'
                 print(f"DEBUG: Descarga solicitada para eBook en español: {ebook_filename}")
             elif purchased_price_id == Config.STRIPE_PRICE_ID_EN:
-                ebook_filename = 'Play_and_Create_Pack.zip' # Archivo para inglés (el nuevo nombre)
+                ebook_filename = 'Play_and_Create_Pack.zip'
                 print(f"DEBUG: Descarga solicitada para eBook en inglés: {ebook_filename}")
             else:
                 print(f"ERROR: Price ID {purchased_price_id} no reconocido para la descarga.")
@@ -188,6 +184,7 @@ def handle_contact_form():
         email = data.get('email')
         message_content = data.get('message')
         subscribe_to_newsletter = data.get('subscribeToNewsletter')
+        language = data.get('language') # <-- ¡NUEVO! Obtener el idioma del frontend
 
         # VALIDACIÓN DE CAMPOS OBLIGATORIOS
         if not all([first_name, last_name, email, message_content]):
@@ -195,38 +192,30 @@ def handle_contact_form():
 
         # --- NUEVA LÓGICA: GUARDAR MENSAJE EN LA BASE DE DATOS ---
         try:
-            full_name = f"{first_name} {last_name}" # Combina nombre y apellido si tu modelo Contact solo tiene 'name'
+            full_name = f"{first_name} {last_name}"
 
             new_contact_message = Contact(
-                name=full_name, # O usa first_name y last_name si los añades al modelo Contact
+                name=full_name,
                 email=email,
-                # Si tienes un campo 'subject' en tu modelo Contact y no lo recibes del frontend,
-                # puedes dejarlo como None o definir un asunto por defecto.
-                # Aquí lo estoy omitiendo si no viene, asumiendo que tu modelo Contact.subject es nullable=True
-                # subject=data.get('subject'), # Descomenta si tu frontend envía un campo 'subject'
                 message=message_content
             )
             db.session.add(new_contact_message)
             db.session.commit()
             print("DEBUG: Mensaje de contacto guardado en la base de datos exitosamente.")
         except Exception as db_save_e:
-            db.session.rollback() # Si falla al guardar en DB, haz rollback
+            db.session.rollback()
             print(f"ERROR: Fallo al guardar mensaje de contacto en la base de datos: {db_save_e}")
-            # Puedes decidir si quieres devolver un error aquí o continuar
-            # Por ahora, dejemos que la función continúe, ya que el objetivo principal
-            # puede ser enviar el email, y la DB es un backup/registro.
-            # Si la DB es crítica, podrías retornar un error aquí:
-            # return jsonify(error="Fallo al guardar tu mensaje. Inténtalo de nuevo."), 500
 
-        # --- LÓGICA EXISTENTE: ENVÍO DE EMAIL ---
+        # --- LÓGICA EXISTENTE: ENVÍO DE EMAIL (notificación al admin) ---
         email_data = {
             "first_name": first_name,
             "last_name": last_name,
             "email": email,
             "message": message_content,
-            "subscribe_to_newsletter": subscribe_to_newsletter
+            "subscribe_to_newsletter": subscribe_to_newsletter,
+            "language": language # <-- Opcional: pasar el idioma también al email de notificación
         }
-        email_subject = f"Nuevo Contacto desde la Web: {first_name} {last_name}"
+        email_subject = f"Nuevo Contacto desde la Web ({language.upper() if language else 'N/A'}): {first_name} {last_name}"
 
         email_sent = send_contact_form_email(
             to_email=YOUR_RECEIVING_EMAIL,
@@ -241,39 +230,57 @@ def handle_contact_form():
         else:
             print("ERROR: Fallo al enviar email de notificación de contacto (vía MailerSend).")
 
-        # --- LÓGICA EXISTENTE: GESTIÓN DE SUSCRIPCIÓN A NEWSLETTER (EN TU DB Y MAILERLITE) ---
+        # --- LÓGICA PARA GESTIÓN DE SUSCRIPCIÓN A NEWSLETTER (EN TU DB Y MAILERLITE) ---
         if subscribe_to_newsletter:
-            print(f"DEBUG: Procesando suscripción a newsletter para {email}...")
+            print(f"DEBUG: Procesando suscripción a newsletter para {email} (Idioma: {language})...")
+            
+            # --- SELECCIÓN DEL ID DE GRUPO BASADO EN EL IDIOMA ---
+            target_group_id = None
+            if language == 'es':
+                target_group_id = MAILERLITE_GROUP_ES
+            elif language == 'en':
+                target_group_id = MAILERLITE_GROUP_EN
+            else:
+                # Si el idioma no se reconoce, puedes usar un grupo por defecto
+                print(f"WARNING: Idioma '{language}' no reconocido. Usando grupo por defecto si está configurado.")
+                target_group_id = MAILERLITE_DEFAULT_GROUP_ID
+
             try:
                 # 1. Guardar en tu propia base de datos
                 existing_subscriber = Subscriber.query.filter_by(email=email).first()
                 if existing_subscriber:
-                    print(f"DEBUG: Email {email} ya suscrito en tu DB. No se añade de nuevo.")
+                    # Opcional: Actualizar datos si el suscriptor ya existe
+                    existing_subscriber.first_name = first_name
+                    existing_subscriber.last_name = last_name
+                    # Aquí podrías añadir lógica para actualizar el idioma del suscriptor en tu DB si lo guardas
+                    db.session.commit()
+                    print(f"DEBUG: Email {email} ya suscrito en tu DB. Datos actualizados.")
                 else:
                     new_subscriber = Subscriber(
                         first_name=first_name,
                         last_name=last_name,
                         email=email
+                        # Aquí podrías añadir un campo 'language' a tu modelo Subscriber si lo necesitas
                     )
                     db.session.add(new_subscriber)
                     db.session.commit()
                     print(f"DEBUG: Nuevo suscriptor añadido a tu DB: {email}")
 
-                # 2. Añadir/Actualizar en MailerLite
-                if MAILERLITE_NEWSLETTER_GROUP_ID:
+                # 2. Añadir/Actualizar en MailerLite (solo si tenemos un group_id válido)
+                if target_group_id:
                     mailerlite_added = add_subscriber_to_mailerlite(
                         email=email,
                         first_name=first_name,
                         last_name=last_name,
-                        group_id=MAILERLITE_NEWSLETTER_GROUP_ID
+                        group_id=target_group_id # <-- ¡Pasamos el ID de grupo seleccionado!
                     )
 
                     if mailerlite_added:
-                        print(f"DEBUG: Suscriptor {email} añadido/actualizado en MailerLite.")
+                        print(f"DEBUG: Suscriptor {email} añadido/actualizado en MailerLite al grupo {target_group_id}.")
                     else:
                         print(f"ERROR: Fallo al añadir/actualizar suscriptor {email} en MailerLite.")
                 else:
-                    print("WARNING: MAILERLITE_NEWSLETTER_GROUP_ID no está configurado. No se intentó añadir a MailerLite.")
+                    print("WARNING: No se pudo determinar un ID de grupo de MailerLite válido. Suscriptor no añadido a MailerLite.")
 
             except Exception as db_e:
                 db.session.rollback()
@@ -286,13 +293,12 @@ def handle_contact_form():
         return jsonify(error="Ocurrió un error inesperado al procesar tu mensaje."), 500
 
 
-@api.route('/event-registration', methods=['POST']) # <-- Nueva ruta siguiendo tu formato
+@api.route('/event-registration', methods=['POST'])
 def handle_event_registration():
     print("DEBUG: Entrando a handle_event_registration.")
     try:
         data = request.json
 
-        # Extraer los campos del formulario. Nombres de las claves deben coincidir con el frontend.
         full_name = data.get('fullName')
         email = data.get('email')
         event_name = data.get('eventName')
@@ -300,6 +306,7 @@ def handle_event_registration():
         artistic_expression = data.get('artisticExpression', None)
         why_interested = data.get('whyInterested', None)
         comments = data.get('comments', None)
+        language = data.get('language') # <-- ¡NUEVO! Obtener el idioma del frontend
 
         # Validación básica de campos obligatorios
         if not all([full_name, email, event_name]):
@@ -311,7 +318,6 @@ def handle_event_registration():
             print("ERROR: Invalid email format.")
             return jsonify(error="Invalid email format."), 400
 
-        # Crear una nueva instancia del modelo EventRegistration
         new_registration = EventRegistration(
             full_name=full_name,
             email=email,
@@ -320,24 +326,70 @@ def handle_event_registration():
             artistic_expression=artistic_expression,
             why_interested=why_interested,
             comments=comments
-            # registration_date se establece automáticamente por default=db.func.now()
         )
 
-        # Añadir a la sesión de la base de datos y guardar
         db.session.add(new_registration)
         db.session.commit()
         
         print(f"DEBUG: New event registration saved to DB: {new_registration.email} for {new_registration.event_name}")
 
-        # Opcional: Aquí podrías añadir lógica para enviar un email de confirmación
-        # al usuario o una notificación al administrador usando MailerSend.
-        # Adapta tu función send_contact_form_email o crea una nueva para esto.
+        # --- LÓGICA PARA GESTIÓN DE SUSCRIPCIÓN A NEWSLETTER DESDE REGISTRO DE EVENTO ---
+        # Si el checkbox de suscripción está marcado en el formulario de evento
+        if data.get('subscribeToNewsletter'): # Usamos data.get directamente ya que viene del payload
+            print(f"DEBUG: Procesando suscripción a newsletter desde registro de evento para {email} (Idioma: {language})...")
+            
+            # --- SELECCIÓN DEL ID DE GRUPO BASADO EN EL IDIOMA ---
+            target_group_id = None
+            if language == 'es':
+                target_group_id = MAILERLITE_GROUP_ES
+            elif language == 'en':
+                target_group_id = MAILERLITE_GROUP_EN
+            else:
+                print(f"WARNING: Idioma '{language}' no reconocido en registro de evento. Usando grupo por defecto si está configurado.")
+                target_group_id = MAILERLITE_DEFAULT_GROUP_ID
 
-        return jsonify(message="Event registration successful!"), 201 # 201 Created
+            try:
+                # 1. Guardar en tu propia base de datos (reutilizando la lógica de Subscriber)
+                existing_subscriber = Subscriber.query.filter_by(email=email).first()
+                if existing_subscriber:
+                    existing_subscriber.first_name = full_name.split(' ')[0] if full_name else ''
+                    existing_subscriber.last_name = ' '.join(full_name.split(' ')[1:]) if full_name else ''
+                    db.session.commit()
+                    print(f"DEBUG: Email {email} ya suscrito en tu DB desde registro de evento. Datos actualizados.")
+                else:
+                    new_subscriber = Subscriber(
+                        first_name=full_name.split(' ')[0] if full_name else '',
+                        last_name=' '.join(full_name.split(' ')[1:]) if full_name else '',
+                        email=email
+                    )
+                    db.session.add(new_subscriber)
+                    db.session.commit()
+                    print(f"DEBUG: Nuevo suscriptor añadido a tu DB desde registro de evento: {email}")
+
+                # 2. Añadir/Actualizar en MailerLite (solo si tenemos un group_id válido)
+                if target_group_id:
+                    mailerlite_added = add_subscriber_to_mailerlite(
+                        email=email,
+                        first_name=full_name.split(' ')[0] if full_name else '',
+                        last_name=' '.join(full_name.split(' ')[1:]) if full_name else '',
+                        group_id=target_group_id # <-- ¡Pasamos el ID de grupo seleccionado!
+                    )
+
+                    if mailerlite_added:
+                        print(f"DEBUG: Suscriptor {email} añadido/actualizado en MailerLite al grupo {target_group_id} desde registro de evento.")
+                    else:
+                        print(f"ERROR: Fallo al añadir/actualizar suscriptor {email} en MailerLite desde registro de evento.")
+                else:
+                    print("WARNING: No se pudo determinar un ID de grupo de MailerLite válido para registro de evento. Suscriptor no añadido a MailerLite.")
+
+            except Exception as db_e:
+                db.session.rollback()
+                print(f"ERROR: Fallo al gestionar suscriptor en DB o MailerLite desde registro de evento para {email}: {db_e}")
+
+
+        return jsonify(message="Event registration successful!"), 201
 
     except Exception as e:
-        db.session.rollback() # Ensure rollback in case of error
+        db.session.rollback()
         print(f"ERROR GENERAL in /api/event-registration: {e}")
         return jsonify(error="An unexpected error occurred during registration."), 500
-
-

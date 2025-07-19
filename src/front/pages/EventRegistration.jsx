@@ -4,7 +4,7 @@ import '../styles/eventRegistrationForm.css'; // Ruta CSS en minúscula
 import { useTranslation } from 'react-i18next';
 
 export const EventRegistration = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation(); // <-- ¡MODIFICADO AQUÍ! Añadido `i18n`
 
   // --- Datos predefinidos (NO SE TRADUCEN, son nombres fijos de eventos) ---
   const predefinedEvents = [
@@ -20,7 +20,7 @@ export const EventRegistration = () => {
     { key: "artistic_clay", value: "Arcilla" },
     { key: "artistic_dance", value: "Baile" },
     { key: "artistic_embroidery", value: "Bordado" },
-    { key: "artistic_singing", value: "Canto" },
+    { key: "artistic_singing", "value": "Canto" },
     { key: "artistic_ceramics", value: "Cerámica" },
     { key: "artistic_sewing", value: "Costura" },
     { key: "artistic_drawing", value: "Dibujo" },
@@ -140,31 +140,28 @@ export const EventRegistration = () => {
             lastName: lastNameForContact,
             email: formData.email,
             message: "Suscripción a la newsletter desde el formulario de registro de eventos.",
-            subscribeToNewsletter: true // Siempre true para este propósito
+            subscribeToNewsletter: true, // Siempre true para este propósito
+            language: i18n.language // <-- ¡AÑADIDO AQUÍ!
         };
 
         try {
             const subscribeResponse = await axios.post(`${BACKEND_BASE_URL}/api/contact`, subscriberPayload);
 
             if (subscribeResponse.status < 200 || subscribeResponse.status >= 300) {
-                // Si la suscripción falla, mostramos una advertencia pero no bloqueamos el éxito del registro del evento
                 console.warn("Advertencia: El registro a la comunidad falló (vía /api/contact):", subscribeResponse.data?.error);
-                setSubmissionError(t('registration_failure') + ". " + t('subscription_partial_failure')); // Usar traducciones
+                setSubmissionError(t('registration_failure') + ". " + t('subscription_partial_failure'));
             } else {
                 console.log("Suscripción a la comunidad exitosa (vía /api/contact)!", subscribeResponse.data);
             }
         } catch (subscribeError) {
-            // Manejo de errores de red o Axios para la suscripción
             console.warn("Advertencia: Error de red o inesperado al intentar suscribir (vía /api/contact):", subscribeError);
             const errorMessage = subscribeError.response?.data?.error || subscribeError.message || "Error desconocido.";
-            setSubmissionError(t('registration_failure') + ". " + t('subscription_network_error') + `: ${errorMessage}`); // Usar traducciones
+            setSubmissionError(t('registration_failure') + ". " + t('subscription_network_error') + `: ${errorMessage}`);
         }
       }
 
-      // Si el registro del evento fue exitoso, mostramos el mensaje de éxito general
       setSubmissionSuccess(true);
 
-      // Limpiar el formulario
       setFormData({
         fullName: '',
         email: '',
@@ -181,7 +178,6 @@ export const EventRegistration = () => {
     } catch (error) {
       setSubmissionError(t('registration_failure'));
       console.error("Error general al enviar el formulario:", error);
-      // Detalle adicional para errores del registro del evento
       if (error.response && error.response.data && error.response.data.error) {
           setSubmissionError(`${t('registration_failure')}: ${error.response.data.error}`);
       } else if (error.message === 'Network Error') {

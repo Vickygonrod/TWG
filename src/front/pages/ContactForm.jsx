@@ -12,13 +12,9 @@ export const ContactForm = () => {
     });
     const [status, setStatus] = useState(''); // Para mostrar mensajes de éxito o error
     const [loading, setLoading] = useState(false); // Para el estado de carga
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation(); // <-- AÑADIDO: accedemos al objeto i18n
 
-    // --- CAMBIO CLAVE AQUÍ ---
-    // Obtenemos la URL del backend desde las variables de entorno de Vite.
-    // Esto se resolverá a la URL de Render en producción, y a la de Codespaces/local
-    // en desarrollo (si tienes un .env local con VITE_BACKEND_URL).
-    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL; // <--- MODIFICADO
+    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -34,13 +30,18 @@ export const ContactForm = () => {
         setLoading(true);
 
         try {
-            // --- CAMBIO CLAVE AQUÍ ---
-            // Usamos la variable BACKEND_BASE_URL para construir la URL completa de la API.
-            // Esto asegura que apunte a tu backend de Render en producción.
-            const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, formData); // <--- MODIFICADO
+            const dataToSend = {
+                ...formData,
+                // El idioma de la app se envía automáticamente.
+                // Usamos i18n.language para obtener el idioma actual ('es' o 'en').
+                language: i18n.language, 
+            };
+
+            const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, dataToSend);
+            
             if (response.status === 200) {
                 setStatus('¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.');
-                setFormData({ // Limpiar el formulario
+                setFormData({
                     firstName: '',
                     lastName: '',
                     email: '',
@@ -48,7 +49,6 @@ export const ContactForm = () => {
                     subscribeToNewsletter: false,
                 });
             } else {
-                // Esto es más para errores que no son 2xx pero que el backend no devuelve como error directamente
                 setStatus('Hubo un problema al enviar tu mensaje. Por favor, inténtalo de nuevo.');
             }
         } catch (error) {

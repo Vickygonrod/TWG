@@ -86,11 +86,9 @@ def add_subscriber_to_mailerlite(email, first_name, last_name, group_id=None):
         "Authorization": f"Bearer {mailerlite_api_key}"
     }
 
-    # ¡IMPORTANTE! VERIFICA LA URL DE LA API DE MAILERLITE EN TU CUENTA.
-    # La URL más común para la API v3 (con endpoint v2) es:
-    URL = "https://api.mailerlite.com/api/v2/subscribers"
-    # Si estás en una cuenta muy antigua de MailerLite "Classic", podría ser:
-    # URL = "https://connect.mailerlite.com/api/subscribers"
+ 
+    URL = "https://connect.mailerlite.com/api/subscribers"
+   
 
     payload = {
         "email": email,

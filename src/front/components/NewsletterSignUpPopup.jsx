@@ -1,4 +1,3 @@
-// src/components/NewsletterSignUpPopup/NewsletterSignUpPopup.jsx
 import React, { useState, useEffect } from 'react';
 import '../styles/NewsletterSignUpPopup.css'; // Importa el archivo CSS para los estilos del pop-up
 import axios from 'axios'; // ¡IMPORTA AXIOS!
@@ -9,7 +8,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
-    const {t} = useTranslation();
+    const { t, i18n } = useTranslation(); // <-- ¡MODIFICADO AQUÍ! Añadido `i18n`
 
     // Estados para mensajes de feedback al usuario
     const [message, setMessage] = useState('');
@@ -17,10 +16,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // --- ¡CAMBIO CRÍTICO AQUÍ! ---
-    // Obtenemos la URL del backend desde las variables de entorno de Vite.
-    // Esto se resolverá a la URL de Render en producción, y a la de Codespaces/local
-    // en desarrollo (si tienes un .env local con VITE_BACKEND_URL).
-    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL; // <--- MODIFICADO
+    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     // Efecto para limpiar el formulario y mensajes cuando el pop-up se abre
     useEffect(() => {
@@ -59,8 +55,6 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
         setIsError(false);
 
         // Prepara los datos a enviar al backend.
-        // Los nombres de las propiedades (firstName, lastName, etc.)
-        // DEBEN COINCIDIR con los que tu Flask espera (data.get('firstName')).
         const requestBody = {
             firstName: firstName,
             lastName: lastName,
@@ -68,44 +62,36 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
             // Este mensaje irá al email de notificación del Contact Form
             message: "Suscripción desde pop-up de newsletter en la Comunidad.",
             // Esto es CRUCIAL: siempre true para este pop-up
-            subscribeToNewsletter: true
+            subscribeToNewsletter: true,
+            // ¡NUEVO! Envía el idioma detectado automáticamente
+            language: i18n.language // <-- ¡AÑADIDO AQUÍ!
         };
 
         // --- DEBUGGING: Revisa estos logs en la Consola de tu navegador (F12) ---
         console.log("DEBUG POPUP Frontend: Datos a enviar:", requestBody);
-        // Usando la URL de la variable de entorno
-        console.log("DEBUG POPUP Frontend: URL de envío:", `${BACKEND_BASE_URL}/api/contact`); // <--- MODIFICADO
+        console.log("DEBUG POPUP Frontend: URL de envío:", `${BACKEND_BASE_URL}/api/contact`);
         // -------------------------------------------------------------------------
 
         try {
-            // Realiza la solicitud POST al endpoint de contacto en tu backend usando AXIOS
-            // --- CAMBIO CRÍTICO AQUÍ! ---
-            const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, requestBody); // <--- MODIFICADO
+            const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, requestBody);
 
-            if (response.status === 200) { // Axios usa response.status para el código HTTP
-                // Si la respuesta es exitosa (código 200)
+            if (response.status === 200) {
                 setMessage(response.data.message || '¡Gracias por suscribirte! Revisa tu bandeja de entrada.');
                 setIsError(false);
-                // Cierra el pop-up automáticamente después de 2 segundos
                 setTimeout(() => {
                     onClose();
                 }, 2000);
             } else {
-                // Axios maneja los errores 4xx/5xx en el catch por defecto, pero esto es un fallback
                 setMessage(response.data.message || 'Error al suscribirte. Por favor, inténtalo de nuevo.');
                 setIsError(true);
             }
         } catch (error) {
-            // Manejo de errores de red o errores de backend (4xx/5xx) capturados por Axios
             console.error('ERROR POPUP Frontend: Fallo en la conexión o respuesta del formulario de suscripción:', error);
             if (error.response && error.response.data && error.response.data.error) {
-                // Si el backend devuelve un error específico
                 setMessage(error.response.data.error);
             } else if (error.message === 'Network Error') {
-                // Error de red (backend no accesible)
                 setMessage('Error de red. Asegúrate de que tu backend está funcionando.');
             } else {
-                // Otro tipo de error inesperado
                 setMessage('Hubo un problema de conexión. Por favor, inténtalo más tarde.');
             }
             setIsError(true);
@@ -114,7 +100,6 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
         }
     };
 
-    // No renderiza el pop-up si showPopup es false
     if (!showPopup) {
         return null;
     }
@@ -128,7 +113,6 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                     {t('newsletter_popup_2')}
                 </p>
 
-                {/* Muestra el mensaje de feedback (éxito/error) */}
                 {message && (
                     <div className={`form-message ${isError ? 'error' : 'success'}`}>
                         {message}
@@ -144,7 +128,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             required
-                            disabled={isSubmitting} // Deshabilita el input mientras se envía
+                            disabled={isSubmitting}
                         />
                     </div>
                     <div className="form-group">
@@ -155,7 +139,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             required
-                            disabled={isSubmitting} // Deshabilita el input mientras se envía
+                            disabled={isSubmitting}
                         />
                     </div>
                     <div className="form-group">
@@ -166,7 +150,7 @@ const NewsletterSignUpPopup = ({ showPopup, onClose }) => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            disabled={isSubmitting} // Deshabilita el input mientras se envía
+                            disabled={isSubmitting}
                         />
                     </div>
                     <button type="submit" className="submit-btn" disabled={isSubmitting}>
