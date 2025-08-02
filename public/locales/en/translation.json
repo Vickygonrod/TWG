@@ -179,6 +179,9 @@
   "landing_ebook_50": "Valentina Hernández",
   "landing_ebook_51": "\"Creativity is the voice of the feminine soul.\"",
   "landing_ebook_52": "Get your copy of the eBook and Workbook \"Play and Create: Reconnect with your creativity through your Inner Child\" and discover it.",
+  "form_placeholder_firstName": "Nombre",
+  "form_placeholder_lastName": "Apellido",
+  "form_placeholder_email": "Email",
   "navbar_contact": "Contact",
   "navbar_events": "Events",
   "footer_privacy_policy": "Privacy Policy",
@@ -295,5 +298,14 @@
   "registration_success": "You have successfully registered for the event.",
   "registration_success_newsletter": "You have also subscribed to the community!",
   "registration_failure": "Could not complete event registration.",
-  "error_specify_other_artistic_expression": "Please specify your 'other' artistic expression."
+  "error_specify_other_artistic_expression": "Please specify your 'other' artistic expression.",
+  "leadmagnet_title": "Unlock your creativity",
+  "leadmagnet_subtitle": "Connect with your femenine energy",
+  "leadmagnet_description": "Creativity is your key to reconnecting with your power. Rediscover that spark by nurturing your intuition and flow.",
+  "leadmagnet_firstname_label": "Name",
+  "leadmagnet_lastname_label": "Last Name",
+  "leadmagnet_email_label": "Email",
+  "leadmagnet_submitting_btn": "Sending",
+  "leadmagnet_submit_btn": "Send and get your guide",
+  "leadmagnet_img_alt": "Quick guide: Unlock your creativity. Connect with your femenine energy"
 }

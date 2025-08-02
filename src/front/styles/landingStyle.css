@@ -172,7 +172,7 @@ section h3 {
 .feature-carousel-wrapper {
   position: relative;
   width: 100%;
-  max-width: 1200px; /* Aumentado para dar aún más espacio en desktop */
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -189,7 +189,7 @@ section h3 {
   width: 100%;
   scroll-padding-left: 20px;
   scroll-padding-right: 20px;
-  gap: 30px; /* Añadido gap global para el espacio entre items */
+  gap: 30px; 
 
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -201,7 +201,7 @@ section h3 {
 
 .feature-item {
   background-color: #fff;
-  padding: 20px 30px; /* Mismo padding, ya es más horizontal */
+  padding: 20px 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
@@ -212,7 +212,7 @@ section h3 {
   height: auto;
   font-size: 1.2em;
   scroll-snap-align: center;
-  margin: 0; /* Ya no necesitamos margin aquí, el gap del grid lo maneja */
+  margin: 0;
 }
 
 .cta-features {
@@ -353,10 +353,11 @@ section h3 {
 
 /* --- Sección de Llamada a la Acción (CTA) --- */
 .cta-section {
-  background-color: #2c3e50;
+  background-color: #e9eaea;
   color: #c55336;
   align-items: center;
-  margin-top: 60px;
+  margin-top: 0;
+  padding: 4rem 2rem;
 }
 
 .cta-section h3 {
@@ -476,15 +477,14 @@ section h3 {
     flex-wrap: nowrap;
     scroll-snap-type: x mandatory;
     justify-content: flex-start;
-    gap: 20px; /* Espacio más compacto para móvil */
+    gap: 20px;
   }
 
   .feature-item {
     width: calc(
       100vw - 60px
-    ); /* Un ítem por pantalla, incluyendo márgenes laterales */
-    max-width: 380px; /* Mantiene un límite de crecimiento razonable para móviles */
-    /* margin: 0; ya lo manejamos con gap */
+    );
+    max-width: 380px;
     scroll-snap-align: center;
   }
 
@@ -557,6 +557,42 @@ section h3 {
   .cta-section p {
     font-size: 1.1em;
   }
+  
+  /* --- ESTILOS PARA EL FORMULARIO EN MÓVIL --- */
+  .form-layout-container {
+    flex-direction: column; /* Apila la imagen y el formulario */
+    padding: 2rem 1rem;
+    max-width: 100%;
+    gap: 2rem;
+  }
+  
+  .image-column {
+    display: none; /* Oculta la imagen para pantallas pequeñas */
+  }
+  
+  .form-column {
+    padding: 0;
+    width: 100%; /* Ocupa el ancho completo */
+  }
+
+  .form-column .form-wrapper {
+    max-width: 400px; /* Tamaño más pequeño para el formulario */
+    margin: 0 auto; /* Centra el formulario */
+  }
+  
+  .form-column h3, .form-column p {
+    text-align: center; /* Centra el texto */
+  }
+
+  .form-column form {
+    width: 100%;
+  }
+
+  .cta-final-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 /* --- Desktop: Estilos (a partir de 769px) --- */
@@ -580,27 +616,26 @@ section h3 {
   /* --- SECCIÓN DE CARACTERÍSTICAS EN DESKTOP (2 items visibles, centrados, sin scroll propio) --- */
   .feature-carousel-wrapper {
     justify-content: center;
-    max-width: 1200px; /* Mismo ancho que el contenedor testimonial, o incluso más si necesitas */
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   .feature-grid {
     flex-direction: row;
-    flex-wrap: wrap; /* Permite que las tarjetas se envuelvan para estar lado a lado */
-    overflow-x: hidden; /* Importante! Oculta el scroll horizontal en desktop */
-    scroll-snap-type: none; /* Desactiva el snap */
-    justify-content: center; /* Centra las tarjetas dentro de su contenedor */
-    gap: 30px; /* Espacio entre las tarjetas */
-    width: 100%; /* Ocupa el 100% del feature-carousel-wrapper */
-    padding-bottom: 0; /* Elimina padding extra si no hay scroll */
+    flex-wrap: wrap;
+    overflow-x: hidden;
+    scroll-snap-type: none;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    padding-bottom: 0;
   }
 
   .feature-item {
-    /* ¡Cambios clave aquí para hacerlas más horizontales! */
-    flex: 1 1 calc(50% - 15px); /* Cada tarjeta ocupa el 50% menos la mitad del gap */
-    max-width: none; /* ¡Elimina el max-width para que se estiren al máximo! */
-    margin: 0; /* El gap del grid lo maneja */
-    scroll-snap-align: none; /* Desactiva el snap individual */
+    flex: 1 1 calc(50% - 15px);
+    max-width: none;
+    margin: 0;
+    scroll-snap-align: none;
   }
 
   /* Ocultar flechas en desktop para las características si no las quieres */
@@ -673,4 +708,84 @@ section h3 {
   .cta-section p {
     font-size: 1.3em;
   }
+
+  /* --- ESTILOS PARA EL FORMULARIO EN ESCRITORIO --- */
+  .form-layout-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center; /* Centra el contenido horizontalmente */
+    gap: 4rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px; /* Ancho máximo para el contenedor y centrado */
+    margin: 0 auto;
+  }
+  
+  .image-column {
+    flex: 1; /* Ocupa el 50% del espacio */
+    display: flex;
+    justify-content: flex-end; /* Alinea la imagen a la derecha de su columna */
+    padding: 1rem;
+  }
+  
+  .image-column .tesoro-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+  
+  .form-column {
+    flex: 1; /* Ocupa el 50% del espacio */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* Alinea el contenido a la izquierda de su columna */
+    padding: 1rem;
+  }
+  
+  .form-column h3, .form-column p {
+    text-align: left;
+  }
+
+  .form-column .form-wrapper {
+    max-width: 400px; /* El formulario es más pequeño */
+    width: 100%; /* Ocupa el 100% del contenedor */
+  }
+
+  .form-column form {
+    width: 100%;
+  }
+
+  /* Centrar el título y el párrafo dentro de la columna del formulario */
+  .form-column h3,
+  .form-column p {
+    text-align: center;
+  }
+  
+  /* Ajustar el ancho de los campos de entrada */
+  .form-group input {
+    width: 100%; /* Ocupa el 100% del contenedor */
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+  .cta-final-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Estilos de los campos del formulario */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }

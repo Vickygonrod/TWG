@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import "../styles/landingStyle.css";
 import ebookimgEs from "../images/booksNBG-es.png";
 import ebookimgEn from "../images/booksNBG-en.png";
 import logo from "../images/logo.png";
+import tesoroImage from "../images/tesoro.png"; // <-- IMPORTACIÓN DE LA IMAGEN
 import { NavbarLanding } from "../components/NavbarLanding";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useRef } from "react";
 
 export const Landing = () => {
 
@@ -19,14 +19,45 @@ export const Landing = () => {
     const STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr';
 
     const testimonialsRef = useRef(null);
+    const formRef = useRef(null); 
 
-    const handlePurchaseClick = async () => {
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handlePurchaseClick = () => {
+        if (formRef.current) {
+            formRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!formData.email) {
+            alert("Por favor, introduce tu dirección de correo electrónico.");
+            return;
+        }
+
         try {
-            // ¡EL CAMBIO CLAVE ESTÁ AQUÍ!
-            const priceIdToSend = i18n.language === 'en' ? STRIPE_PRICE_ID_EN : STRIPE_PRICE_ID_ES; // ANTES: STRIPE_PRICE_ES
+            const priceIdToSend = i18n.language === 'en' ? STRIPE_PRICE_ID_EN : STRIPE_PRICE_ID_ES;
+
             const response = await axios.post(`${BACKEND_BASE_URL}/api/create-checkout-session`, {
-                price_id: priceIdToSend
+                price_id: priceIdToSend,
+                customer_email: formData.email,
+                customer_name: `${formData.firstName} ${formData.lastName}`
             });
+
             const { checkout_url } = response.data;
             if (checkout_url) {
                 window.location.href = checkout_url;
@@ -46,7 +77,7 @@ export const Landing = () => {
 
     const scrollTestimonials = (direction) => {
         if (testimonialsRef.current) {
-            const scrollAmount = testimonialsRef.current.offsetWidth * 0.8;
+            const scrollAmount = testimonials.current.offsetWidth * 0.8;
             if (direction === 'left') {
                 testimonialsRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             } else {
@@ -80,7 +111,7 @@ export const Landing = () => {
                         </div>
                     </div>
                     <button className="btn btn-orange"
-                            onClick={handlePurchaseClick}
+                        onClick={handlePurchaseClick}
                     >{t('landing_ebook_5')}</button>
                 </header>
 
@@ -88,7 +119,7 @@ export const Landing = () => {
                 <section className="landing-section features-section">
                     <div className="container">
                         <p className="intro">{t('landing_ebook_6')} <br />
-                            <br />{t('landing_ebook_7')} <span className="bold">{t('landing_ebook_8')}</span> {t('landing_ebook_9')} <span className="bold">{t('landing_ebook_10')}</span> {t('landing_ebook_11')}</p>
+                        <br />{t('landing_ebook_7')} <span className="bold">{t('landing_ebook_8')}</span> {t('landing_ebook_9')} <span className="bold">{t('landing_ebook_10')}</span> {t('landing_ebook_11')}</p>
                         <h3>{t('landing_ebook_12')}</h3>
                         <div className="feature-grid">
                             <div className="feature-item">
@@ -105,17 +136,19 @@ export const Landing = () => {
                                         <br />
                                         <li><span className="bold">{t('landing_ebook_19')}</span> {t('landing_ebook_20')}</li>
                                         <br />
-                                        <li><span className="bold">{t('landing_ebook_21')}</span> {t('landing_ebook_22')}</li></ul>
+                                        <li><span className="bold">{t('landing_ebook_21')}</span> {t('landing_ebook_22')}</li>
+                                    </ul>
                                 </p>
                             </div>
                             <div className="feature-item">
                                 <h4>{t('landing_ebook_23')}</h4>
                                 <br />
-                                <p>{/*{t('landing_ebook_24')} <br />*/}
+                                <p>
                                     <br />{t('landing_ebook_25')} <span className="bold">{t('landing_ebook_26')}</span> {t('landing_ebook_27')}
                                     <br /><br />{t('landing_ebook_28')} <span className="bold">{t('landing_ebook_29')}</span>{t('landing_ebook_30')}
                                     <br /> <br />{t('landing_ebook_31')} <br />
                                     <br /><span className="bold">{t('landing_ebook_32')}</span></p>
+
                             </div>
                         </div>
                     </div>
@@ -129,8 +162,8 @@ export const Landing = () => {
                         <div className="author-content col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
                             <div>
                                 <p>{t('landing_ebook_34')} <br />
-                                    <br /> {t('landing_ebook_35')} <br />
-                                    <br />{t('landing_ebook_36')}</p>
+                                <br /> {t('landing_ebook_35')} <br />
+                                <br />{t('landing_ebook_36')}</p>
                                 <Link to="/community" className="btn btn-secondary"> {t('landing_ebook_37')}</Link>
                             </div>
                         </div>
@@ -176,19 +209,56 @@ export const Landing = () => {
                     </div>
                 </section>
 
-                {/* --- Last CTA --- */}
-                <section id="buy-section" className="landing-section cta-section">
-                    <div className="container">
-                        <h3>{t('landing_ebook_51')} </h3>
-                        <p>{t('landing_ebook_52')}</p>
-                        <div className="cta-final-group">
-                            <div className="price-box">
-                                <span className="original-price">20€</span>
-                                <span className="current-price">15€</span>
-                            </div>
-                            <button className="btn btn-orange"
-                                    onClick={handlePurchaseClick}
-                            >{t('landing_ebook_5')}</button>
+                {/* --- Última llamada a la acción con formulario --- */}
+                <section id="buy-section" className="landing-section cta-section" ref={formRef}>
+                    <div className="form-layout-container">
+                        <div className="image-column">
+                            <img src={tesoroImage} alt="Páginas del libro" className="tesoro-image"/>
+                        </div>
+                        <div className="form-column">
+                            <h3>{t('landing_ebook_51')} </h3>
+                            <p>{t('landing_ebook_52')}</p>
+                            <form onSubmit={handleFormSubmit}>
+                                <div className="form-group">
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={handleInputChange}
+                                        placeholder={t('form_placeholder_firstName')}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={handleInputChange}
+                                        placeholder={t('form_placeholder_lastName')}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        placeholder={t('form_placeholder_email')}
+                                        required
+                                    />
+                                </div>
+                                <div className="cta-final-group">
+                                    <div className="price-box">
+                                        <span className="original-price">20€</span>
+                                        <span className="current-price">15€</span>
+                                    </div>
+                                    <button type="submit" className="btn btn-orange">
+                                        {t('landing_ebook_5')}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </section>

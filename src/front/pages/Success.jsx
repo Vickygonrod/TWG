@@ -1,102 +1,102 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import axios from "axios";
-import "../styles/landingStyle.css"; // Asegúrate de que los estilos sean los correctos
+import "../styles/landingStyle.css"; 
 import { useTranslation } from 'react-i18next';
+import NewsletterSignUpPopup from '../components/NewsletterSignUpPopup.jsx';
+
 
 // IMPORTA AMBAS IMÁGENES AQUÍ
-import ebookimgEs from "../images/booksNBG-es.png"; // Imagen para español
-import ebookimgEn from "../images/booksNBG-en.png"; // Imagen para inglés
+import ebookimgEs from "../images/booksNBG-es.png";
+import ebookimgEn from "../images/booksNBG-en.png";
 
 
-export const Success = () => { // Asumiendo que este es tu componente Success
+export const Success = () => {
     const location = useLocation();
     const [sessionId, setSessionId] = useState(null);
-    const [downloading, setDownloading] = useState(false);
-    const [downloadInitiated, setDownloadInitiated] = useState(false); // Para controlar si el botón de descarga ya se hizo clic
+    const [showPopup, setShowPopup] = useState(false); // <-- Estado para el pop-up
+    const [userData, setUserData] = useState(null); // <-- Estado para los datos del usuario
+    const [downloadLink, setDownloadLink] = useState(null); // <-- Estado para el enlace de descarga
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true); // <-- NUEVO: Estado para controlar la carga de datos
 
-    const { t, i18n } = useTranslation(); // Desestructura i18n aquí para acceder al idioma
+    const { t, i18n } = useTranslation();
 
-    // Lógica para seleccionar la imagen basada en el idioma actual
     const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
 
-    // --- CAMBIO CLAVE AQUÍ ---
-    // Obtenemos la URL del backend desde las variables de entorno de Vite.
-    // Esto se resolverá a la URL de Render en producción, y a la de Codespaces/local
-    // en desarrollo (si tienes un .env local con VITE_BACKEND_URL).
-    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL; // <--- MODIFICADO
-
+    const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
         const query = new URLSearchParams(location.search);
         const id = query.get('session_id');
+
         if (id) {
             setSessionId(id);
+            const fetchUserData = async () => {
+                try {
+                    const response = await axios.get(`${BACKEND_BASE_URL}/api/get-session-data?session_id=${id}`);
+                    setUserData(response.data);
+                    // Una vez que tenemos los datos, generamos el enlace de descarga
+                    setDownloadLink(`${BACKEND_BASE_URL}/api/download-ebook?session_id=${id}`);
+                    // Y mostramos el pop-up
+                    setShowPopup(true);
+                } catch (err) {
+                    console.error("Error al obtener datos del usuario:", err);
+                    setError("No se pudo obtener la información de tu compra.");
+                } finally {
+                    setIsLoading(false); // Siempre termina la carga
+                }
+            };
+            fetchUserData();
         } else {
             setError("No se encontró ID de sesión. La compra no se pudo verificar.");
+            setIsLoading(false); // Termina la carga si no hay ID de sesión
         }
-    }, [location]);
+    }, [location, BACKEND_BASE_URL]);
 
-    const handleDownload = async () => {
-        if (!sessionId) {
-            setError("No hay ID de sesión para iniciar la descarga.");
-            return;
-        }
-
-        setDownloading(true);
-        setDownloadInitiated(true); // Indica que la descarga ha sido iniciada
-
-        try {
-            // --- CAMBIO CLAVE AQUÍ ---
-            // Usamos la variable BACKEND_BASE_URL para construir la URL completa de la API.
-            // Esto asegura que apunte a tu backend de Render en producción.
-            const response = await axios.get(`${BACKEND_BASE_URL}/api/download-ebook?session_id=${sessionId}`, { // <--- MODIFICADO
-                responseType: 'blob', // Importante para manejar archivos
-            });
-
-            // Crea un objeto URL para el blob y crea un enlace de descarga
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Juega_a_Crear_Pack_ES.zip'); // Nombre del archivo de descarga
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url); // Libera la URL del objeto
-
-        } catch (err) {
-            console.error("Error durante la descarga:", err);
-            setError("Error al descargar el archivo. Por favor, contacta con soporte.");
-        } finally {
-            setDownloading(false);
-        }
+    // Función para cerrar el pop-up
+    const handlePopupClose = () => {
+        setShowPopup(false);
+        // El enlace de descarga ya está generado en el useEffect
     };
 
     return (
         <div className="container containersuccess mt-5 text-center">
-            <h1>{t('success_1')}</h1>
-            <h3>{t('success_2')}</h3>
-            {/* Usa la imagen seleccionada dinámicamente aquí */}
-            <img src={currentEbookImage} alt={t('success_1')} className="ebookimgSuccess"/>
-            {error && <div className="alert alert-danger" role="alert">{error}</div>}
+            {/* El pop-up se muestra condicionalmente, superpuesto al resto del contenido */}
+            {showPopup && userData && (
+                <NewsletterSignUpPopup 
+                    onClose={handlePopupClose} 
+                    initialEmail={userData.email}
+                    initialName={userData.name}
+                />
+            )}
 
-            {sessionId ? (
-                !downloadInitiated ? (
-                    <button
-                        className="btn btn-orange btn-lg mt-4"
-                        onClick={handleDownload}
-                        disabled={downloading}
-                    >
-                        {downloading ? t('success_3') : t('success_3b')}
-                    </button>
-                ) : (
-                    <Link to="/community" className="btn btn-secondary btn-lg mt-4">
-                        {t('success_4')}
-                    </Link>
-                )
+            {/* El contenido de la página se renderiza siempre, a menos que esté cargando o haya un error crítico */}
+            {isLoading ? (
+                <p>{t('success_5')}</p> // Muestra un mensaje de carga
+            ) : error ? (
+                <div className="alert alert-danger" role="alert">{error}</div>
             ) : (
-                <p className="mt-4">{t('success_5')}</p>
+                <>
+                    <h1>{t('success_1')}</h1>
+                    <h3>{t('success_2')}</h3>
+                    <img src={currentEbookImage} alt={t('success_1')} className="ebookimgSuccess"/>
+                    
+                    {/* El botón de descarga se muestra si downloadLink está disponible */}
+                    {downloadLink ? (
+                        <a 
+                            href={downloadLink}
+                            className="btn btn-orange btn-lg mt-4"
+                            target="_self"
+                            rel="noopener noreferrer"
+                        >
+                            {t('success_3b')}
+                        </a>
+                    ) : (
+                        // Esto solo se mostrará si no hay link de descarga pero no hay error ni está cargando
+                        <p className="mt-4">{t('success_5')}</p> 
+                    )}
+                </>
             )}
 
             <p className="mt-5">{t('success_6')} <Link to="/contact">{t('success_7')}</Link>.</p>

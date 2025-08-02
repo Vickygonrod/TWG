@@ -18,6 +18,7 @@ import { Cookies } from "./pages/Cookies.jsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.jsx";
 import { EventRegistration } from "./pages/EventRegistration.jsx";
 import { AdminLogin } from "./components/AdminLoging.jsx";
+import { LeadMagnetLanding } from "./pages/LeadMagnetLanding.jsx";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -43,7 +44,7 @@ export const router = createBrowserRouter(
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/eventregistration" element={<EventRegistration />} />
       <Route path="/adminlogin" element={<AdminLogin />} />
-
+      <Route path="/quickguide" element={<LeadMagnetLanding />} />
     </Route>
   )
 );

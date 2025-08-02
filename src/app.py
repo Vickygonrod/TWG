@@ -13,6 +13,7 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from api.config import Config
 import stripe
+from api.services.email_service import send_contact_form_email # ¡NUEVO! Importar la función
 
 
 # Stripe conf
@@ -65,6 +66,14 @@ app.register_blueprint(api, url_prefix='/api')
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
+
+# --- NUEVO MANEJADOR DE ERRORES GENÉRICO ---
+@app.errorhandler(500)
+def handle_server_error(e):
+    print(f"ERROR: Se ha capturado un error 500 inesperado: {e}")
+    return jsonify({"error": "Ocurrió un error inesperado en el servidor."}), 500
+# ----------------------------------------
+
 
 # generate sitemap with all your endpoints
 

@@ -180,6 +180,9 @@
   "landing_ebook_50": "Valentina Hernández",
   "landing_ebook_51": "\"La creatividad es la voz del alma femenina.\"",
   "landing_ebook_52": "Obtén tu copia del eBook y el Cuaderno de Ejercicios \"Juega a Crear: Reconecta con tu creatividad desde tu Niña Interior\" y descúbrela.",
+  "form_placeholder_firstName": "Nombre",
+  "form_placeholder_lastName": "Apellido",
+  "form_placeholder_email": "Email",
   "navbar_contact": "Contacto",
   "footer_privacy_policy": "Política de Privacidad",
   "privacy_1": "Política de Privacidad y Protección de Datos de The Women's Ground",
@@ -295,5 +298,14 @@
   "registration_success": "Te has registrado al evento correctamente.",
   "registration_success_newsletter": "¡También te has suscrito a la comunidad!",
   "registration_failure": "No se ha podido finalizar el registro al evento.",
-  "error_specify_other_artistic_expression": "Por favor, especifica tu 'otra' expresión artística."
+  "error_specify_other_artistic_expression": "Por favor, especifica tu 'otra' expresión artística.",
+  "leadmagnet_title": "Desbloquea tu Creatividad",
+  "leadmagnet_subtitle": "Conecta con tu Energía Femenina",
+  "leadmagnet_description": "La creatividad es tu llave para reconectar con tu poder. Redescubre esa chispa nutriendo tu intuición y fluidez.",
+  "leadmagnet_firstname_label": "Nombre",
+  "leadmagnet_lastname_label": "Apellido",
+  "leadmagnet_email_label": "Email",
+  "leadmagnet_submitting_btn": "Enviando",
+  "leadmagnet_submit_btn": "Enviar y recibir guía",
+  "leadmagnet_img_alt": "Guía rápida: desbloqua tu creatividad. Conecta con tu energía femenina"
 }
