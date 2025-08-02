@@ -83,8 +83,8 @@ def create_checkout_session():
     try:
         data = request.json
         price_id = data.get('price_id')
-        customer_email = data.get('customer_email') # <-- Línea importante para la automatización
-        customer_name = data.get('customer_name')   # <-- Nuevo: para el nombre completo
+        customer_email = data.get('customer_email') 
+        customer_name = data.get('customer_name')  
         
         if not price_id or not customer_email:
             print("ERROR: Faltan Price ID o Email del frontend.")
@@ -210,10 +210,17 @@ def download_ebook():
 @api.route('/stripe-webhook', methods=['POST'])
 def stripe_webhook():
     print("DEBUG: Webhook de Stripe recibido. Procesando...")
-    payload = request.data
+    
+    # Esta línea ahora está verificada y funciona
+    payload = request.get_data()
     sig_header = request.headers.get('Stripe-Signature')
+
     event = None
     webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    if not webhook_secret:
+        print("ERROR: STRIPE_WEBHOOK_SECRET no configurado. Abortando verificación.")
+        return 'Webhook secret not configured', 500
 
     try:
         event = stripe.Webhook.construct_event(
@@ -233,13 +240,9 @@ def stripe_webhook():
         print("DEBUG: Evento 'checkout.session.completed' detectado.")
         session = event['data']['object']
         
-        # Extracción de datos de la sesión de Stripe
         customer_email = session['customer_details']['email']
         customer_name = session['metadata'].get('customer_name', '')
         
-        # --- LÍNEA CORREGIDA ---
-        # El price_id se encuentra en los 'line_items', no en la 'metadata'.
-        # Es necesario expandir la sesión para acceder a 'line_items'.
         try:
             line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
             purchased_price_id = line_items.data[0].price.id if line_items.data else None
@@ -254,7 +257,6 @@ def stripe_webhook():
 
         print(f"DEBUG: Webhook recibido para pago completado. Email: {customer_email}, Nombre: {customer_name}, Price ID: {purchased_price_id}")
 
-        # --- LÓGICA: GUARDAR LA ORDEN EN LA BASE DE DATOS ---
         print("DEBUG: Intentando guardar la orden en la base de datos.")
         try:
             new_order = Order(
@@ -272,8 +274,7 @@ def stripe_webhook():
         except Exception as db_e:
             db.session.rollback()
             print(f"ERROR: Fallo al guardar la compra en la base de datos: {db_e}")
-        # --- FIN DE LA LÓGICA DE LA BASE DE DATOS ---
-
+        
         download_link = None
         if purchased_price_id == Config.STRIPE_PRICE_ID_ES:
             download_link = f"{Config.BACKEND_URL}/api/download-ebook?session_id={session['id']}"
@@ -292,7 +293,6 @@ def stripe_webhook():
             else:
                 print("ERROR: Fallo al enviar email de descarga vía webhook.")
 
-            # --- LÓGICA: MOVER AL SUSCRIPTOR DE GRUPO EN MAILERLITE ---
             if purchased_price_id == Config.STRIPE_PRICE_ID_ES:
                 add_subscriber_to_mailerlite(
                     email=customer_email,
