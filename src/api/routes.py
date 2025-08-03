@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Subscriber, EventRegistration, Admins, Contact, Order
+from api.models import db, User, Subscriber, Admins, Contact, Order, Event, EventParticipant
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config
@@ -495,6 +495,7 @@ def handle_event_registration():
     try:
         data = request.json
 
+        # Obtenemos los datos del formulario, incluyendo el nombre del evento
         full_name = data.get('fullName')
         email = data.get('email')
         event_name = data.get('eventName')
@@ -512,22 +513,50 @@ def handle_event_registration():
             print("ERROR: Invalid email format.")
             return jsonify(error="Invalid email format."), 400
 
-        new_registration = EventRegistration(
-            full_name=full_name,
+        # --- CAMBIO CRÍTICO: BUSCAR EL EVENTO EXISTENTE ---
+        # Buscamos el evento en la base de datos por su nombre
+        event = Event.query.filter_by(name=event_name).first()
+        
+        if not event:
+            print(f"ERROR: Event with name '{event_name}' not found.")
+            return jsonify(error=f"Event '{event_name}' does not exist."), 404
+
+        # Opcional: Validar si el evento ya está lleno
+        if event.max_participants and event.current_participants >= event.max_participants:
+            print(f"ERROR: Event '{event_name}' is already full.")
+            return jsonify(error=f"Event '{event_name}' is already full."), 400
+            
+        # Opcional: Evitar registros duplicados para el mismo evento
+        existing_participant = EventParticipant.query.filter_by(event_id=event.id, email=email).first()
+        if existing_participant:
+            print(f"ERROR: Email {email} is already registered for event '{event_name}'.")
+            return jsonify(error="You are already registered for this event."), 409
+
+        # --- CAMBIO CRÍTICO: CREAR UNA INSTANCIA DEL NUEVO MODELO ---
+        # Creamos una nueva instancia del modelo EventParticipant, enlazándolo al evento encontrado
+        new_participant = EventParticipant(
+            event_id=event.id, # Enlazamos el participante al ID del evento
+            name=full_name,
             email=email,
-            event_name=event_name,
             how_did_you_hear=how_did_you_hear,
             artistic_expression=artistic_expression,
             why_interested=why_interested,
             comments=comments
         )
 
-        db.session.add(new_registration)
+        db.session.add(new_participant)
+        
+        # Incrementamos el contador de participantes del evento
+        event.current_participants += 1
+        
         db.session.commit()
         
-        print(f"DEBUG: New event registration saved to DB: {new_registration.email} for {new_registration.event_name}")
+        print(f"DEBUG: New event participant saved to DB: {new_participant.name} for event ID {new_participant.event_id}.")
+        print(f"DEBUG: Event '{event.name}' now has {event.current_participants} participants.")
 
+        # La lógica de suscripción a MailerLite se mantiene igual
         if data.get('subscribeToNewsletter'):
+            # ... (tu código para MailerLite va aquí, se mantiene casi idéntico) ...
             print(f"DEBUG: Procesando suscripción a newsletter desde registro de evento para {email} (Idioma: {language})...")
             
             target_group_id = None
@@ -581,26 +610,3 @@ def handle_event_registration():
         db.session.rollback()
         print(f"ERROR GENERAL in /api/event-registration: {e}")
         return jsonify(error="An unexpected error occurred during registration."), 500
-
-
-@api.route('/fake-checkout-session', methods=['POST'])
-def fake_checkout_session():
-    data = request.json
-    price_id = data.get('price_id')
-
-    if not price_id:
-        return jsonify(error="Price ID missing"), 400
-
-    # Simula una sesión de compra
-    fake_session_id = "fake_" + price_id
-    fake_checkout_url = f"https://fake-checkout.com/session/{fake_session_id}"
-
-    # Aquí puedes disparar tus automatizaciones de prueba (email, grupo, etc.)
-    # Por ejemplo, llamar a send_ebook_download_email, add_subscriber_to_mailerlite, etc.
-
-    return jsonify({
-        "checkout_url": fake_checkout_url,
-        "session_id": fake_session_id,
-        "price_id": price_id,
-        "status": "created"
-    }), 200

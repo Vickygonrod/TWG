@@ -123,34 +123,87 @@ class Subscriber(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
-class EventRegistration(db.Model):
-    __tablename__ = 'event_registrations' # Table name in the database
+class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=False, nullable=False)
-    event_name = db.Column(db.String(120), nullable=False)
-    how_did_you_hear = db.Column(db.String(255), nullable=True)
-    artistic_expression = db.Column(db.String(255), nullable=True)
-    why_interested = db.Column(db.Text, nullable=True)
-    comments = db.Column(db.Text, nullable=True)
-    registration_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-    is_read = db.Column(db.Boolean, default=False, nullable=False) # <--- AÑADE ESTA LÍNEA
+    name = db.Column(db.String(255), nullable=False, unique=True) # El nombre del evento, único
+    short_description = db.Column(db.String(500), nullable=True)
+    long_description = db.Column(db.Text, nullable=True) # Usamos Text para descripciones largas
+    date = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    max_participants = db.Column(db.Integer, nullable=True)
+    # Contador para no tener que contar cada vez que se necesite
+    current_participants = db.Column(db.Integer, default=0, nullable=False)
+    price_1 = db.Column(db.Float, nullable=True)
+    price_2 = db.Column(db.Float, nullable=True)
+    price_3 = db.Column(db.Float, nullable=True)
+    price_4 = db.Column(db.Float, nullable=True)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relación con los participantes (el modelo que modificaremos de EventRegistration)
+    participants = db.relationship('EventParticipant', backref='event', lazy=True)
 
     def __repr__(self):
-        return f'<EventRegistration {self.full_name} - {self.event_name}>'
+        return f'<Event {self.name} - {self.date}>'
 
     def serialize(self):
         return {
             "id": self.id,
-            "full_name": self.full_name,
+            "name": self.name,
+            "short_description": self.short_description,
+            "long_description": self.long_description,
+            "date": self.date.isoformat() if self.date else None,
+            "location": self.location,
+            "max_participants": self.max_participants,
+            "current_participants": self.current_participants,
+            "price_1": self.price_1,
+            "price_2": self.price_2,
+            "price_3": self.price_3,
+            "price_4": self.price_4,
+            "is_active": self.is_active,
+            "image_url": self.image_url,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
+
+
+class EventParticipant(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # Clave foránea que lo relaciona con un evento
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    # En vez de "full_name", mejor name y email, ya que son los que se usarán en el futuro para relacionarlos con los usuarios
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    
+    # Mantenemos los campos adicionales que ya tenías
+    how_did_you_hear = db.Column(db.String(255), nullable=True)
+    artistic_expression = db.Column(db.String(255), nullable=True)
+    why_interested = db.Column(db.Text, nullable=True)
+    comments = db.Column(db.Text, nullable=True)
+    
+    # Y añadimos campos nuevos necesarios
+    price_paid = db.Column(db.Float, nullable=True) # Para registrar el precio exacto pagado
+    payment_status = db.Column(db.String(50), default='pending') # Pagado, pendiente, fallido
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f'<EventParticipant {self.name} - Event ID: {self.event_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "event_id": self.event_id,
+            "name": self.name,
             "email": self.email,
-            "event_name": self.event_name,
             "how_did_you_hear": self.how_did_you_hear,
             "artistic_expression": self.artistic_expression,
             "why_interested": self.why_interested,
             "comments": self.comments,
+            "price_paid": self.price_paid,
+            "payment_status": self.payment_status,
             "registration_date": self.registration_date.isoformat() if self.registration_date else None,
-            "is_read": self.is_read # <--- AÑADE ESTA LÍNEA
+            "is_read": self.is_read
         }
 
 # --- Contact Messages ---

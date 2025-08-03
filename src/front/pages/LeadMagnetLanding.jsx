@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import '../styles/landingStyle.css'; // Mantenemos el estilo de la landing
-import ebookimgEs from '../images/booksNBG-es.png';
-import ebookimgEn from '../images/booksNBG-en.png';
+import guiarapidaimg from '../images/guiarapidaimg.png';
+import quickguideimg from '../images/quickguideimg.png';
 
 export const LeadMagnetLanding = () => {
     // Estados para los campos del formulario
@@ -17,7 +17,7 @@ export const LeadMagnetLanding = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { t, i18n } = useTranslation();
-    const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
+    const currentEbookImage = i18n.language === 'en' ? quickguideimg : guiarapidaimg;
     const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     // Función que se ejecuta al enviar el formulario
