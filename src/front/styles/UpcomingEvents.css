@@ -1,0 +1,69 @@
+.hero-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.principal-events-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.loading-message, .error-message, .no-events-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  padding: 2rem;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .principal-events-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.upcoming-events-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+/* MODIFICACIÓN: Contenedor para las dos columnas */
+.principal-events {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem; /* Este 'gap' crea la separación entre las dos columnas */
+  margin-bottom: 3rem;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .principal-events {
+    grid-template-columns: 1fr; /* Una sola columna en móviles */
+  }
+}
+
+/* Estilos existentes */
+.loading-message, .error-message, .no-events-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  padding: 2rem;
+}

@@ -610,3 +610,186 @@ def handle_event_registration():
         db.session.rollback()
         print(f"ERROR GENERAL in /api/event-registration: {e}")
         return jsonify(error="An unexpected error occurred during registration."), 500
+
+
+@api.route('/event', methods=['POST'])
+@jwt_required()  # Requerir token JWT para esta ruta
+def create_event():
+    # Identificar al usuario que hizo la solicitud
+    current_user_email = get_jwt_identity()
+
+    # Verificar si el usuario es un administrador
+    admin = Admins.query.filter_by(email=current_user_email).first()
+    if not admin:
+        return jsonify({"msg": "Admin privileges required"}), 403
+
+    try:
+        data = request.get_json()
+
+        # Validación de campos obligatorios
+        if not all(k in data for k in ('name', 'date', 'location')):
+            return jsonify({"msg": "Missing required fields: name, date, location"}), 400
+
+        # Validación de la fecha
+        try:
+            event_date = datetime.fromisoformat(data['date'])
+        except ValueError:
+            return jsonify({"msg": "Invalid date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)"}), 400
+        
+        # Opcional: Validar si el evento ya existe para evitar duplicados
+        existing_event = Event.query.filter_by(name=data['name']).first()
+        if existing_event:
+            return jsonify({"msg": f"An event with the name '{data['name']}' already exists."}), 409
+
+        # Crear una nueva instancia del modelo Event
+        new_event = Event(
+            name=data['name'],
+            short_description=data.get('short_description'),
+            long_description=data.get('long_description'),
+            date=event_date,
+            location=data['location'],
+            max_participants=data.get('max_participants'),
+            price_1=data.get('price_1'),
+            price_2=data.get('price_2'),
+            price_3=data.get('price_3'),
+            price_4=data.get('price_4'),
+            is_active=data.get('is_active', True),  # Por defecto activo
+            image_url=data.get('image_url')
+        )
+
+        db.session.add(new_event)
+        db.session.commit()
+
+        return jsonify(new_event.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating event: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+
+@api.route('/events', methods=['GET']) # Se cambia a 'events' para diferenciarla de la ruta de admin.
+def get_public_events():
+    """
+    Ruta para que los clientes obtengan una lista de todos los eventos activos.
+    """
+    try:
+        events = Event.query.filter_by(is_active=True).order_by(Event.priority_order.asc()).all()
+        if not events:
+            return jsonify({"msg": "No active events found"}), 404
+
+        serialized_events = [event.serialize() for event in events]
+        return jsonify(serialized_events), 200
+
+    except Exception as e:
+        print(f"Error retrieving public events: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+# ...
+@api.route('/events/<int:event_id>', methods=['GET'])
+def get_single_event(event_id):
+    """
+    Ruta para obtener un solo evento.
+    """
+    try:
+        event = Event.query.get(event_id)
+        if not event:
+            return jsonify({"msg": "Event not found"}), 404
+
+        return jsonify(event.serialize()), 200
+
+    except Exception as e:
+        print(f"Error retrieving event with id {event_id}: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+# ...
+
+@api.route('/admin/event/<int:event_id>', methods=['PUT'])
+@jwt_required()
+def update_event(event_id):
+   
+    try:
+        # Verificar si el usuario es un administrador
+        current_user_email = get_jwt_identity()
+        admin = Admins.query.filter_by(email=current_user_email).first()
+        if not admin:
+            return jsonify({"msg": "Admin privileges required"}), 403
+
+        # Buscar el evento por su ID
+        event = Event.query.get(event_id)
+        if not event:
+            return jsonify({"msg": "Event not found"}), 404
+
+        data = request.get_json()
+
+        # Actualizar solo los campos que se envían en el JSON
+        if 'name' in data:
+            event.name = data['name']
+        if 'short_description' in data:
+            event.short_description = data['short_description']
+        if 'long_description' in data:
+            event.long_description = data['long_description']
+        if 'date' in data:
+            try:
+                event.date = datetime.fromisoformat(data['date'])
+            except ValueError:
+                return jsonify({"msg": "Invalid date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)"}), 400
+        if 'location' in data:
+            event.location = data['location']
+        if 'max_participants' in data:
+            event.max_participants = data['max_participants']
+        if 'price_1' in data:
+            event.price_1 = data['price_1']
+        if 'price_2' in data:
+            event.price_2 = data['price_2']
+        if 'price_3' in data:
+            event.price_3 = data['price_3']
+        if 'price_4' in data:
+            event.price_4 = data['price_4']
+        if 'is_active' in data:
+            event.is_active = data['is_active']
+        if 'image_url' in data:
+            event.image_url = data['image_url']
+
+        db.session.commit()
+
+        return jsonify(event.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating event with id {event_id}: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+
+@api.route('/admin/event/<int:event_id>', methods=['DELETE'])
+@jwt_required()
+def delete_event(event_id):
+    """
+    Ruta para que los administradores eliminen un evento y sus participantes asociados.
+    """
+    try:
+        # Verificar si el usuario es un administrador
+        current_user_email = get_jwt_identity()
+        admin = Admins.query.filter_by(email=current_user_email).first()
+        if not admin:
+            return jsonify({"msg": "Admin privileges required"}), 403
+
+        # Buscar el evento por su ID
+        event = Event.query.get(event_id)
+        if not event:
+            return jsonify({"msg": "Event not found"}), 404
+
+        # Eliminar el evento
+        # Con el borrado en cascada configurado en el modelo (si lo haces),
+        # también se borrarán los participantes.
+        # Si no lo tienes, deberías borrarlos manualmente primero.
+        # Por ejemplo: EventParticipant.query.filter_by(event_id=event.id).delete()
+        db.session.delete(event)
+        db.session.commit()
+
+        return jsonify({"msg": f"Event with ID {event_id} has been deleted."}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting event with id {event_id}: {e}")
+        return jsonify({"msg": "Internal server error"}), 500

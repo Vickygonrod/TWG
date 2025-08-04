@@ -139,6 +139,7 @@ class Event(db.Model):
     price_4 = db.Column(db.Float, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
+    priority_order = db.Column(db.Integer, default=999, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relación con los participantes (el modelo que modificaremos de EventRegistration)
@@ -153,7 +154,7 @@ class Event(db.Model):
             "name": self.name,
             "short_description": self.short_description,
             "long_description": self.long_description,
-            "date": self.date.isoformat() if self.date else None,
+            "date": self.date.isoformat(),
             "location": self.location,
             "max_participants": self.max_participants,
             "current_participants": self.current_participants,
@@ -163,6 +164,7 @@ class Event(db.Model):
             "price_4": self.price_4,
             "is_active": self.is_active,
             "image_url": self.image_url,
+            "priority_order": self.priority_order,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 

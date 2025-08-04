@@ -19,7 +19,8 @@ import { PrivacyPolicy } from "./components/PrivacyPolicy.jsx";
 import { EventRegistration } from "./pages/EventRegistration.jsx";
 import { AdminLogin } from "./components/AdminLoging.jsx";
 import { LeadMagnetLanding } from "./pages/LeadMagnetLanding.jsx";
-import { EventsHub } from "./pages/EventsHub.jsx";
+import { UpcomingEvents } from "./components/UpcomingEvents.jsx";
+import { EventDetails } from "./components/EventDetails.jsx";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -46,7 +47,8 @@ export const router = createBrowserRouter(
       <Route path="/eventregistration" element={<EventRegistration />} />
       <Route path="/adminlogin" element={<AdminLogin />} />
       <Route path="/quickguide" element={<LeadMagnetLanding />} />
-      <Route path="/events" element={<EventsHub />} />
+      <Route path="/upcomingevents" element={<UpcomingEvents />} />
+      <Route path="/events/:id" element={<EventDetails />} />
     </Route>
   )
 );
