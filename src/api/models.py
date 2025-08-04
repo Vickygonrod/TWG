@@ -123,30 +123,60 @@ class Subscriber(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
+class RetreatDetails(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), unique=True, nullable=False)
+    
+    # Ejemplo de campos para habitaciones y precios. Puedes agregar más según tus necesidades.
+    room_type_1_name = db.Column(db.String(255), nullable=True)
+    room_type_1_price = db.Column(db.Float, nullable=True)
+    room_type_2_name = db.Column(db.String(255), nullable=True)
+    room_type_2_price = db.Column(db.Float, nullable=True)
+    
+    def __repr__(self):
+        return f'<RetreatDetails for Event ID: {self.event_id}>'
+
+    def serialize(self):
+        return {
+            "room_type_1_name": self.room_type_1_name,
+            "room_type_1_price": self.room_type_1_price,
+            "room_type_2_name": self.room_type_2_name,
+            "room_type_2_price": self.room_type_2_price
+        }
+
+# Modelo de Evento modificado
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False, unique=True) # El nombre del evento, único
+    name = db.Column(db.String(255), nullable=False, unique=True)
     short_description = db.Column(db.String(500), nullable=True)
-    long_description = db.Column(db.Text, nullable=True) # Usamos Text para descripciones largas
+    long_description = db.Column(db.Text, nullable=True)
     date = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String(255), nullable=False)
     max_participants = db.Column(db.Integer, nullable=True)
-    # Contador para no tener que contar cada vez que se necesite
     current_participants = db.Column(db.Integer, default=0, nullable=False)
+    
+    # Campo para eventos de tipo 'pagado', 'gratis' o 'retreat'
+    event_type = db.Column(db.String(50), nullable=False, default='pagado')
+    
+    # 'price_1' se mantendrá para los eventos 'pagados' simples
     price_1 = db.Column(db.Float, nullable=True)
-    price_2 = db.Column(db.Float, nullable=True)
-    price_3 = db.Column(db.Float, nullable=True)
-    price_4 = db.Column(db.Float, nullable=True)
+    # Ya no necesitamos los campos price_2, price_3, etc.
+    # Los precios de los retreats los guardaremos en RetreatDetails.
+    
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
     priority_order = db.Column(db.Integer, default=999, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relación con los participantes (el modelo que modificaremos de EventRegistration)
+    # Relación con RetreatDetails (uno a uno)
+    retreat_details = db.relationship('RetreatDetails', backref='event', uselist=False)
+
+    # Relación con los participantes (reservas o inscripciones)
     participants = db.relationship('EventParticipant', backref='event', lazy=True)
+    reservations = db.relationship('Reservation', backref='event', lazy=True)
 
     def __repr__(self):
-        return f'<Event {self.name} - {self.date}>'
+        return f'<Event {self.name} - {self.date} - Type: {self.event_type}>'
 
     def serialize(self):
         return {
@@ -158,34 +188,54 @@ class Event(db.Model):
             "location": self.location,
             "max_participants": self.max_participants,
             "current_participants": self.current_participants,
+            "event_type": self.event_type,
             "price_1": self.price_1,
-            "price_2": self.price_2,
-            "price_3": self.price_3,
-            "price_4": self.price_4,
             "is_active": self.is_active,
             "image_url": self.image_url,
             "priority_order": self.priority_order,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            # Serializamos los detalles del retreat si existen
+            "retreat_details": self.retreat_details.serialize() if self.retreat_details else None
+        }
+
+# Nuevo modelo para manejar las reservas del formulario que creamos
+class Reservation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
+    participants_count = db.Column(db.Integer, nullable=False, default=1)
+    status = db.Column(db.String(50), default='pending') # 'pending', 'confirmed', 'cancelled'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Reservation {self.name} for Event ID: {self.event_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "event_id": self.event_id,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "participants_count": self.participants_count,
+            "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
-
+# Modelos que no cambian, por conveniencia los dejo.
 class EventParticipant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # Clave foránea que lo relaciona con un evento
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-    # En vez de "full_name", mejor name y email, ya que son los que se usarán en el futuro para relacionarlos con los usuarios
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), nullable=False)
-    
-    # Mantenemos los campos adicionales que ya tenías
     how_did_you_hear = db.Column(db.String(255), nullable=True)
     artistic_expression = db.Column(db.String(255), nullable=True)
     why_interested = db.Column(db.Text, nullable=True)
     comments = db.Column(db.Text, nullable=True)
-    
-    # Y añadimos campos nuevos necesarios
-    price_paid = db.Column(db.Float, nullable=True) # Para registrar el precio exacto pagado
-    payment_status = db.Column(db.String(50), default='pending') # Pagado, pendiente, fallido
+    price_paid = db.Column(db.Float, nullable=True)
+    payment_status = db.Column(db.String(50), default='pending')
     is_read = db.Column(db.Boolean, default=False, nullable=False)
     registration_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
@@ -205,6 +255,37 @@ class EventParticipant(db.Model):
             "price_paid": self.price_paid,
             "payment_status": self.payment_status,
             "registration_date": self.registration_date.isoformat() if self.registration_date else None,
+            "is_read": self.is_read
+        }
+
+class InformationRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # Relaciona la solicitud con un evento específico
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
+    comments = db.Column(db.Text, nullable=True)
+    # Para saber cuándo se hizo la solicitud
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # Para que el administrador sepa si la solicitud ya ha sido revisada
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+
+    # Relación de vuelta para acceder a los datos del evento desde la solicitud
+    event = db.relationship('Event', backref='information_requests', lazy=True)
+
+    def __repr__(self):
+        return f'<InformationRequest {self.name} for Event ID: {self.event_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "event_id": self.event_id,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "comments": self.comments,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
             "is_read": self.is_read
         }
 

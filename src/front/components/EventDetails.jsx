@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import '../styles/EventDetails.css'; // ¡Importante! No olvides esta línea
 
-const BACKEND_BASE_URL = 'https://animated-space-invention-r47gg4gqjrx53wwg6-3001.app.github.dev';
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const EventDetails = () => {
   const { id } = useParams();
