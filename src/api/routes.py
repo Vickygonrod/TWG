@@ -793,3 +793,37 @@ def delete_event(event_id):
         db.session.rollback()
         print(f"Error deleting event with id {event_id}: {e}")
         return jsonify({"msg": "Internal server error"}), 500
+
+@api.route('/information-request', methods=['POST'])
+def handle_information_request():
+    """
+    Crea una nueva solicitud de información para un evento.
+    Recibe los datos del formulario del frontend y los guarda en la base de datos.
+    """
+    payload = request.get_json()
+    if not payload:
+        return jsonify({"msg": "No se recibió el cuerpo de la solicitud en formato JSON."}), 400
+
+    required_fields = ['event_id', 'name', 'email']
+    for field in required_fields:
+        if field not in payload or not payload[field]:
+            return jsonify({"msg": f"El campo '{field}' es obligatorio."}), 400
+
+    try:
+        new_request = InformationRequest(
+            event_id=payload['event_id'],
+            name=payload['name'],
+            email=payload['email'],
+            phone=payload.get('phone'),
+            comments=payload.get('comments'),
+            is_read=False
+        )
+        
+        db.session.add(new_request)
+        db.session.commit()
+        
+        return jsonify({"msg": "Solicitud de información enviada con éxito!", "id": new_request.id}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Ocurrió un error al procesar la solicitud: {str(e)}"}), 500
