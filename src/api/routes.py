@@ -3,7 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Subscriber, Admins, Contact, Order, Event, EventParticipant
+from api.models import db, User, Subscriber, Admins, Contact, Order, EventParticipant, Event, InformationRequest, Reservation, RetreatDetails
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config
@@ -797,8 +797,8 @@ def delete_event(event_id):
 @api.route('/information-request', methods=['POST'])
 def handle_information_request():
     """
-    Crea una nueva solicitud de información para un evento.
-    Recibe los datos del formulario del frontend y los guarda en la base de datos.
+    Crea una nueva solicitud de información para un evento desde un formulario
+    específico de consulta.
     """
     payload = request.get_json()
     if not payload:
@@ -827,3 +827,75 @@ def handle_information_request():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"Ocurrió un error al procesar la solicitud: {str(e)}"}), 500
+
+
+@api.route('/payment-failure', methods=['POST'])
+def handle_payment_failure():
+    """
+    Registra una solicitud de información para un usuario que no completó un pago.
+    Esto permite hacer seguimiento a leads que abandonaron el proceso de compra.
+    """
+    payload = request.get_json()
+    if not payload:
+        return jsonify({"msg": "No se recibió el cuerpo de la solicitud en formato JSON."}), 400
+
+    required_fields = ['event_id', 'name', 'email']
+    for field in required_fields:
+        if field not in payload or not payload[field]:
+            return jsonify({"msg": f"El campo '{field}' es obligatorio."}), 400
+            
+    try:
+        # Se crea una nueva solicitud de información, reutilizando el modelo
+        new_request = InformationRequest(
+            event_id=payload['event_id'],
+            name=payload['name'],
+            email=payload['email'],
+            # Opcionalmente, puedes añadir un comentario para diferenciar este tipo de solicitud
+            comments=f"Posible lead: El usuario abandonó el proceso de pago para el evento ID {payload['event_id']}.",
+            phone=payload.get('phone'),
+            is_read=False
+        )
+        
+        db.session.add(new_request)
+        db.session.commit()
+        
+        return jsonify({"msg": "Fallo de pago registrado y lead capturado."}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Ocurrió un error al procesar el fallo de pago: {str(e)}"}), 500
+
+
+@api.route('/reservation', methods=['POST'])
+def handle_reservation():
+    """
+    Crea una nueva reserva para un evento.
+    Recibe los datos del formulario y los guarda en la base de datos.
+    """
+    payload = request.get_json()
+    if not payload:
+        return jsonify({"msg": "No se recibió el cuerpo de la solicitud en formato JSON."}), 400
+
+    required_fields = ['event_id', 'name', 'email', 'participants_count']
+    for field in required_fields:
+        if field not in payload or not payload[field]:
+            return jsonify({"msg": f"El campo '{field}' es obligatorio."}), 400
+
+    try:
+        new_reservation = Reservation(
+            event_id=payload['event_id'],
+            name=payload['name'],
+            email=payload['email'],
+            phone=payload.get('phone'),
+            participants_count=payload['participants_count'],
+            status='pending'  # Estado inicial, puede cambiar a 'confirmed' tras el pago
+        )
+        
+        db.session.add(new_reservation)
+        db.session.commit()
+        
+        return jsonify({"msg": "Reserva registrada con éxito!", "id": new_reservation.id}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Ocurrió un error al procesar la reserva: {str(e)}"}), 500

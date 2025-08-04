@@ -12,9 +12,11 @@ import {
   Mail,
   Phone,
   Send,
-  Ticket
+  Ticket,
+  MessageCircle,
+  X
 } from 'lucide-react';
-import '../styles/EventDetails.css'; // ¡Importante! No olvides esta línea
+import '../styles/EventDetails.css';
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -23,13 +25,23 @@ export const EventDetails = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [reservationData, setReservationData] = useState({
     name: '',
     email: '',
     phone: '',
-    participants: 1
+    participants_count: 1 // Nombre del campo actualizado
   });
+  const [infoRequestData, setInfoRequestData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    comments: ''
+  });
+
+  const [submissionStatus, setSubmissionStatus] = useState(null);
+  const [submissionMessage, setSubmissionMessage] = useState('');
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -59,17 +71,79 @@ export const EventDetails = () => {
     fetchEventDetails();
   }, [id]);
 
-  const handleChange = (e) => {
+  const handleReservationChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setReservationData(prevState => ({
       ...prevState,
       [name]: value
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleInfoRequestChange = (e) => {
+    const { name, value } = e.target;
+    setInfoRequestData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleReservationSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos del formulario enviados:", formData);
+    setSubmissionStatus(null);
+    setSubmissionMessage('');
+
+    try {
+      const event_id = parseInt(id);
+      const response = await axios.post(`${BACKEND_BASE_URL}/api/reservation`, {
+        event_id: event_id,
+        ...reservationData
+      });
+
+      setSubmissionStatus('success');
+      setSubmissionMessage(response.data.msg);
+
+      setReservationData({
+        name: '',
+        email: '',
+        phone: '',
+        participants_count: 1
+      });
+
+    } catch (err) {
+      setSubmissionStatus('error');
+      setSubmissionMessage(err.response?.data?.msg || "Ocurrió un error al procesar tu reserva.");
+      console.error("Error al enviar el formulario de reserva:", err);
+    }
+  };
+
+  const handleInfoRequestSubmit = async (e) => {
+    e.preventDefault();
+    setSubmissionStatus(null);
+    setSubmissionMessage('');
+
+    try {
+      const event_id = parseInt(id);
+      const response = await axios.post(`${BACKEND_BASE_URL}/api/information-request`, {
+        event_id: event_id,
+        ...infoRequestData
+      });
+
+      setSubmissionStatus('success');
+      setSubmissionMessage(response.data.msg);
+      setShowInfoModal(false);
+
+      setInfoRequestData({
+        name: '',
+        email: '',
+        phone: '',
+        comments: ''
+      });
+
+    } catch (err) {
+      setSubmissionStatus('error');
+      setSubmissionMessage(err.response?.data?.msg || "Ocurrió un error al enviar tu solicitud.");
+      console.error("Error al enviar la solicitud de información:", err);
+    }
   };
 
   if (loading) {
@@ -150,18 +224,25 @@ export const EventDetails = () => {
         </div>
       </div>
 
-      {/* Sección 3: Formulario de Reserva */}
+      {/* Sección 3: Formularios y Botones */}
       <div className="event-form-section">
         <h2 className="section-title text-center">¡Reserva tu Plaza Ahora!</h2>
-        <form onSubmit={handleSubmit} className="reservation-form">
+        
+        {submissionMessage && (
+            <div className={`submission-message ${submissionStatus}`}>
+                {submissionMessage}
+            </div>
+        )}
+
+        <form onSubmit={handleReservationSubmit} className="reservation-form">
           <div className="form-input-group">
             <User size={20} className="form-icon" />
             <input 
               type="text" 
               placeholder="Nombre completo"
               name="name"
-              value={formData.name}
-              onChange={handleChange}
+              value={reservationData.name}
+              onChange={handleReservationChange}
               required 
             />
           </div>
@@ -171,8 +252,8 @@ export const EventDetails = () => {
               type="email" 
               placeholder="Correo electrónico"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={reservationData.email}
+              onChange={handleReservationChange}
               required 
             />
           </div>
@@ -182,8 +263,8 @@ export const EventDetails = () => {
               type="tel" 
               placeholder="Teléfono (opcional)"
               name="phone"
-              value={formData.phone}
-              onChange={handleChange} 
+              value={reservationData.phone}
+              onChange={handleReservationChange} 
             />
           </div>
           <div className="form-input-group">
@@ -191,9 +272,9 @@ export const EventDetails = () => {
             <input 
               type="number" 
               placeholder="Número de participantes"
-              name="participants"
-              value={formData.participants}
-              onChange={handleChange} 
+              name="participants_count"
+              value={reservationData.participants_count}
+              onChange={handleReservationChange} 
               min="1"
               required 
             />
@@ -203,9 +284,78 @@ export const EventDetails = () => {
             Confirmar Reserva
           </button>
         </form>
+
+        <div className="info-contact-section">
+          <button onClick={() => setShowInfoModal(true)} className="info-button">
+            <MessageCircle size={20} />
+            Más información o Contacto
+          </button>
+        </div>
       </div>
+
+      {/* Modal para la solicitud de información */}
+      {showInfoModal && (
+        <div className="modal-overlay">
+          <div className="info-modal">
+            <button className="modal-close-button" onClick={() => setShowInfoModal(false)}>
+              <X size={24} />
+            </button>
+            <h2 className="section-title text-center">Solicitar Más Información</h2>
+            <form onSubmit={handleInfoRequestSubmit} className="info-request-form">
+              <div className="form-input-group">
+                <User size={20} className="form-icon" />
+                <input 
+                  type="text" 
+                  placeholder="Nombre completo"
+                  name="name"
+                  value={infoRequestData.name}
+                  onChange={handleInfoRequestChange}
+                  required 
+                />
+              </div>
+              <div className="form-input-group">
+                <Mail size={20} className="form-icon" />
+                <input 
+                  type="email" 
+                  placeholder="Correo electrónico"
+                  name="email"
+                  value={infoRequestData.email}
+                  onChange={handleInfoRequestChange}
+                  required 
+                />
+              </div>
+              <div className="form-input-group">
+                <Phone size={20} className="form-icon" />
+                <input 
+                  type="tel" 
+                  placeholder="Teléfono (opcional)"
+                  name="phone"
+                  value={infoRequestData.phone}
+                  onChange={handleInfoRequestChange} 
+                />
+              </div>
+              <div className="form-input-group">
+                <MessageCircle size={20} className="form-icon" />
+                <textarea 
+                  placeholder="Comentarios o preguntas"
+                  name="comments"
+                  value={infoRequestData.comments}
+                  onChange={handleInfoRequestChange}
+                ></textarea>
+              </div>
+              <button type="submit" className="submit-button">
+                <Send size={20} />
+                Enviar Solicitud
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default EventDetails;
+
+
+//me quedé por añadir a los contactos y las reservas a sus grupos de mailer send! Hay que revisar los estilos, hacer las traducciones y los condicionales de los idiomas también. 
