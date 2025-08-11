@@ -3,17 +3,18 @@ import "../styles/landingStyle.css";
 import ebookimgEs from "../images/booksNBG-es.png";
 import ebookimgEn from "../images/booksNBG-en.png";
 import logo from "../images/logo.png";
-import tesoroImage from "../images/tesoro.png"; // <-- IMPORTACIÓN DE LA IMAGEN
+import tesoroImage from "../images/tesoro.png";
 import { NavbarLanding } from "../components/NavbarLanding";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import NewsletterSignUpPopup from '../components/NewsletterSignUpPopup.jsx';
+import { Link } from "react-router-dom";
 
 export const Landing = () => {
-
     const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
     const { t, i18n } = useTranslation();
     const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
+    const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
 
     const STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb';
     const STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr';
@@ -26,6 +27,13 @@ export const Landing = () => {
         lastName: '',
         email: '',
     });
+    // Nuevo estado para la casilla de consentimiento de privacidad
+    const [isConsentChecked, setIsConsentChecked] = useState(false);
+    // Estados para mensajes de feedback al usuario
+    const [message, setMessage] = useState('');
+    const [isError, setIsError] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -43,9 +51,29 @@ export const Landing = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setMessage('');
+        setIsError(false);
 
-        if (!formData.email) {
-            alert("Por favor, introduce tu dirección de correo electrónico.");
+        if (!formData.email || !formData.firstName || !formData.lastName) {
+            setMessage(t('landing_ebook_form_validation_1')); // "Todos los campos son obligatorios."
+            setIsError(true);
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!formData.email.includes('@') || !formData.email.includes('.')) {
+            setMessage(t('landing_ebook_form_validation_2')); // "Por favor, introduce un email válido."
+            setIsError(true);
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Nueva validación para el consentimiento
+        if (!isConsentChecked) {
+            setMessage(t('landing_ebook_privacy_error')); // "Debes aceptar la política de privacidad para continuar."
+            setIsError(true);
+            setIsSubmitting(false);
             return;
         }
 
@@ -62,28 +90,42 @@ export const Landing = () => {
             if (checkout_url) {
                 window.location.href = checkout_url;
             } else {
-                console.error("No se recibió una URL de checkout de Stripe.");
-                alert("Hubo un problema al iniciar el pago. Inténtalo de nuevo más tarde.");
+                setMessage(t('landing_ebook_checkout_error_1')); // "Hubo un problema al iniciar el pago. Inténtalo de nuevo más tarde."
+                setIsError(true);
             }
         } catch (error) {
             console.error("Error al crear la sesión de checkout:", error);
             if (error.response && error.response.data && error.response.data.error) {
-                alert(`Error: ${error.response.data.error}`);
+                setMessage(`${t('landing_ebook_checkout_error_prefix')}: ${error.response.data.error}`); // "Error: [mensaje del backend]"
             } else {
-                alert("Ocurrió un error inesperado al procesar tu solicitud de pago.");
+                setMessage(t('landing_ebook_checkout_error_2')); // "Ocurrió un error inesperado al procesar tu solicitud de pago."
             }
+            setIsError(true);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const scrollTestimonials = (direction) => {
         if (testimonialsRef.current) {
-            const scrollAmount = testimonials.current.offsetWidth * 0.8;
+            const scrollAmount = testimonialsRef.current.offsetWidth * 0.8;
             if (direction === 'left') {
                 testimonialsRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             } else {
                 testimonialsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
             }
         }
+    };
+
+  
+
+    const handleOpenCommunityPopup = (e) => {
+        // e.preventDefault(); // Opcional si es un <a> para evitar navegación
+        setShowNewsletterPopup(true);
+    };
+
+    const handleCloseCommunityPopup = () => {
+        setShowNewsletterPopup(false);
     };
 
     return(
@@ -94,13 +136,14 @@ export const Landing = () => {
                 {/* --- Sección Principal/Hero --- */}
                 <header className="landing-section hero">
                     <div className="row headerRow">
-                        <div className="leftheader col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
+                        <div className="leftheader col-md-4 col-lg-4 col-xl-4 col-sm-12 col-xs-12">
                             <h1>{t('landing_ebook_1')}</h1>
                             <h2>{t('landing_ebook_2')}</h2>
+                            <br /><br />
                             <h4 className="subtitle">{t('landing_ebook_3')}</h4>
                         </div>
-                        <div className="col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
-                            <img src={currentEbookImage} alt={t('landing_ebook_1')} className=""/>
+                        <div className="col-md-4 col-lg-4 col-xl-4 col-sm-12 col-xs-12">
+                            <img src={currentEbookImage} alt={t('landing_ebook_1')} className="ebook-img"/>
                         </div>
                     </div>
                     <div className="cta-header">
@@ -116,14 +159,15 @@ export const Landing = () => {
                 </header>
 
                 {/* --- Sección de Descripción Libros --- */}
-                <section className="landing-section features-section">
-                    <div className="container">
-                        <p className="intro">{t('landing_ebook_6')} <br />
-                        <br />{t('landing_ebook_7')} <span className="bold">{t('landing_ebook_8')}</span> {t('landing_ebook_9')} <span className="bold">{t('landing_ebook_10')}</span> {t('landing_ebook_11')}</p>
+                <section className="row landing-section features-section">
+                    <div className="container col-md-8 col-lg-8 col-xl-8 col-sm-12 col-xs-12">
+                        <h5 className="intro">{t('landing_ebook_6')} <br />
+                        <br />{t('landing_ebook_7')} <span className="bold">{t('landing_ebook_8')}</span> {t('landing_ebook_9')} <span className="bold">{t('landing_ebook_10')}</span> {t('landing_ebook_11')}</h5>
+                        <br />
                         <h3>{t('landing_ebook_12')}</h3>
                         <div className="feature-grid">
                             <div className="feature-item">
-                                <h4>{t('landing_ebook_13')}</h4>
+                                <h5>{t('landing_ebook_13')}</h5>
                                 <p>
                                     <br />
                                     {t('landing_ebook_14')}
@@ -141,10 +185,10 @@ export const Landing = () => {
                                 </p>
                             </div>
                             <div className="feature-item">
-                                <h4>{t('landing_ebook_23')}</h4>
-                                <br />
+                                <h5>{t('landing_ebook_23')}</h5>
+                                
                                 <p>
-                                    <br />{t('landing_ebook_25')} <span className="bold">{t('landing_ebook_26')}</span> {t('landing_ebook_27')}
+                                    {t('landing_ebook_25')} <span className="bold">{t('landing_ebook_26')}</span> {t('landing_ebook_27')}
                                     <br /><br />{t('landing_ebook_28')} <span className="bold">{t('landing_ebook_29')}</span>{t('landing_ebook_30')}
                                     <br /> <br />{t('landing_ebook_31')} <br />
                                     <br /><span className="bold">{t('landing_ebook_32')}</span></p>
@@ -156,19 +200,25 @@ export const Landing = () => {
 
                 {/* --- Sección Sobre la Autora/Comunidad --- */}
                 <section className="landing-section about-author-section">
-                    <div className="container row">
+                    <div className="container">
                         <h3>{t('landing_ebook_33')}</h3>
-                        <img src={logo} alt="logo" className="logo col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12"/>
-                        <div className="author-content col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
+                        <div className="author-content">
+                            <img src={logo} alt="logo" className="logo"/>
                             <div>
                                 <p>{t('landing_ebook_34')} <br />
                                 <br /> {t('landing_ebook_35')} <br />
                                 <br />{t('landing_ebook_36')}</p>
-                                <Link to="/community" className="btn btn-secondary"> {t('landing_ebook_37')}</Link>
+                                <button 
+                                    onClick={handleOpenCommunityPopup}
+                                    className="btn btn-secondary"
+                                > 
+                                    {t('landing_ebook_37')}
+                                </button>
                             </div>
                         </div>
                     </div>
                 </section>
+               
 
                 {/* --- Testimonials --- */}
                 <section className="landing-section testimonial-section">
@@ -218,6 +268,11 @@ export const Landing = () => {
                         <div className="form-column">
                             <h3>{t('landing_ebook_51')} </h3>
                             <p>{t('landing_ebook_52')}</p>
+                            {message && (
+                                <div className={`form-message ${isError ? 'error' : 'success'}`}>
+                                    {message}
+                                </div>
+                            )}
                             <form onSubmit={handleFormSubmit}>
                                 <div className="form-group">
                                     <input
@@ -227,6 +282,7 @@ export const Landing = () => {
                                         onChange={handleInputChange}
                                         placeholder={t('form_placeholder_firstName')}
                                         required
+                                        disabled={isSubmitting}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -237,6 +293,7 @@ export const Landing = () => {
                                         onChange={handleInputChange}
                                         placeholder={t('form_placeholder_lastName')}
                                         required
+                                        disabled={isSubmitting}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -247,23 +304,45 @@ export const Landing = () => {
                                         onChange={handleInputChange}
                                         placeholder={t('form_placeholder_email')}
                                         required
+                                        disabled={isSubmitting}
                                     />
+                                </div>
+                                {/* Nuevo grupo para el checkbox de privacidad */}
+                                <div className="form-group privacy-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        id="privacy-consent-ebook"
+                                        checked={isConsentChecked}
+                                        onChange={(e) => setIsConsentChecked(e.target.checked)}
+                                        disabled={isSubmitting}
+                                    />
+                                    <label htmlFor="privacy-consent-ebook">
+                                        <span dangerouslySetInnerHTML={{
+                                            __html: t('landing_ebook_privacy_consent', { privacyPolicyLink: `<a href="/privacy-policy" target="_blank" rel="noopener noreferrer">${t('landing_ebook_privacy_link_text')}</a>` })
+                                        }} />
+                                    </label>
                                 </div>
                                 <div className="cta-final-group">
                                     <div className="price-box">
                                         <span className="original-price">20€</span>
                                         <span className="current-price">15€</span>
                                     </div>
-                                    <button type="submit" className="btn btn-orange">
-                                        {t('landing_ebook_5')}
+                                    <button type="submit" className="btn btn-orange" disabled={isSubmitting || !isConsentChecked}>
+                                        {isSubmitting ? t('landing_ebook_submitting_btn') : t('landing_ebook_5')}
                                     </button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </section>
+               
 
             </div>
+            {showNewsletterPopup && (
+                <NewsletterSignUpPopup 
+                    onClose={handleCloseCommunityPopup} 
+                />
+            )}
         </>
     );
 };

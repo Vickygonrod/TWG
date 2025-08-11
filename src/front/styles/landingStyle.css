@@ -1,113 +1,123 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css");
 
-/* --- Estilos Generales --- */
-body,
-html {
-  font-family: "Lora", sans-serif;
+/* --- Variables CSS (Recomendado) --- */
+:root {
+  --primary-color: #ec6540;
+  --secondary-color: #424242cf;
+  --text-dark: #333;
+  --text-light: #fff;
+  --bg-light: #f4f4f4;
+  --bg-white: #fff;
+  --bg-gray: #f9f9f9;
+  --bg-orange-light: #e9eaea;
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Lora", sans-serif;
+}
+
+
+/* --- Estilos Generales y Tipografía --- */
+body, html {
+  font-family: var(--font-body);
   line-height: 1.6;
   margin: 0;
   padding: 0;
-  color: #333;
-  background-color: #f4f4f4;
+  color: var(--text-dark);
+  background-color: var(--bg-light);
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
 
-h1,
-h2,
-h3,
-h4,
-span {
-  font-family: "Playfair Display", serif;
-  font-optical-sizing: auto;
+h1, h2, h3, h4, h5, span {
+  font-family: var(--font-heading);
   font-weight: bold;
   font-style: normal;
-  color: #c55336;
+  color: var(--primary-color);
 }
 
-.container {
+.container, .containersuccess {
   max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
 }
 
-.landing-section {
+.features-section {
+  text-align: center;
+}
+
+.features-section .intro {
+  font-size: 1.2em;
+  color:#424242cf;
+  margin-bottom: 20px;
+}
+
+.features-section .feature-item {
+  text-align: left;
+  font-size: 1.1em;
+}
+
+.features-section .feature-item h5{
+  color: #424242cf;
+}
+.hero {
+   text-align: left;
+}
+
+section, .landing-section, .hero {
   width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 20px;
   box-sizing: border-box;
 }
 
-/* --- Sección Hero --- */
-.hero {
-  background-color: #e9eaea;
-  color: #c55336;
-  text-align: center;
+.landing-section, section {
   min-height: 100vh;
 }
 
-.hero img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.leftheader {
-  padding-top: 150px;
-}
-
-.cta-header {
-  display: flex;
+.about-author-section {
+  text-align: center;
   flex-direction: column;
   align-items: center;
+  padding: 60px 20px;
+}
+/* --- Variaciones de Sección y Fondo --- */
+section:nth-child(odd) {
+  background-color: var(--bg-white);
 }
 
-.pack-title {
-  font-size: 2em;
-  color: #c55336;
-  margin-bottom: 10px;
-  font-weight: bold;
+section:nth-child(even) {
+  background-color: var(--bg-gray);
 }
 
-.hero h1 {
-  font-size: 3.5em;
-  margin-bottom: 10px;
-  color: #c55336;
+.hero, .cta-section {
+  background-color: var(--bg-orange-light);
 }
 
-.hero h2 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  color: #c55336;
+.about-author-section {
+  background-color: #eaf2f8;
 }
 
-.hero h3 {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  color: #c55336;
-}
-
-.hero h4 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: #db6c50;
-}
-
+/* --- Encabezados y Subtítulos --- */
+.hero h1 { font-size: 3.5em; }
+.hero h2 { font-size: 2.5em; }
+.hero h3 { font-size: 1.8rem; }
+.hero h4 { font-size: 1.5rem; color: var(--secondary-color); }
+.pack-title { font-size: 2em; }
 .hero .subtitle {
   font-size: 1.2em;
-  margin-bottom: 40px;
   max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto 40px auto;
 }
+section h3 { font-size: 2.2em; margin-bottom: 40px; }
+.feature-item h4 { font-size: 1.5em; }
+.cta-section p { font-size: 1.3em; }
 
-/* --- Botones Generales --- */
+/* --- Botones --- */
 .btn {
-  font-family: "Lora", sans-serif;
+  font-family: var(--font-body);
   display: inline-block;
   padding: 12px 25px;
   border-radius: 5px;
@@ -120,9 +130,8 @@ span {
 }
 
 .btn-orange {
-  background-color: #c55336;
-  font-family: "Lora", sans-serif;
-  color: #fff;
+  background-color: var(--primary-color);
+  color: var(--text-light);
   font-size: 1.5em;
 }
 
@@ -133,8 +142,7 @@ span {
 
 .btn-secondary {
   background-color: #e4d9d9;
-  color: #c55336;
-  font-family: "Lora", sans-serif;
+  color: var(--primary-color);
 }
 
 .btn-secondary:hover {
@@ -142,104 +150,17 @@ span {
   color: #e4d9d9;
 }
 
-/* --- Secciones Generales --- */
-section {
-  text-align: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-section:nth-child(odd) {
-  background-color: #fff;
-}
-
-section:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-section h3 {
-  font-size: 2.2em;
-  margin-bottom: 40px;
-  color: #c55336;
-}
-
-/* --- Sección de Características (features-section) --- */
-.feature-carousel-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.feature-grid {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 20px;
-  width: 100%;
-  scroll-padding-left: 20px;
-  scroll-padding-right: 20px;
-  gap: 30px; 
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.feature-grid::-webkit-scrollbar {
-  display: none;
-}
-
-.feature-item {
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: auto;
-  font-size: 1.2em;
-  scroll-snap-align: center;
-  margin: 0;
-}
-
-.cta-features {
+/* --- Layouts de Contenido --- */
+.leftheader { padding-top: 150px; }
+.cta-header, .cta-features, .cta-final-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: auto;
-  padding-top: 20px;
-  width: 100%;
 }
 
-.feature-item h4 {
-  font-size: 1.5em;
-  margin-bottom: 10px;
-  color: #c55336;
+.about-author-section{
+  align-items: center;
 }
-
-.feature-item span {
-  font-weight: bold;
-  color: #333;
-}
-
-/* --- Sección Sobre el Autor/Comunidad --- */
-.about-author-section {
-  background-color: #eaf2f8;
-}
-
 .author-content {
   display: flex;
   align-items: center;
@@ -248,18 +169,6 @@ section h3 {
   flex-wrap: wrap;
   justify-content: center;
 }
-
-.logo {
-  max-width: 600px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.about-author-section .btn {
-  margin-top: 30px;
-}
-
 .author-content div {
   flex: 1;
   min-width: 300px;
@@ -267,27 +176,50 @@ section h3 {
   font-size: 1.2em;
 }
 
-/* --- Testimonial Section --- */
-.testimonial-section {
-  justify-content: center;
-  align-items: center;
-  gap: 0;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-.testimonial-carousel-wrapper {
+/* --- Carruseles (Características y Testimonios) --- */
+.feature-carousel-wrapper, .testimonial-carousel-wrapper {
   position: relative;
   width: 100%;
   max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.feature-grid, .testimonial-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 20px;
+  width: 100%;
+  gap: 30px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.feature-grid::-webkit-scrollbar, .testimonial-container::-webkit-scrollbar {
+  display: none;
+}
+.feature-item, .testimonial-item {
+  background-color: var(--bg-white);
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: auto;
+  scroll-snap-align: center;
+}
+.testimonial-item { margin: 0 10px; }
 
+/* --- Flechas de Carrusel --- */
 .carousel-arrow {
   background-color: rgba(0, 0, 0, 0.5);
-  color: white;
+  color: var(--text-light);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -303,489 +235,173 @@ section h3 {
   justify-content: center;
   transition: background-color 0.3s ease;
 }
+.carousel-arrow:hover { background-color: rgba(0, 0, 0, 0.8); }
+.carousel-arrow.left { left: 10px; }
+.carousel-arrow.right { right: 10px; }
 
-.carousel-arrow:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.carousel-arrow.left {
-  left: 10px;
-}
-
-.carousel-arrow.right {
-  right: 10px;
-}
-
-.testimonial-container {
-  margin-top: 0;
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  padding-bottom: 20px;
-  width: 100%;
-  scroll-padding-left: 20px;
-  scroll-padding-right: 20px;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.testimonial-container::-webkit-scrollbar {
-  display: none;
-}
-
-.testimonial-item {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: auto;
-  scroll-snap-align: center;
-  margin: 0 10px;
-}
-
-/* --- Sección de Llamada a la Acción (CTA) --- */
-.cta-section {
-  background-color: #e9eaea;
-  color: #c55336;
-  align-items: center;
-  margin-top: 0;
-  padding: 4rem 2rem;
-}
-
-.cta-section h3 {
-  color: #c55336;
-}
-
-.cta-section p {
-  font-size: 1.3em;
-  margin-bottom: 30px;
-}
-
-.cta-final-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+/* --- Precios --- */
 .price-box {
-  margin-bottom: 20px;
-  color: #c55336;
+  color: var(--primary-color);
   font-size: 1.5em;
   font-weight: bold;
   display: flex;
   align-items: center;
   gap: 20px;
 }
-
 .original-price {
   font-size: 1.8em;
   text-decoration: line-through;
   color: #c7c6c6;
-  font-weight: bold;
 }
-
 .current-price {
-  color: #c55336;
+  color: var(--primary-color);
   font-size: 2.5em;
-  font-weight: bold;
 }
-
 .currency {
   font-size: 0.6em;
   vertical-align: super;
 }
 
-.payment-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.payment-buttons .btn {
-  min-width: 200px;
-}
-
-.guarantee {
-  margin-top: 25px;
-  font-style: italic;
-  font-size: 0.9em;
-}
-
-/* --- Footer --- */
+/* --- Pie de Página --- */
 .footer {
-  background-color: #333;
-  color: #fff;
+  background-color: var(--text-dark);
+  color: var(--text-light);
   padding: 30px 20px;
   text-align: center;
   font-size: 0.9em;
 }
-
-.footer p {
-  margin: 5px 0;
-}
-
 .footer a {
-  color: #fff;
+  color: var(--text-light);
   text-decoration: none;
   margin: 0 10px;
 }
-
 .footer a:hover {
   text-decoration: underline;
 }
 
-/*Success Page */
-.containersuccess {
-  max-width: 70%;
-}
-
-.ebookimgSuccess {
+/* --- Imágenes --- */
+.hero img, .ebookimgSuccess {
   max-width: 100%;
   height: auto;
   display: block;
   margin: 0 auto;
 }
 
-/* ========================================================= */
-/* --- MEDIA QUERIES --- */
-/* ========================================================= */
-
-/* --- Mobile: Estilos (hasta 768px) --- */
-@media (max-width: 768px) {
-  /* --- SECCIONES GENERALES EN MÓVIL --- */
-  .landing-section {
-    min-height: 100vh;
-    padding: 40px 15px;
-  }
-
-  /* --- SECCIÓN DE CARACTERÍSTICAS EN MÓVIL (1 item visible, carrusel) --- */
-  .feature-carousel-wrapper {
-    justify-content: space-between;
-  }
-
-  .feature-grid {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    scroll-snap-type: x mandatory;
-    justify-content: flex-start;
-    gap: 20px;
-  }
-
-  .feature-item {
-    width: calc(
-      100vw - 60px
-    );
-    max-width: 380px;
-    scroll-snap-align: center;
-  }
-
-  /* --- SECCIÓN DE TESTIMONIOS EN MÓVIL (1 item visible) --- */
-  .testimonial-item {
-    width: calc(100vw - 60px);
-    margin: 0 10px;
-  }
-
-  /* Flechas: más pequeñas o un poco ajustadas para móvil */
-  .carousel-arrow {
-    width: 30px;
-    height: 30px;
-    font-size: 1.2em;
-  }
-  .carousel-arrow.left {
-    left: 5px;
-  }
-  .carousel-arrow.right {
-    right: 5px;
-  }
-
-  /* Ajustar tamaños de texto en móviles para que todo quepa */
-  .hero h1 {
-    font-size: 2.5em;
-  }
-  .hero h2 {
-    font-size: 1.8em;
-  }
-  .hero h3 {
-    font-size: 1.5em;
-  }
-  .hero h4 {
-    font-size: 1em;
-  }
-  .pack-title {
-    font-size: 1.5em;
-  }
-  .current-price {
-    font-size: 2em;
-  }
-  .original-price {
-    font-size: 1.3em;
-  }
-  .btn-orange {
-    font-size: 1.2em;
-    padding: 10px 20px;
-  }
-  section h3 {
-    font-size: 1.8em;
-  }
-  .intro {
-    font-size: 1.1em;
-  }
-  .feature-item h4 {
-    font-size: 1.3em;
-  }
-  .feature-item p {
-    font-size: 1em;
-  }
-  .author-content div p {
-    font-size: 1em;
-  }
-  .testimonial-item h5 {
-    font-size: 1.2em;
-  }
-  .testimonial-item p {
-    font-size: 1em;
-  }
-  .cta-section p {
-    font-size: 1.1em;
-  }
-  
-  /* --- ESTILOS PARA EL FORMULARIO EN MÓVIL --- */
-  .form-layout-container {
-    flex-direction: column; /* Apila la imagen y el formulario */
-    padding: 2rem 1rem;
-    max-width: 100%;
-    gap: 2rem;
-  }
-  
-  .image-column {
-    display: none; /* Oculta la imagen para pantallas pequeñas */
-  }
-  
-  .form-column {
-    padding: 0;
-    width: 100%; /* Ocupa el ancho completo */
-  }
-
-  .form-column .form-wrapper {
-    max-width: 400px; /* Tamaño más pequeño para el formulario */
-    margin: 0 auto; /* Centra el formulario */
-  }
-  
-  .form-column h3, .form-column p {
-    text-align: center; /* Centra el texto */
-  }
-
-  .form-column form {
-    width: 100%;
-  }
-
-  .cta-final-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+-logo {
+  max-width: 50%;
+  height: auto;
+  margin: 20px auto;
 }
 
-/* --- Desktop: Estilos (a partir de 769px) --- */
-@media (min-width: 769px) {
-  /* --- SECCIONES GENERALES EN DESKTOP --- */
-  .landing-section {
-    min-height: 100vh;
-    padding: 50px 20px;
-  }
+/* --- Formulario --- */
+.form-group input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.payment-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.payment-buttons .btn { min-width: 200px; }
 
+
+/* ========================================================= */
+/* --- MEDIA QUERIES (Organizado por Dispositivo) --- */
+/* ========================================================= */
+
+/* --- Mobile: hasta 768px --- */
+@media (max-width: 768px) {
+  .landing-section {
+    padding: 40px 15px;
+  }
+  .feature-grid, .testimonial-container {
+    gap: 20px;
+  }
+  .feature-item, .testimonial-item {
+    width: calc(100vw - 60px);
+    max-width: 380px;
+  }
+  .hero h1 { font-size: 2.5em; }
+  .hero h2 { font-size: 1.8em; }
+  .hero h3 { font-size: 1.5em; }
+  .hero h4 { font-size: 1em; }
+  .pack-title { font-size: 1.5em; }
+  section h3 { font-size: 1.8em; }
+  .current-price { font-size: 2em; }
+  .original-price { font-size: 1.3em; }
+  .btn-orange { font-size: 1.2em; padding: 10px 20px; }
+  .carousel-arrow { width: 30px; height: 30px; font-size: 1.2em; }
+  .carousel-arrow.left { left: 5px; }
+  .carousel-arrow.right { right: 5px; }
+  .cta-section p { font-size: 1.1em; }
+  .form-layout-container {
+    flex-direction: column;
+    padding: 2rem 1rem;
+    gap: 2rem;
+  }
+  .image-column { display: none; }
+  .form-column { padding: 0; width: 100%; }
+  .form-column .form-wrapper { max-width: 400px; margin: 0 auto; }
+  .form-column h3, .form-column p { text-align: center; }
+}
+
+/* --- Desktop: a partir de 769px --- */
+@media (min-width: 769px) {
   .hero .row.headerRow {
     flex-direction: row;
     align-items: center;
     justify-content: center;
   }
-
-  .leftheader {
-    padding-top: 0;
-  }
-
-  /* --- SECCIÓN DE CARACTERÍSTICAS EN DESKTOP (2 items visibles, centrados, sin scroll propio) --- */
-  .feature-carousel-wrapper {
-    justify-content: center;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
+  .leftheader { padding-top: 0; }
+  .feature-carousel-wrapper .carousel-arrow { display: none; }
+  .testimonial-carousel-wrapper .carousel-arrow.left { left: -50px; }
+  .testimonial-carousel-wrapper .carousel-arrow.right { right: -50px; }
   .feature-grid {
-    flex-direction: row;
     flex-wrap: wrap;
     overflow-x: hidden;
     scroll-snap-type: none;
     justify-content: center;
     gap: 30px;
-    width: 100%;
     padding-bottom: 0;
   }
-
   .feature-item {
     flex: 1 1 calc(50% - 15px);
     max-width: none;
     margin: 0;
     scroll-snap-align: none;
   }
-
-  /* Ocultar flechas en desktop para las características si no las quieres */
-  .feature-carousel-wrapper .carousel-arrow {
-    display: none;
-  }
-
-  /* --- SECCIÓN DE TESTIMONIOS EN DESKTOP (2 items visibles) --- */
   .testimonial-item {
     width: calc(50% - 40px);
     max-width: 450px;
     margin: 0 20px;
   }
-
-  /* Flechas para testimonios en desktop */
-  .testimonial-carousel-wrapper .carousel-arrow.left {
-    left: -50px;
-  }
-  .testimonial-carousel-wrapper .carousel-arrow.right {
-    right: -50px;
-  }
-
-  /* Ajustes de tamaño de texto para desktop */
-  .hero h1 {
-    font-size: 3.5em;
-  }
-  .hero h2 {
-    font-size: 2.5em;
-  }
-  .hero h3 {
-    font-size: 1.8rem;
-  }
-  .hero h4 {
-    font-size: 1.5rem;
-  }
-  .pack-title {
-    font-size: 2em;
-  }
-  .current-price {
-    font-size: 2.5em;
-  }
-  .original-price {
-    font-size: 1.8em;
-  }
-  .btn-orange {
-    font-size: 1.5em;
-    padding: 12px 25px;
-  }
-  section h3 {
-    font-size: 2.2em;
-  }
-  .intro {
-    font-size: 1.3em;
-  }
-  .feature-item h4 {
-    font-size: 1.5em;
-  }
-  .feature-item p {
-    font-size: 1.2em;
-  }
-  .author-content div p {
-    font-size: 1.2em;
-  }
-  .testimonial-item h5 {
-    font-size: 1.5em;
-  }
-  .testimonial-item p {
-    font-size: 1.2em;
-  }
-  .cta-section p {
-    font-size: 1.3em;
-  }
-
-  /* --- ESTILOS PARA EL FORMULARIO EN ESCRITORIO --- */
   .form-layout-container {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center; /* Centra el contenido horizontalmente */
+    justify-content: center;
     gap: 4rem;
     padding: 2rem;
-    width: 100%;
-    max-width: 1200px; /* Ancho máximo para el contenedor y centrado */
+    max-width: 1200px;
     margin: 0 auto;
   }
-  
-  .image-column {
-    flex: 1; /* Ocupa el 50% del espacio */
+  .image-column, .form-column {
+    flex: 1;
     display: flex;
-    justify-content: flex-end; /* Alinea la imagen a la derecha de su columna */
     padding: 1rem;
   }
-  
-  .image-column .tesoro-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 12px;
-  }
-  
+  .image-column { justify-content: flex-end; }
+  .image-column .tesoro-image { max-width: 100%; height: auto; border-radius: 12px; }
   .form-column {
-    flex: 1; /* Ocupa el 50% del espacio */
-    display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start; /* Alinea el contenido a la izquierda de su columna */
-    padding: 1rem;
+    align-items: flex-start;
   }
-  
-  .form-column h3, .form-column p {
-    text-align: left;
-  }
-
-  .form-column .form-wrapper {
-    max-width: 400px; /* El formulario es más pequeño */
-    width: 100%; /* Ocupa el 100% del contenedor */
-  }
-
-  .form-column form {
-    width: 100%;
-  }
-
-  /* Centrar el título y el párrafo dentro de la columna del formulario */
-  .form-column h3,
-  .form-column p {
-    text-align: center;
-  }
-  
-  /* Ajustar el ancho de los campos de entrada */
-  .form-group input {
-    width: 100%; /* Ocupa el 100% del contenedor */
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-  }
-
-  .cta-final-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-/* Estilos de los campos del formulario */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  .form-column h3, .form-column p { text-align: left; }
+  .form-column .form-wrapper { max-width: 400px; width: 100%; }
+  .form-column h3, .form-column p { text-align: center; }
 }

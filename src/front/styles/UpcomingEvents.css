@@ -1,35 +1,22 @@
-.hero-page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+/* --- Variables y Estilos Generales --- */
+:root {
+  --primary-color: #ec6540;
+  --secondary-color: #424242cf;
+  --text-dark: #333;
+  --text-light: #fff;
+  --bg-light: #f4f4f4;
+  --bg-white: #fff;
+  --bg-gray: #f9f9f9;
+  --bg-orange-light: #e9eaea;
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Lora", sans-serif;
 }
 
-.section-title {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  color: #333;
-}
-
-.principal-events-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.loading-message, .error-message, .no-events-message {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #666;
-  padding: 2rem;
-}
-
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 768px) {
-  .principal-events-container {
-    grid-template-columns: 1fr;
-  }
+h1, h2, h3, h4, h5, span {
+  font-family: var(--font-heading);
+  font-weight: bold;
+  font-style: normal;
+  color: var(--primary-color);
 }
 
 .upcoming-events-container {
@@ -38,32 +25,46 @@
   padding: 2rem;
 }
 
-.section-title {
+/* Título de los eventos destacados */
+h2.section-title {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  color: #333;
+  color: var(--primary-color); /* ¡Aseguramos el color con mayor especificidad! */
 }
 
-/* MODIFICACIÓN: Contenedor para las dos columnas */
+.upcoming-events-container .section-title::after {
+  content: none; /* Esto elimina la línea */
+}
+
+/* --- Eventos Principales (Destacados) --- */
 .principal-events {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem; /* Este 'gap' crea la separación entre las dos columnas */
+  gap: 2rem;
   margin-bottom: 3rem;
 }
 
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 768px) {
-  .principal-events {
-    grid-template-columns: 1fr; /* Una sola columna en móviles */
-  }
+/* --- Eventos Secundarios (Todos los Eventos) --- */
+
+
+.other-events-section .section-title {
+  color: var(--primary-color); /* ¡Cambiado a naranja para uniformidad! */
+  margin-top: 4rem;
 }
 
-/* Estilos existentes */
+/* --- Mensajes de estado (cargando, error) --- */
 .loading-message, .error-message, .no-events-message {
   text-align: center;
   font-size: 1.2rem;
   color: #666;
   padding: 2rem;
+}
+
+/* --- Ajustes para pantallas pequeñas --- */
+@media (max-width: 768px) {
+  .principal-events {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }

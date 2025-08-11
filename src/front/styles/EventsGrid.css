@@ -4,3 +4,23 @@
   gap: 2rem;
   padding: 2rem;
 }
+
+.past-events-carousel-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.other-events-carousel-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.past-events-carousel-section .section-title::after {
+  content: none; /* Esto elimina la línea */
+}
+
+.other-events-carousel-section .section-title::after {
+  content: none; /* Esto elimina la línea */
+}

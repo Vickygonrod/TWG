@@ -61,7 +61,8 @@ export const Success = () => {
     };
 
     return (
-        <div className="container containersuccess mt-5 text-center">
+        <div className="container containersuccess mt-5 text-center row">
+            <div className="col-md-8 col-lg-8 col-xl-8 col-sm-12 col-xs-12 allign-items-center justify-content-center mx-auto"> 
             {/* El pop-up se muestra condicionalmente, superpuesto al resto del contenido */}
             {showPopup && userData && (
                 <NewsletterSignUpPopup 
@@ -78,8 +79,11 @@ export const Success = () => {
                 <div className="alert alert-danger" role="alert">{error}</div>
             ) : (
                 <>
-                    <h1>{t('success_1')}</h1>
-                    <h3>{t('success_2')}</h3>
+                    <h2>{t('success_1')}</h2>
+                    <br />
+                    <h5>{t('success_2')}</h5>
+                    <h5>{t('success_2b')}</h5>
+
                     <img src={currentEbookImage} alt={t('success_1')} className="ebookimgSuccess"/>
                     
                     {/* El botón de descarga se muestra si downloadLink está disponible */}
@@ -100,6 +104,7 @@ export const Success = () => {
             )}
 
             <p className="mt-5">{t('success_6')} <Link to="/contact">{t('success_7')}</Link>.</p>
+            </div>
         </div>
     );
 };

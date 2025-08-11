@@ -15,12 +15,7 @@
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Estado activo del pop-up (se aplica mediante una clase si usas una librería de animación o directamente en JSX) */
-/* Para este componente, la visibilidad se controla con la prop 'showPopup' */
-/* Por ejemplo, en tu componente padre, podrías tener:
-   {showPopup && <NewsletterSignUpPopup showPopup={showPopup} onClose={handleClosePopup} />}
-   Y el CSS se aplica automáticamente.
-*/
+
 .popup-overlay {
     opacity: 1; /* Si showPopup es true, el componente se monta y esto se aplica */
     visibility: visible;

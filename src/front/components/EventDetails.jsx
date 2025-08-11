@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale'; 
+import { useTranslation } from 'react-i18next'; 
 import {
   Calendar,
-  DollarSign,
   User,
   Users,
   Locate,
@@ -22,6 +22,7 @@ const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const EventDetails = () => {
   const { id } = useParams();
+  const { t, i18n } = useTranslation();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +32,7 @@ export const EventDetails = () => {
     name: '',
     email: '',
     phone: '',
-    participants_count: 1 // Nombre del campo actualizado
+    participants_count: 1
   });
   const [infoRequestData, setInfoRequestData] = useState({
     name: '',
@@ -47,7 +48,7 @@ export const EventDetails = () => {
     const fetchEventDetails = async () => {
       const eventId = parseInt(id);
       if (isNaN(eventId)) {
-        setError("El ID del evento no es válido.");
+        setError(t('event_details_invalid_id'));
         setLoading(false);
         return;
       }
@@ -58,18 +59,18 @@ export const EventDetails = () => {
         if (response.data) {
           setEvent(response.data);
         } else {
-          setError("El evento no fue encontrado.");
+          setError(t('event_details_not_found'));
         }
       } catch (err) {
         console.error("Error en la llamada a la API:", err);
-        setError("Error al cargar los detalles del evento.");
+        setError(t('event_details_api_error'));
       } finally {
         setLoading(false);
       }
     };
     
     fetchEventDetails();
-  }, [id]);
+  }, [id, t]);
 
   const handleReservationChange = (e) => {
     const { name, value } = e.target;
@@ -100,7 +101,7 @@ export const EventDetails = () => {
       });
 
       setSubmissionStatus('success');
-      setSubmissionMessage(response.data.msg);
+      setSubmissionMessage(t(response.data.msg) || t('event_reservation_success'));
 
       setReservationData({
         name: '',
@@ -111,7 +112,7 @@ export const EventDetails = () => {
 
     } catch (err) {
       setSubmissionStatus('error');
-      setSubmissionMessage(err.response?.data?.msg || "Ocurrió un error al procesar tu reserva.");
+      setSubmissionMessage(t(err.response?.data?.msg) || t('event_reservation_error'));
       console.error("Error al enviar el formulario de reserva:", err);
     }
   };
@@ -129,7 +130,7 @@ export const EventDetails = () => {
       });
 
       setSubmissionStatus('success');
-      setSubmissionMessage(response.data.msg);
+      setSubmissionMessage(t(response.data.msg) || t('event_info_request_success'));
       setShowInfoModal(false);
 
       setInfoRequestData({
@@ -141,16 +142,20 @@ export const EventDetails = () => {
 
     } catch (err) {
       setSubmissionStatus('error');
-      setSubmissionMessage(err.response?.data?.msg || "Ocurrió un error al enviar tu solicitud.");
+      setSubmissionMessage(t(err.response?.data?.msg) || t('event_info_request_error'));
       console.error("Error al enviar la solicitud de información:", err);
     }
+  };
+
+  const getLocale = () => {
+    return i18n.language === 'en' ? enUS : es;
   };
 
   if (loading) {
     return (
       <div className="event-loading">
         <div className="spinner"></div>
-        <p>Cargando detalles del evento...</p>
+        <p>{t('event_details_loading')}</p>
       </div>
     );
   }
@@ -166,22 +171,23 @@ export const EventDetails = () => {
   if (!event) {
     return (
       <div className="event-not-found">
-        <p>Evento no encontrado.</p>
+        <p>{t('event_details_not_found_message')}</p>
       </div>
     );
   }
   
   const formattedDate = event.date
-    ? format(new Date(event.date), 'd MMMM yyyy', { locale: es })
-    : 'Fecha no disponible';
+    ? format(new Date(event.date), 'd MMMM yyyy', { locale: getLocale() })
+    : t('event_details_date_not_available');
 
-  const formattedPrice = event.price_1 ? `${event.price_1} €` : 'Precio no disponible';
+  const formattedPrice = event.price_1 ? `${event.price_1} €` : t('event_details_price_not_available');
+
+  const isEventPast = new Date(event.date) <= new Date();
 
   return (
     <div className="event-details-container">
       <div className="event-card-container">
         
-        {/* Sección 1: Imagen y Detalles Principales */}
         <div className="event-main-content">
           <div className="event-details-info">
             <h1 className="event-title">{event.name}</h1>
@@ -198,7 +204,7 @@ export const EventDetails = () => {
               </li>
               <li>
                 <Users className="event-icon" size={24} />
-                <span>{event.max_participants ? `${event.max_participants} Participantes` : 'Capacidad ilimitada'}</span>
+                <span>{event.max_participants ? t('event_details_participants', { count: event.max_participants }) : t('event_details_unlimited_capacity')}</span>
               </li>
             </ul>
           </div>
@@ -211,102 +217,109 @@ export const EventDetails = () => {
           </div>
         </div>
         
-        {/* Sección 2: Descripción Larga y Precio */}
         <div className="event-description-section">
-          <h2 className="section-title">Sobre el evento</h2>
+          <h2 className="section-title">{t('event_details_about_title')}</h2>
           <p className="event-long-description">
             {event.long_description}
           </p>
           <div className="event-price">
-            <DollarSign className="price-icon" size={24} />
+            <span className="price-icon">€</span>
             <span className="price-text">{formattedPrice}</span>
           </div>
         </div>
       </div>
 
-      {/* Sección 3: Formularios y Botones */}
       <div className="event-form-section">
-        <h2 className="section-title text-center">¡Reserva tu Plaza Ahora!</h2>
-        
-        {submissionMessage && (
-            <div className={`submission-message ${submissionStatus}`}>
+        {isEventPast ? (
+          <div className="event-ended-message">
+            <h2 className="section-title text-center">{t('event_details_ended_title')}</h2>
+            <p>{t('event_details_ended_message')}</p>
+          </div>
+        ) : (
+          <>
+            <h2 className="section-title text-center">{t('event_details_reserve_now')}</h2>
+            
+            {submissionMessage && (
+              <div className={`submission-message ${submissionStatus}`}>
                 {submissionMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleReservationSubmit} className="reservation-form">
+              <div className="form-input-group">
+                <User size={20} className="form-icon" />
+                <input 
+                  type="text" 
+                  placeholder={t('form_placeholder_full_name')}
+                  name="name"
+                  value={reservationData.name}
+                  onChange={handleReservationChange}
+                  required 
+                />
+              </div>
+              <div className="form-input-group">
+                <Mail size={20} className="form-icon" />
+                <input 
+                  type="email" 
+                  placeholder={t('form_placeholder_email')}
+                  name="email"
+                  value={reservationData.email}
+                  onChange={handleReservationChange}
+                  required 
+                />
+              </div>
+              <div className="form-input-group">
+                <Phone size={20} className="form-icon" />
+                <input 
+                  type="tel" 
+                  placeholder={t('form_placeholder_phone_optional')}
+                  name="phone"
+                  value={reservationData.phone}
+                  onChange={handleReservationChange} 
+                />
+              </div>
+              <div className="form-input-group">
+                <Ticket size={20} className="form-icon" />
+                <input 
+                  type="number" 
+                  placeholder={t('form_placeholder_participants')}
+                  name="participants_count"
+                  value={reservationData.participants_count}
+                  onChange={handleReservationChange} 
+                  min="1"
+                  required 
+                />
+              </div>
+              <button type="submit" className="submit-button">
+                <Send size={20} />
+                {t('form_button_confirm_reservation')}
+              </button>
+            <div className="info-contact-section">
+              {/* Este es el enlace que se muestra debajo del botón */}
+              <span onClick={() => setShowInfoModal(true)} className="info-link">
+                <MessageCircle size={20} />
+                {t('form_button_more_info')}
+              </span>
             </div>
+            </form>
+
+          </>
         )}
-
-        <form onSubmit={handleReservationSubmit} className="reservation-form">
-          <div className="form-input-group">
-            <User size={20} className="form-icon" />
-            <input 
-              type="text" 
-              placeholder="Nombre completo"
-              name="name"
-              value={reservationData.name}
-              onChange={handleReservationChange}
-              required 
-            />
-          </div>
-          <div className="form-input-group">
-            <Mail size={20} className="form-icon" />
-            <input 
-              type="email" 
-              placeholder="Correo electrónico"
-              name="email"
-              value={reservationData.email}
-              onChange={handleReservationChange}
-              required 
-            />
-          </div>
-          <div className="form-input-group">
-            <Phone size={20} className="form-icon" />
-            <input 
-              type="tel" 
-              placeholder="Teléfono (opcional)"
-              name="phone"
-              value={reservationData.phone}
-              onChange={handleReservationChange} 
-            />
-          </div>
-          <div className="form-input-group">
-            <Ticket size={20} className="form-icon" />
-            <input 
-              type="number" 
-              placeholder="Número de participantes"
-              name="participants_count"
-              value={reservationData.participants_count}
-              onChange={handleReservationChange} 
-              min="1"
-              required 
-            />
-          </div>
-          <button type="submit" className="submit-button">
-            <Send size={20} />
-            Confirmar Reserva
-          </button>
-        </form>
-
-        <div className="info-contact-section">
-          <button onClick={() => setShowInfoModal(true)} className="info-button">
-            <MessageCircle size={20} />
-            Más información o Contacto
-          </button>
-        </div>
       </div>
 
-      {/* Modal para la solicitud de información */}
       {showInfoModal && (
         <div className="modal-overlay">
           <div className="info-modal">
             <button className="modal-close-button" onClick={() => setShowInfoModal(false)}>
               <X size={24} />
             </button>
-            <h2 className="section-title text-center">Solicitar Más Información</h2>
+            <h2 className="section-title text-center">{t('modal_title_info_request')}</h2>
             <form onSubmit={handleInfoRequestSubmit} className="info-request-form">
               <div className="form-input-group">
                 <User size={20} className="form-icon" />
                 <input 
                   type="text" 
-                  placeholder="Nombre completo"
+                  placeholder={t('form_placeholder_full_name')}
                   name="name"
                   value={infoRequestData.name}
                   onChange={handleInfoRequestChange}
@@ -317,7 +330,7 @@ export const EventDetails = () => {
                 <Mail size={20} className="form-icon" />
                 <input 
                   type="email" 
-                  placeholder="Correo electrónico"
+                  placeholder={t('form_placeholder_email')}
                   name="email"
                   value={infoRequestData.email}
                   onChange={handleInfoRequestChange}
@@ -328,7 +341,7 @@ export const EventDetails = () => {
                 <Phone size={20} className="form-icon" />
                 <input 
                   type="tel" 
-                  placeholder="Teléfono (opcional)"
+                  placeholder={t('form_placeholder_phone_optional')}
                   name="phone"
                   value={infoRequestData.phone}
                   onChange={handleInfoRequestChange} 
@@ -337,7 +350,7 @@ export const EventDetails = () => {
               <div className="form-input-group">
                 <MessageCircle size={20} className="form-icon" />
                 <textarea 
-                  placeholder="Comentarios o preguntas"
+                  placeholder={t('form_placeholder_comments')}
                   name="comments"
                   value={infoRequestData.comments}
                   onChange={handleInfoRequestChange}
@@ -345,7 +358,7 @@ export const EventDetails = () => {
               </div>
               <button type="submit" className="submit-button">
                 <Send size={20} />
-                Enviar Solicitud
+                {t('form_button_send_request')}
               </button>
             </form>
           </div>
@@ -356,6 +369,3 @@ export const EventDetails = () => {
 };
 
 export default EventDetails;
-
-
-//me quedé por añadir a los contactos y las reservas a sus grupos de mailer send! Hay que revisar los estilos, hacer las traducciones y los condicionales de los idiomas también. 

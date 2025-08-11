@@ -21,6 +21,8 @@ import { AdminLogin } from "./components/AdminLoging.jsx";
 import { LeadMagnetLanding } from "./pages/LeadMagnetLanding.jsx";
 import { UpcomingEvents } from "./components/UpcomingEvents.jsx";
 import { EventDetails } from "./components/EventDetails.jsx";
+import { EventsHub } from "./pages/EventsHub.jsx";
+
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -49,6 +51,9 @@ export const router = createBrowserRouter(
       <Route path="/quickguide" element={<LeadMagnetLanding />} />
       <Route path="/upcomingevents" element={<UpcomingEvents />} />
       <Route path="/events/:id" element={<EventDetails />} />
+      <Route path="/eventshub" element={<EventsHub />} />
+      
+
     </Route>
   )
 );

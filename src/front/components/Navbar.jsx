@@ -47,7 +47,7 @@ export const Navbar = () => {
                         <Link to="/ebook" className="nav-link"> {/* nav-link para estilos de Bootstrap */}
                             <span className="text">{t('navbar')}</span>
                         </Link>
-                        <Link to="/eventregistration" className="nav-link">
+                        <Link to="/eventshub" className="nav-link">
                             <span className="text">{t('navbar_events')}</span>
                         </Link>
                         <Link to="/contact" className="nav-link">

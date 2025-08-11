@@ -1,40 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Importamos axios
+import axios from 'axios';
+import { useTranslation } from 'react-i18next'; // Importa el hook de traducción
 import { EventCard } from './EventCard';
 import { EventsGrid } from './EventsGrid';
-import "../styles/UpcomingEvents.css"; // Asegúrate de tener un archivo CSS para estilos
+import "../styles/UpcomingEvents.css"; 
 
-// Importa la URL del backend desde tus variables de entorno
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const UpcomingEvents = () => {
+  const { t } = useTranslation(); // Inicializa el hook de traducción
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // La función asíncrona que hará la llamada
     const fetchEvents = async () => {
       try {
         setLoading(true);
         setError(null);
-        // Usamos axios para hacer la llamada GET a tu endpoint público
         const response = await axios.get(`${BACKEND_BASE_URL}/api/events`);
-        
-        // axios maneja las respuestas 2xx como exitosas por defecto,
-        // así que no necesitamos el `if (!response.ok)`
         setEvents(response.data);
       } catch (err) {
         console.error('Error fetching events:', err);
         if (err.response) {
-            // El servidor respondió con un código de estado fuera del rango 2xx
-            setError(err.response.data.msg || 'Error al cargar los eventos del servidor.');
+            setError(t('upcoming_error_server'));
         } else if (err.request) {
-            // La solicitud fue hecha pero no se recibió respuesta
-            setError('Error de red. Asegúrate de que tu backend está funcionando.');
+            setError(t('upcoming_error_network'));
         } else {
-            // Algo más causó el error
-            setError('Hubo un problema de conexión. Por favor, inténtalo más tarde.');
+            setError(t('upcoming_error_connection'));
         }
       } finally {
         setLoading(false);
@@ -42,11 +35,10 @@ export const UpcomingEvents = () => {
     };
 
     fetchEvents();
-  }, []); // El array vacío asegura que se ejecute solo una vez
+  }, []);
 
-  // Lógica de renderizado basada en los estados
   if (loading) {
-    return <div className="loading-message">Cargando eventos...</div>;
+    return <div className="loading-message">{t('upcoming_loading_message')}</div>;
   }
 
   if (error) {
@@ -57,14 +49,14 @@ export const UpcomingEvents = () => {
   const otherEvents = events.slice(2);
 
   return (
+    <>
     <div className="upcoming-events-container">
       <div className="principal-events-section">
         {principalEvents.length > 0 && (
           <>
-            <h2 className="section-title">Eventos Destacados</h2>
+            <h2 className="section-title">{t('upcoming_featured_title')}</h2>
             <div className="principal-events">
               {principalEvents.map(event => (
-                // Aquí pasamos la prop isHero={true}
                 <EventCard key={event.id} event={event} isHero={true} />
               ))}
             </div>
@@ -72,19 +64,12 @@ export const UpcomingEvents = () => {
         )}
       </div>
       
-      {otherEvents.length > 0 && (
-        <div className="other-events-section">
-          <h2 className="section-title">Todos los Eventos</h2>
-          {/* Aquí no pasamos la prop isHero */}
-          <EventsGrid events={otherEvents} />
-        </div>
-      )}
-      
       {events.length === 0 && (
         <div className="no-events-message">
-          No hay eventos disponibles.
+          {t('upcoming_no_events_message')}
         </div>
       )}
     </div>
+    </>
   );
 }

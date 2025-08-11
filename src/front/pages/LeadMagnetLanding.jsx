@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import '../styles/landingStyle.css'; // Mantenemos el estilo de la landing
+import '../styles/landingStyle.css';
 import guiarapidaimg from '../images/guiarapidaimg.png';
 import quickguideimg from '../images/quickguideimg.png';
+import { Link } from 'react-router-dom'; // Importa Link para el enlace interno
 
 export const LeadMagnetLanding = () => {
     // Estados para los campos del formulario
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
+    // Estado para la casilla de consentimiento de privacidad
+    const [isConsentChecked, setIsConsentChecked] = useState(false);
 
     // Estados para mensajes de feedback al usuario
     const [message, setMessage] = useState('');
@@ -29,20 +32,28 @@ export const LeadMagnetLanding = () => {
 
         // 1. Validación Básica en el cliente
         if (!firstName || !lastName || !email) {
-            setMessage(t('leadmagnet_form_validation_1')); // "Todos los campos son obligatorios."
+            setMessage(t('leadmagnet_form_validation_1'));
             setIsError(true);
             setIsSubmitting(false);
             return;
         }
 
-        // Validación simple de formato de email
         if (!email.includes('@') || !email.includes('.')) {
-            setMessage(t('leadmagnet_form_validation_2')); // "Por favor, introduce un email válido."
+            setMessage(t('leadmagnet_form_validation_2'));
             setIsError(true);
             setIsSubmitting(false);
             return;
         }
 
+        // 2. Nueva validación para el consentimiento
+        if (!isConsentChecked) {
+            setMessage(t('leadmagnet_privacy_error')); // "Debes aceptar la política de privacidad para continuar."
+            setIsError(true);
+            setIsSubmitting(false);
+            return;
+        }
+        
+        // 3. Envío al backend
         const requestBody = {
             firstName,
             lastName,
@@ -54,14 +65,14 @@ export const LeadMagnetLanding = () => {
             const response = await axios.post(`${BACKEND_BASE_URL}/api/lead-magnet-subscribe`, requestBody);
 
             if (response.status === 200) {
-                setMessage(response.data.message || t('leadmagnet_success_message')); // "¡Gracias por suscribirte! Revisa tu bandeja de entrada."
+                setMessage(response.data.message || t('leadmagnet_success_message'));
                 setIsError(false);
-                // Opcional: Limpiar el formulario al tener éxito
                 setFirstName('');
                 setLastName('');
                 setEmail('');
+                setIsConsentChecked(false); // Limpiamos también el checkbox
             } else {
-                setMessage(response.data.message || t('leadmagnet_error_message_1')); // "Error al suscribirte. Por favor, inténtalo de nuevo."
+                setMessage(response.data.message || t('leadmagnet_error_message_1'));
                 setIsError(true);
             }
         } catch (error) {
@@ -69,9 +80,9 @@ export const LeadMagnetLanding = () => {
             if (error.response && error.response.data && error.response.data.error) {
                 setMessage(error.response.data.error);
             } else if (error.message === 'Network Error') {
-                setMessage(t('leadmagnet_network_error')); // "Error de red. Asegúrate de que tu backend está funcionando."
+                setMessage(t('leadmagnet_network_error'));
             } else {
-                setMessage(t('leadmagnet_unexpected_error')); // "Hubo un problema de conexión. Por favor, inténtalo más tarde."
+                setMessage(t('leadmagnet_unexpected_error'));
             }
             setIsError(true);
         } finally {
@@ -128,7 +139,22 @@ export const LeadMagnetLanding = () => {
                                     disabled={isSubmitting}
                                 />
                             </div>
-                            <button type="submit" className="btn btn-orange" disabled={isSubmitting}>
+                            {/* Nuevo grupo para el checkbox de privacidad */}
+                            <div className="form-group privacy-checkbox">
+                                <input
+                                    type="checkbox"
+                                    id="privacy-consent"
+                                    checked={isConsentChecked}
+                                    onChange={(e) => setIsConsentChecked(e.target.checked)}
+                                    disabled={isSubmitting}
+                                />
+                                <label htmlFor="privacy-consent">
+                                    <span dangerouslySetInnerHTML={{
+                                        __html: t('leadmagnet_privacy_consent', { privacyPolicyLink: `<a href="/privacy" target="_blank" rel="noopener noreferrer">${t('leadmagnet_privacy_link_text')}</a>` })
+                                    }} />
+                                </label>
+                            </div>
+                            <button type="submit" className="btn btn-orange" disabled={isSubmitting || !isConsentChecked}>
                                 {isSubmitting ? t('leadmagnet_submitting_btn') : t('leadmagnet_submit_btn')}
                             </button>
                         </form>
@@ -138,7 +164,6 @@ export const LeadMagnetLanding = () => {
                     </div>
                 </div>
             </div>
-            {/* Puedes añadir más secciones aquí si quieres */}
         </div>
     );
 };
