@@ -14,9 +14,14 @@ import {
   Send,
   Ticket,
   MessageCircle,
-  X
+  X,
+  Upload
 } from 'lucide-react';
 import '../styles/EventDetails.css';
+
+// --- NUEVOS COMPONENTES ---
+import UploadPhotoForm from '../pages/UploadPhotoForm.jsx';
+import PhotoGallery from '../pages/PhotoGallery.jsx';
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -44,6 +49,11 @@ export const EventDetails = () => {
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const [submissionMessage, setSubmissionMessage] = useState('');
 
+  // --- AÑADIDO: Lógica para verificar si es admin ---
+  const jwtToken = localStorage.getItem("admin_access_token");
+  const isAdmin = !!jwtToken;
+  const [showAdminUploadForm, setShowAdminUploadForm] = useState(false);
+
   useEffect(() => {
     const fetchEventDetails = async () => {
       const eventId = parseInt(id);
@@ -55,6 +65,7 @@ export const EventDetails = () => {
 
       try {
         setLoading(true);
+        // --- MODIFICADO: Ahora el backend devuelve las fotos del evento ---
         const response = await axios.get(`${BACKEND_BASE_URL}/api/events/${eventId}`);
         if (response.data) {
           setEvent(response.data);
@@ -72,6 +83,14 @@ export const EventDetails = () => {
     fetchEventDetails();
   }, [id, t]);
 
+  // --- AÑADIDO: Lógica para actualizar las fotos localmente tras una subida exitosa ---
+  const handlePhotoUploadSuccess = (newPhoto) => {
+    setEvent(prevEvent => ({
+      ...prevEvent,
+      photos: [...(prevEvent.photos || []), newPhoto]
+    }));
+  };
+  
   const handleReservationChange = (e) => {
     const { name, value } = e.target;
     setReservationData(prevState => ({
@@ -186,6 +205,29 @@ export const EventDetails = () => {
 
   return (
     <div className="event-details-container">
+      
+      {/* ------------------- SECCIÓN SÓLO PARA ADMIN ------------------- */}
+      {isAdmin && (
+        <div className="admin-section">
+          <button 
+            className="admin-button" 
+            onClick={() => setShowAdminUploadForm(!showAdminUploadForm)}
+          >
+            <Upload size={20} />
+            {showAdminUploadForm ? 'Ocultar Formulario de Fotos' : 'Subir Fotos al Álbum'}
+          </button>
+          {showAdminUploadForm && (
+            <div className="admin-upload-form-container">
+              <UploadPhotoForm 
+                eventId={event.id} 
+                jwtToken={jwtToken}
+                onUploadSuccess={handlePhotoUploadSuccess}
+              />
+            </div>
+          )}
+        </div>
+      )}
+      
       <div className="event-card-container">
         
         <div className="event-main-content">
@@ -228,6 +270,14 @@ export const EventDetails = () => {
           </div>
         </div>
       </div>
+      
+      {/* --- AÑADIDO: Galería de fotos del evento --- */}
+      {event.photos && event.photos.length > 0 && (
+        <div className="event-photo-gallery">
+          <h2 className="section-title">{t('event_details_gallery_title')}</h2>
+          <PhotoGallery photos={event.photos} />
+        </div>
+      )}
 
       <div className="event-form-section">
         {isEventPast ? (
@@ -367,5 +417,3 @@ export const EventDetails = () => {
     </div>
   );
 };
-
-export default EventDetails;

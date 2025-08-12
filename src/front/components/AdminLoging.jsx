@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Para redireccionar después del login
-import '../styles/adminLoginForm.css'; // Crea este archivo CSS
+import '../styles/adminLoginForm.css'; // Asegúrate de que este CSS exista
 
 export const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -35,27 +35,23 @@ export const AdminLogin = () => {
         const { access_token, data } = response.data;
         // Guarda el token en localStorage o sessionStorage
         localStorage.setItem('admin_access_token', access_token);
+        
         // Guarda los datos del admin si los necesitas en el frontend
         localStorage.setItem('admin_user_data', JSON.stringify(data));
         
         console.log("Admin logueado con éxito:", data);
-        // Redirige al panel de administración de Flask-Admin o a una página interna del frontend
-        // Si tienes una página de dashboard de admin en React, redirige allí.
-        // Si quieres ir directamente al panel de Flask-Admin:
-        window.location.href = `${BACKEND_BASE_URL}/admin`;
-        // O si tienes una ruta de React para el admin dashboard, por ejemplo '/admin-dashboard':
-        // navigate('/admin-dashboard'); 
+        
+        // --- CAMBIO CLAVE AQUÍ ---
+        // Redirige a una ruta interna de tu frontend de React (ej. '/admin-dashboard')
+        navigate('/admin-dashboard'); // O la ruta que tengas para el panel de administración en React
       }
     } catch (err) {
       console.error("Error en el login del admin:", err);
       if (err.response) {
-        // El servidor respondió con un código de estado fuera del rango 2xx
         setError(err.response.data.msg || "Error de credenciales. Inténtalo de nuevo.");
       } else if (err.request) {
-        // La solicitud fue hecha pero no se recibió respuesta (ej. red caída)
         setError("Error de red: No se pudo conectar con el servidor.");
       } else {
-        // Algo más causó el error
         setError("Ocurrió un error inesperado. Inténtalo de nuevo.");
       }
     } finally {

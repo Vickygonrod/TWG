@@ -146,6 +146,7 @@ class RetreatDetails(db.Model):
 
 # Modelo de Evento modificado
 class Event(db.Model):
+    # Sin __tablename__, SQLAlchemy usará el nombre por defecto 'event'.
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
     short_description = db.Column(db.String(500), nullable=True)
@@ -154,15 +155,8 @@ class Event(db.Model):
     location = db.Column(db.String(255), nullable=False)
     max_participants = db.Column(db.Integer, nullable=True)
     current_participants = db.Column(db.Integer, default=0, nullable=False)
-    
-    # Campo para eventos de tipo 'pagado', 'gratis' o 'retreat'
     event_type = db.Column(db.String(50), nullable=False, default='pagado')
-    
-    # 'price_1' se mantendrá para los eventos 'pagados' simples
     price_1 = db.Column(db.Float, nullable=True)
-    # Ya no necesitamos los campos price_2, price_3, etc.
-    # Los precios de los retreats los guardaremos en RetreatDetails.
-    
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
     priority_order = db.Column(db.Integer, default=999, nullable=False)
@@ -171,9 +165,14 @@ class Event(db.Model):
     # Relación con RetreatDetails (uno a uno)
     retreat_details = db.relationship('RetreatDetails', backref='event', uselist=False)
 
-    # Relación con los participantes (reservas o inscripciones)
+    # Relación con los participantes y reservas
     participants = db.relationship('EventParticipant', backref='event', lazy=True)
     reservations = db.relationship('Reservation', backref='event', lazy=True)
+    
+    # --- AÑADIDO: Relación con las fotos ---
+    # `photos` es el campo que contendrá la lista de fotos del evento
+    # `backref='event'` crea una propiedad `event` en el modelo Photo para acceder al evento
+    photos = db.relationship('Photo', backref='event', lazy=True)
 
     def __repr__(self):
         return f'<Event {self.name} - {self.date} - Type: {self.event_type}>'
@@ -194,9 +193,32 @@ class Event(db.Model):
             "image_url": self.image_url,
             "priority_order": self.priority_order,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            # Serializamos los detalles del retreat si existen
-            "retreat_details": self.retreat_details.serialize() if self.retreat_details else None
+            "retreat_details": self.retreat_details.serialize() if self.retreat_details else None,
+            # --- AÑADIDO: Serialización de las fotos ---
+            "photos": [photo.serialize() for photo in self.photos]
         }
+
+
+# --- NUEVO MODELO Photo (para almacenar las URLs) ---
+class Photo(db.Model):
+    __tablename__ = 'photos'
+    id = db.Column(db.Integer, primary_key=True)
+    # `db.ForeignKey('event.id')` apunta al id de la tabla 'event'
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    url = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Photo {self.id} for Event {self.event_id}>'
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "url": self.url,
+            "event_id": self.event_id,
+            "created_at": self.created_at.isoformat()
+        }
+
 
 # Nuevo modelo para manejar las reservas del formulario que creamos
 class Reservation(db.Model):

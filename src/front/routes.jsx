@@ -22,6 +22,8 @@ import { LeadMagnetLanding } from "./pages/LeadMagnetLanding.jsx";
 import { UpcomingEvents } from "./components/UpcomingEvents.jsx";
 import { EventDetails } from "./components/EventDetails.jsx";
 import { EventsHub } from "./pages/EventsHub.jsx";
+import UploadPhotoForm from "./pages/UploadPhotoForm.jsx";
+import { AdminDashboard } from "./pages/AdminDashboard.jsx";
 
 
 export const router = createBrowserRouter(
@@ -52,7 +54,8 @@ export const router = createBrowserRouter(
       <Route path="/upcomingevents" element={<UpcomingEvents />} />
       <Route path="/events/:id" element={<EventDetails />} />
       <Route path="/eventshub" element={<EventsHub />} />
-      
+      <Route path="/uploadphotos/:id" element={<UploadPhotoForm />} />
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
     </Route>
   )

@@ -3,11 +3,14 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory
-from api.models import db, User, Subscriber, Admins, Contact, Order, EventParticipant, Event, InformationRequest, Reservation, RetreatDetails
+from api.models import db, User, Subscriber, Admins, Contact, Order, EventParticipant, Event, InformationRequest, Reservation, RetreatDetails, Photo
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config
 import stripe
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 from api.services.email_service import (
     send_contact_form_email,
@@ -46,6 +49,13 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 # Configura la clave secreta de Stripe al inicio
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+# --- Configuración de Cloudinary ---
+cloudinary.config(
+    cloud_name=os.getenv('CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
+)
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -702,7 +712,69 @@ def get_single_event(event_id):
         print(f"Error retrieving event with id {event_id}: {e}")
         return jsonify({"msg": "Internal server error"}), 500
 
-# ...
+
+
+@api.route('/admin/events/<int:event_id>/photos', methods=['POST'])
+@jwt_required()
+def upload_photo(event_id):
+    """
+    Ruta para que un admin suba una foto a un evento específico.
+    """
+    current_user_email = get_jwt_identity()
+    admin = Admins.query.filter_by(email=current_user_email).first()
+    if not admin:
+        return jsonify({"msg": "Admin privileges required"}), 403
+    
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({"msg": "Event not found"}), 404
+
+    if 'file' not in request.files:
+        return jsonify({"msg": "No se encontró el archivo"}), 400
+    
+    file_to_upload = request.files['file']
+    
+    if file_to_upload.filename == '':
+        return jsonify({"msg": "No se seleccionó un archivo"}), 400
+
+    try:
+        # Subir el archivo a Cloudinary
+        upload_result = cloudinary.uploader.upload(file_to_upload)
+        photo_url = upload_result['secure_url']
+
+        # Crear una nueva instancia de la foto y vincularla al evento
+        new_photo = Photo(event_id=event_id, url=photo_url)
+        db.session.add(new_photo)
+        db.session.commit()
+        
+        return jsonify({"msg": "Foto subida con éxito", "photo": new_photo.serialize()}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error al subir la foto: {e}")
+        return jsonify({"msg": "Error al subir la foto"}), 500
+
+@api.route('/events/<int:event_id>/photos', methods=['GET'])
+def get_event_photos(event_id):
+    """
+    Ruta pública para obtener todas las fotos de un evento específico.
+    """
+    try:
+        event = Event.query.get(event_id)
+        if not event:
+            return jsonify({"msg": "Event not found"}), 404
+        
+        # Como ya configuramos la relación en el modelo, podemos acceder directamente
+        # a las fotos del evento.
+        photos = [photo.serialize() for photo in event.photos]
+        
+        return jsonify(photos), 200
+
+    except Exception as e:
+        print(f"Error retrieving photos for event {event_id}: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+
 
 @api.route('/admin/event/<int:event_id>', methods=['PUT'])
 @jwt_required()
