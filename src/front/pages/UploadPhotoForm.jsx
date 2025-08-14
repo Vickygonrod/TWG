@@ -6,6 +6,8 @@ const UploadPhotoForm = ({ eventId, jwtToken }) => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setMessage('');
@@ -26,7 +28,7 @@ const UploadPhotoForm = ({ eventId, jwtToken }) => {
     formData.append('file', file);
 
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/api/admin/events/${eventId}/photos`, {
+      const response = await fetch(`${BACKEND_BASE_URL}/api/admin/events/${eventId}/photos`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${jwtToken}`,

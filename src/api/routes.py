@@ -720,39 +720,45 @@ def upload_photo(event_id):
     """
     Ruta para que un admin suba una foto a un evento específico.
     """
-    current_user_email = get_jwt_identity()
-    admin = Admins.query.filter_by(email=current_user_email).first()
-    if not admin:
-        return jsonify({"msg": "Admin privileges required"}), 403
-    
-    event = Event.query.get(event_id)
-    if not event:
-        return jsonify({"msg": "Event not found"}), 404
-
-    if 'file' not in request.files:
-        return jsonify({"msg": "No se encontró el archivo"}), 400
-    
-    file_to_upload = request.files['file']
-    
-    if file_to_upload.filename == '':
-        return jsonify({"msg": "No se seleccionó un archivo"}), 400
-
     try:
+        # 1. Obtener la identidad (que es un diccionario)
+        admin_identity = get_jwt_identity()
+        # 2. Extraer el email del diccionario para la consulta
+        admin_email = admin_identity.get('email')
+
+        # Esto es lo que estaba fallando
+        admin = Admins.query.filter_by(email=admin_email).first()
+        if not admin:
+            return jsonify({"msg": "Admin privileges required"}), 403
+
+        event = Event.query.get(event_id)
+        if not event:
+            return jsonify({"msg": "Event not found"}), 404
+
+        if 'file' not in request.files:
+            return jsonify({"msg": "No se encontró el archivo"}), 400
+
+        file_to_upload = request.files['file']
+
+        if file_to_upload.filename == '':
+            return jsonify({"msg": "No se seleccionó un archivo"}), 400
+
         # Subir el archivo a Cloudinary
-        upload_result = cloudinary.uploader.upload(file_to_upload)
+        folder_name = f'event_photos/event_{event_id}'
+        upload_result = cloudinary.uploader.upload(file_to_upload, folder=folder_name)
         photo_url = upload_result['secure_url']
 
-        # Crear una nueva instancia de la foto y vincularla al evento
         new_photo = Photo(event_id=event_id, url=photo_url)
         db.session.add(new_photo)
         db.session.commit()
-        
+
         return jsonify({"msg": "Foto subida con éxito", "photo": new_photo.serialize()}), 201
 
     except Exception as e:
         db.session.rollback()
         print(f"Error al subir la foto: {e}")
-        return jsonify({"msg": "Error al subir la foto"}), 500
+        return jsonify({"msg": f"Error al subir la foto: {e}"}), 500
+        
 
 @api.route('/events/<int:event_id>/photos', methods=['GET'])
 def get_event_photos(event_id):
