@@ -159,6 +159,10 @@ class Event(db.Model):
     price_1 = db.Column(db.Float, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
+    second_image_url = db.Column(db.String(500), nullable=True)
+    third_image_url = db.Column(db.String(500), nullable=True)
+    fourth_image_url = db.Column(db.String(500), nullable=True)
+    fifth_image_url = db.Column(db.String(500), nullable=True)
     priority_order = db.Column(db.Integer, default=999, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -191,6 +195,10 @@ class Event(db.Model):
             "price_1": self.price_1,
             "is_active": self.is_active,
             "image_url": self.image_url,
+            "second_image_url": self.second_image_url,
+            "third_image_url": self.third_image_url,
+            "fourth_image_url": self.fourth_image_url,
+            "fifth_image_url": self.fifth_image_url,
             "priority_order": self.priority_order,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "retreat_details": self.retreat_details.serialize() if self.retreat_details else None,
