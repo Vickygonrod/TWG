@@ -17,9 +17,11 @@ import {
   X,
   Upload
 } from 'lucide-react';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import { Carousel } from 'react-responsive-carousel';
 import '../styles/EventDetails.css';
 
-// --- NUEVOS COMPONENTES ---
+// --- COMPONENTES ---
 import UploadPhotoForm from '../pages/UploadPhotoForm.jsx';
 import PhotoGallery from '../pages/PhotoGallery.jsx';
 
@@ -49,10 +51,10 @@ export const EventDetails = () => {
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const [submissionMessage, setSubmissionMessage] = useState('');
 
-  // --- AÑADIDO: Lógica para verificar si es admin ---
-  //const jwtToken = localStorage.getItem("admin_access_token");
-  //const isAdmin = !!jwtToken;
-  //const [showAdminUploadForm, setShowAdminUploadForm] = useState(false);
+  // --- Lógica para verificar si es admin ---
+  // const jwtToken = localStorage.getItem("admin_access_token");
+  // const isAdmin = !!jwtToken;
+  // const [showAdminUploadForm, setShowAdminUploadForm] = useState(false);
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -65,7 +67,6 @@ export const EventDetails = () => {
 
       try {
         setLoading(true);
-        // --- MODIFICADO: Ahora el backend devuelve las fotos del evento ---
         const response = await axios.get(`${BACKEND_BASE_URL}/api/events/${eventId}`);
         if (response.data) {
           setEvent(response.data);
@@ -83,7 +84,7 @@ export const EventDetails = () => {
     fetchEventDetails();
   }, [id, t]);
 
-  // --- AÑADIDO: Lógica para actualizar las fotos localmente tras una subida exitosa ---
+  // --- Lógica para actualizar las fotos localmente tras una subida exitosa ---
   const handlePhotoUploadSuccess = (newPhoto) => {
     setEvent(prevEvent => ({
       ...prevEvent,
@@ -203,6 +204,15 @@ export const EventDetails = () => {
 
   const isEventPast = new Date(event.date) <= new Date();
 
+  // --- CÓDIGO DEL CARRUSEL ---
+  const photos = [
+    event.image_url,
+    event.second_image_url,
+    event.third_image_url,
+    event.fourth_image_url,
+    event.fifth_image_url
+  ].filter(url => url);
+
   return (
     <div className="event-details-container">
       
@@ -251,11 +261,22 @@ export const EventDetails = () => {
             </ul>
           </div>
           <div className="event-image-container">
-            <img 
-              src={event.image_url} 
-              alt={event.name} 
-              className="event-image"
-            />
+            {photos.length > 0 ? (
+              <Carousel 
+                showArrows={true} 
+                showStatus={false} 
+                showThumbs={true}
+                className="event-carousel"
+              >
+                {photos.map((url, index) => (
+                  <div key={index}>
+                    <img src={url} alt={`${event.name} - Foto ${index + 1}`} className="event-image" />
+                  </div>
+                ))}
+              </Carousel>
+            ) : (
+              <p>No hay fotos disponibles para este evento.</p>
+            )}
           </div>
         </div>
         
@@ -271,13 +292,7 @@ export const EventDetails = () => {
         </div>
       </div>
       
-      {/* --- AÑADIDO: Galería de fotos del evento --- */}
-      {event.photos && event.photos.length > 0 && (
-        <div className="event-photo-gallery">
-          <h2 className="section-title">{t('event_details_gallery_title')}</h2>
-          <PhotoGallery photos={event.photos} />
-        </div>
-      )}
+      
 
       <div className="event-form-section">
         {isEventPast ? (
