@@ -16,7 +16,9 @@ from api.services.email_service import (
     send_contact_form_email,
     add_subscriber_to_mailerlite,
     send_ebook_download_email,
-    remove_subscriber_from_group
+    remove_subscriber_from_group,
+    send_admin_reservation_notification,   
+    send_admin_info_request_notification   
 )
 
 from flask_jwt_extended import create_access_token
@@ -874,20 +876,14 @@ def delete_event(event_id):
 
 @api.route('/information-request', methods=['POST'])
 def handle_information_request():
-    """
-    Crea una nueva solicitud de información para un evento desde un formulario
-    específico de consulta.
-    """
     payload = request.get_json()
-    if not payload:
-        return jsonify({"msg": "No se recibió el cuerpo de la solicitud en formato JSON."}), 400
-
-    required_fields = ['event_id', 'name', 'email']
-    for field in required_fields:
-        if field not in payload or not payload[field]:
-            return jsonify({"msg": f"El campo '{field}' es obligatorio."}), 400
-
+    # ... tu validación de campos ...
+    
     try:
+        event = Event.query.get(payload['event_id'])
+        if not event:
+            return jsonify({"msg": "Evento no encontrado."}), 404
+
         new_request = InformationRequest(
             event_id=payload['event_id'],
             name=payload['name'],
@@ -899,12 +895,23 @@ def handle_information_request():
         
         db.session.add(new_request)
         db.session.commit()
+
+        # --- ENVÍO DE EMAIL AL ADMINISTRADOR ---
+        admin_notification_data = {
+            'event_name': event.name,
+            'name': payload['name'],
+            'email': payload['email'],
+            'phone': payload.get('phone'),
+            'comments': payload.get('comments')
+        }
+        send_admin_info_request_notification(admin_notification_data)
         
         return jsonify({"msg": "Solicitud de información enviada con éxito!", "id": new_request.id}), 201
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": f"Ocurrió un error al procesar la solicitud: {str(e)}"}), 500
+        print(f"ERROR: Fallo en la ruta /information-request: {str(e)}")
+        return jsonify({"msg": "Ocurrió un error al procesar la solicitud."}), 500
 
 
 @api.route('/payment-failure', methods=['POST'])
@@ -946,34 +953,39 @@ def handle_payment_failure():
 
 @api.route('/reservation', methods=['POST'])
 def handle_reservation():
-    """
-    Crea una nueva reserva para un evento.
-    Recibe los datos del formulario y los guarda en la base de datos.
-    """
     payload = request.get_json()
-    if not payload:
-        return jsonify({"msg": "No se recibió el cuerpo de la solicitud en formato JSON."}), 400
-
-    required_fields = ['event_id', 'name', 'email', 'participants_count']
-    for field in required_fields:
-        if field not in payload or not payload[field]:
-            return jsonify({"msg": f"El campo '{field}' es obligatorio."}), 400
-
+    # ... tu validación de campos ...
+    
     try:
+        event = Event.query.get(payload['event_id'])
+        if not event:
+            return jsonify({"msg": "Evento no encontrado."}), 404
+
         new_reservation = Reservation(
             event_id=payload['event_id'],
             name=payload['name'],
             email=payload['email'],
             phone=payload.get('phone'),
             participants_count=payload['participants_count'],
-            status='pending'  # Estado inicial, puede cambiar a 'confirmed' tras el pago
+            status='pending'
         )
         
         db.session.add(new_reservation)
         db.session.commit()
         
+        # --- ENVÍO DE EMAIL AL ADMINISTRADOR ---
+        admin_notification_data = {
+            'event_name': event.name,
+            'name': payload['name'],
+            'email': payload['email'],
+            'phone': payload.get('phone'),
+            'participants_count': payload['participants_count']
+        }
+        send_admin_reservation_notification(admin_notification_data)
+        
         return jsonify({"msg": "Reserva registrada con éxito!", "id": new_reservation.id}), 201
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": f"Ocurrió un error al procesar la reserva: {str(e)}"}), 500
+        print(f"ERROR: Fallo en la ruta /reservation: {str(e)}")
+        return jsonify({"msg": "Ocurrió un error al procesar la reserva."}), 500

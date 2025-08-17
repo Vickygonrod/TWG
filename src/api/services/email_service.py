@@ -1,6 +1,113 @@
 import os
 import requests 
 from mailersend import emails 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# --- Obtener variables de entorno ---
+MAILERSEND_API_KEY = os.getenv("MAILERSEND_API_KEY")
+MAILERSEND_SENDER_EMAIL = os.getenv("MAILERSEND_SENDER_EMAIL")
+MAILERSEND_SENDER_NAME = os.getenv("MAILERSEND_SENDER_NAME")
+YOUR_RECEIVING_EMAIL = os.getenv("YOUR_RECEIVING_EMAIL")
+MAILERSEND_TEMPLATE_DOWNLOAD_ES = os.getenv("MAILERSEND_TEMPLATE_DOWNLOAD_ES")
+MAILERSEND_TEMPLATE_DOWNLOAD_EN = os.getenv("MAILERSEND_TEMPLATE_DOWNLOAD_EN")
+MAILERLITE_API_KEY = os.getenv("MAILERLITE_API_KEY")
+MAILERLITE_GROUP_ES = os.getenv("MAILERLITE_GROUP_ES")
+MAILERLITE_GROUP_EN = os.getenv("MAILERLITE_GROUP_EN")
+MAILERLITE_DEFAULT_GROUP_ID = os.getenv("MAILERLITE_DEFAULT_GROUP_ID")
+
+# --- Funciones de envío de email al administrador ---
+
+def send_admin_reservation_notification(data):
+    """
+    Envía un email de notificación al administrador sobre una nueva reserva.
+    """
+    if not MAILERSEND_API_KEY or not YOUR_RECEIVING_EMAIL:
+        print("ERROR: MAILERSEND_API_KEY o YOUR_RECEIVING_EMAIL no configuradas.")
+        return False
+        
+    try:
+        mailer = emails.NewEmail(MAILERSEND_API_KEY)
+        mail_body = {}
+
+        mail_from = {
+            "name": MAILERSEND_SENDER_NAME,
+            "email": MAILERSEND_SENDER_EMAIL,
+        }
+        mailer.set_mail_from(mail_from, mail_body)
+
+        recipients = [{"email": YOUR_RECEIVING_EMAIL}]
+        mailer.set_mail_to(recipients, mail_body)
+        
+        subject = f"Nueva Reserva: {data['event_name']}"
+        mailer.set_subject(subject, mail_body)
+
+        html_content = f"""
+        <html>
+        <body>
+            <h2>Nueva Reserva de Evento</h2>
+            <p><strong>Evento:</strong> {data.get('event_name')}</p>
+            <p><strong>Nombre:</strong> {data.get('name')}</p>
+            <p><strong>Email:</strong> {data.get('email')}</p>
+            <p><strong>Teléfono:</strong> {data.get('phone', 'N/A')}</p>
+            <p><strong>Participantes:</strong> {data.get('participants_count')}</p>
+        </body>
+        </html>
+        """
+        mailer.set_html_content(html_content, mail_body)
+        response = mailer.send(mail_body)
+        print(f"DEBUG: Email de notificación de reserva enviado a admin. Respuesta API: {response}")
+        return True
+    except Exception as e:
+        print(f"ERROR al enviar email de notificación de reserva: {e}")
+        return False
+
+def send_admin_info_request_notification(data):
+    """
+    Envía un email de notificación al administrador sobre una nueva solicitud de información.
+    """
+    if not MAILERSEND_API_KEY or not YOUR_RECEIVING_EMAIL:
+        print("ERROR: MAILERSEND_API_KEY o YOUR_RECEIVING_EMAIL no configuradas.")
+        return False
+    
+    try:
+        mailer = emails.NewEmail(MAILERSEND_API_KEY)
+        mail_body = {}
+
+        mail_from = {
+            "name": MAILERSEND_SENDER_NAME,
+            "email": MAILERSEND_SENDER_EMAIL,
+        }
+        mailer.set_mail_from(mail_from, mail_body)
+
+        recipients = [{"email": YOUR_RECEIVING_EMAIL}]
+        mailer.set_mail_to(recipients, mail_body)
+        
+        subject = f"Nueva Solicitud de Información: {data['event_name']}"
+        mailer.set_subject(subject, mail_body)
+
+        html_content = f"""
+        <html>
+        <body>
+            <h2>Nueva Solicitud de Información</h2>
+            <p><strong>Evento:</strong> {data.get('event_name')}</p>
+            <p><strong>Nombre:</strong> {data.get('name')}</p>
+            <p><strong>Email:</strong> {data.get('email')}</p>
+            <p><strong>Teléfono:</strong> {data.get('phone', 'N/A')}</p>
+            <p><strong>Comentarios:</strong> {data.get('comments', 'N/A')}</p>
+        </body>
+        </html>
+        """
+        mailer.set_html_content(html_content, mail_body)
+        response = mailer.send(mail_body)
+        print(f"DEBUG: Email de notificación de solicitud de información enviado a admin. Respuesta API: {response}")
+        return True
+    except Exception as e:
+        print(f"ERROR al enviar email de notificación de solicitud: {e}")
+        return False
+
+# --- Funciones de contacto y MailerLite (tus funciones originales) ---
 
 def send_contact_form_email(
     to_email,
@@ -9,13 +116,12 @@ def send_contact_form_email(
     subject,
     template_data
 ):
-    # --- TEMPORALMENTE DESHABILITADO PARA DEBUGGING ---
-    print("WARNING: send_contact_form_email está deshabilitado temporalmente para debugging.")
-    return True
+    # --- IMPORTANTE: DESCOMENTA LAS LÍNEAS DE ABAJO para que la función envíe emails de nuevo ---
+    # print("WARNING: send_contact_form_email está deshabilitado temporalmente para debugging.")
+    # return True
     # -------------------------------------------------
 
     mailersend_api_key = os.getenv("MAILERSEND_API_KEY")
-    print(f"DEBUG: MAILERSEND_API_KEY cargada: {'Sí' if mailersend_api_key else 'No'} (Longitud: {len(mailersend_api_key) if mailersend_api_key else 0})")
     if not mailersend_api_key:
         print("ERROR: MAILERSEND_API_KEY no configurada. No se puede enviar el email de notificación.")
         return False
@@ -72,10 +178,10 @@ def send_ebook_download_email(to_email, download_link, language):
         print("ERROR: MAILERSEND_API_KEY no configurada. No se puede enviar el email de descarga.")
         return False
     
-    TEMPLATE_ID_ES = os.getenv("MAILERSEND_TEMPLATE_DOWNLOAD_ES")
-    TEMPLATE_ID_EN = os.getenv("MAILERSEND_TEMPLATE_DOWNLOAD_EN")
+    template_id_es = os.getenv("MAILERSEND_TEMPLATE_DOWNLOAD_ES")
+    template_id_en = os.getenv("MAILERSEND_TEMPLATE_DOWNLOAD_EN")
     
-    template_id = TEMPLATE_ID_ES if language == 'es' else TEMPLATE_ID_EN
+    template_id = template_id_es if language == 'es' else template_id_en
     
     if not template_id:
         print(f"ERROR: No se encontró la ID de la plantilla de Mailersend para el idioma {language}.")
@@ -146,9 +252,6 @@ def add_subscriber_to_mailerlite(email, first_name, last_name, group_id=None):
         print(f"ERROR inesperado al añadir suscriptor a MailerLite: {e}")
         return False
         
-
-# --- NUEVAS FUNCIONES PARA MOVER SUSCRIPTORES ---
-
 def get_subscriber_id_by_email(email):
     mailerlite_api_key = os.getenv("MAILERLITE_API_KEY")
     if not mailerlite_api_key:
@@ -190,7 +293,7 @@ def remove_subscriber_from_group(email, group_id):
     subscriber_id = get_subscriber_id_by_email(email)
     if not subscriber_id:
         print(f"WARNING: Suscriptor con email {email} no encontrado para eliminar del grupo {group_id}.")
-        return True # Retorna True para no romper el flujo
+        return True
     
     headers = {
         "Accept": "application/json",
@@ -207,9 +310,8 @@ def remove_subscriber_from_group(email, group_id):
         return True
     
     except requests.exceptions.RequestException as e:
-        # La API devuelve 204 No Content para éxito, o 404 si el suscriptor no está en el grupo.
         if e.response and e.response.status_code == 404:
-            print(f"WARNING: Suscriptor {email} no estaba en el grupo {group_id}. No se requiere acción.")
+            print(f"WARNING: Suscriptor {email} no estaba en el grupo {group_id}.")
             return True
         print(f"ERROR al remover suscriptor del grupo {group_id}: {e}")
         return False
