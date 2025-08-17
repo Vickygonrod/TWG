@@ -50,9 +50,9 @@ export const EventDetails = () => {
   const [submissionMessage, setSubmissionMessage] = useState('');
 
   // --- AÑADIDO: Lógica para verificar si es admin ---
-  const jwtToken = localStorage.getItem("admin_access_token");
-  const isAdmin = !!jwtToken;
-  const [showAdminUploadForm, setShowAdminUploadForm] = useState(false);
+  //const jwtToken = localStorage.getItem("admin_access_token");
+  //const isAdmin = !!jwtToken;
+  //const [showAdminUploadForm, setShowAdminUploadForm] = useState(false);
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -207,7 +207,7 @@ export const EventDetails = () => {
     <div className="event-details-container">
       
       {/* ------------------- SECCIÓN SÓLO PARA ADMIN ------------------- */}
-      {isAdmin && (
+      {/* {isAdmin && (
         <div className="admin-section">
           <button 
             className="admin-button" 
@@ -226,7 +226,7 @@ export const EventDetails = () => {
             </div>
           )}
         </div>
-      )}
+      )} */}
       
       <div className="event-card-container">
         
