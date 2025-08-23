@@ -165,6 +165,9 @@ class Event(db.Model):
     fifth_image_url = db.Column(db.String(500), nullable=True)
     priority_order = db.Column(db.Integer, default=999, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # --- AÑADIDO: Campo para el ID del precio de Stripe ---
+    stripe_price_id = db.Column(db.String(255), nullable=True, default=None)
 
     # Relación con RetreatDetails (uno a uno)
     retreat_details = db.relationship('RetreatDetails', backref='event', uselist=False)
@@ -174,8 +177,6 @@ class Event(db.Model):
     reservations = db.relationship('Reservation', backref='event', lazy=True)
     
     # --- AÑADIDO: Relación con las fotos ---
-    # `photos` es el campo que contendrá la lista de fotos del evento
-    # `backref='event'` crea una propiedad `event` en el modelo Photo para acceder al evento
     photos = db.relationship('Photo', backref='event', lazy=True)
 
     def __repr__(self):
@@ -202,8 +203,10 @@ class Event(db.Model):
             "priority_order": self.priority_order,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "retreat_details": self.retreat_details.serialize() if self.retreat_details else None,
-            # --- AÑADIDO: Serialización de las fotos ---
-            "photos": [photo.serialize() for photo in self.photos]
+            "photos": [photo.serialize() for photo in self.photos],
+            
+            # --- AÑADIDO: Serializa el price_id de Stripe ---
+            "stripe_price_id": self.stripe_price_id
         }
 
 
