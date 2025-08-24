@@ -95,17 +95,52 @@ def create_checkout_session():
     try:
         data = request.json
         price_id = data.get('price_id')
-        customer_email = data.get('customer_email') 
-        customer_name = data.get('customer_name')  
-        
-        if not price_id or not customer_email:
+        customer_email = data.get('customer_email')
+        customer_name = data.get('customer_name')
+        event_id = data.get('event_id')  # Para distinguir los eventos del ebook
+
+        if not all([price_id, customer_email]):
             print("ERROR: Faltan Price ID o Email del frontend.")
             return jsonify(error="Price ID or email missing"), 400
 
-        allowed_price_ids = [Config.STRIPE_PRICE_ID_ES, Config.STRIPE_PRICE_ID_EN]
-        if price_id not in allowed_price_ids:
-            print(f"ERROR: Price ID {price_id} no autorizado.")
-            return jsonify(error="Unauthorized Price ID"), 403
+        checkout_metadata = {} # Inicializamos los metadatos
+        success_path = "/success" # URL de éxito por defecto (para el ebook)
+
+        # Lógica para manejar eventos
+        if event_id:
+            print(f"DEBUG: Solicitud de pago para evento con ID: {event_id}")
+            event = db.session.get(Event, event_id)
+            if not event:
+                print(f"ERROR: Evento con ID {event_id} no encontrado.")
+                return jsonify(error="Event not found"), 404
+            
+            # Validamos que el price_id coincida con el almacenado en el evento
+            if not event.stripe_price_id or event.stripe_price_id != price_id:
+                print(f"ERROR: Price ID {price_id} no autorizado para el evento {event_id}.")
+                return jsonify(error="Unauthorized Price ID for this event"), 403
+            
+            checkout_metadata = {
+                'event_id': event_id, 
+                'customer_name': customer_name,
+                'customer_email': customer_email # Añadimos el email a metadatos también
+            }
+            success_path = "/event-success" # <--- CAMBIO: URL de éxito para eventos
+            print("DEBUG: La validación del evento fue exitosa.")
+
+        # Lógica para manejar el ebook (se ejecuta si no hay event_id)
+        else:
+            print("DEBUG: Solicitud de pago para el ebook.")
+            allowed_price_ids = [Config.STRIPE_PRICE_ID_ES, Config.STRIPE_PRICE_ID_EN]
+            if price_id not in allowed_price_ids:
+                print(f"ERROR: Price ID {price_id} no autorizado.")
+                return jsonify(error="Unauthorized Price ID"), 403
+            
+            checkout_metadata = {
+                'customer_name': customer_name,
+                'customer_email': customer_email # Añadimos el email a metadatos también
+            }
+            # success_path ya es "/success" por defecto
+            print("DEBUG: La validación del ebook fue exitosa.")
 
         print(f"DEBUG: Creando sesión de Stripe para Price ID: {price_id}, Email: {customer_email}, Nombre: {customer_name}")
 
@@ -118,15 +153,12 @@ def create_checkout_session():
                 },
             ],
             mode='payment',
-            success_url=f"{Config.FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
+            success_url=f"{Config.FRONTEND_URL}{success_path}?session_id={{CHECKOUT_SESSION_ID}}", # <--- URL dinámica
             cancel_url=f"{Config.FRONTEND_URL}/cancel",
             ui_mode='hosted',
-            customer_email=customer_email, # <-- Pasando el email aquí
+            customer_email=customer_email,
             customer_creation='if_required',
-            metadata={
-                'requested_price_id': price_id,
-                'customer_name': customer_name, # <-- Almacenamos el nombre en los metadatos
-            },
+            metadata=checkout_metadata,  # Usa los metadatos definidos condicionalmente
             allow_promotion_codes=True,
         )
         print(f"DEBUG: Sesión de Stripe creada, URL: {checkout_session.url}")

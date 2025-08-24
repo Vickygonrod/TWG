@@ -1,4 +1,3 @@
-// Import necessary components and functions from react-router-dom.
 
 import {
   createBrowserRouter,
@@ -24,6 +23,7 @@ import { EventDetails } from "./components/EventDetails.jsx";
 import { EventsHub } from "./pages/EventsHub.jsx";
 import UploadPhotoForm from "./pages/UploadPhotoForm.jsx";
 import { AdminDashboard } from "./pages/AdminDashboard.jsx";
+import { EventSuccess } from "./pages/EventSuccess.jsx";
 
 
 export const router = createBrowserRouter(
@@ -56,6 +56,7 @@ export const router = createBrowserRouter(
       <Route path="/eventshub" element={<EventsHub />} />
       <Route path="/uploadphotos/:id" element={<UploadPhotoForm />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/event-success" element={<EventSuccess />} />
 
     </Route>
   )

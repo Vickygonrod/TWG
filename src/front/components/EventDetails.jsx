@@ -15,7 +15,8 @@ import {
   Ticket,
   MessageCircle,
   X,
-  Upload
+  Upload,
+  CreditCard // <--- Importa este ícono
 } from 'lucide-react';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
@@ -108,6 +109,7 @@ export const EventDetails = () => {
     }));
   };
 
+  // --- FUNCIÓN ORIGINAL: Maneja la reserva SIN PAGO ---
   const handleReservationSubmit = async (e) => {
     e.preventDefault();
     setSubmissionStatus(null);
@@ -134,6 +136,47 @@ export const EventDetails = () => {
       setSubmissionStatus('error');
       setSubmissionMessage(t(err.response?.data?.msg) || t('event_reservation_error'));
       console.error("Error al enviar el formulario de reserva:", err);
+    }
+  };
+
+  // --- FUNCIÓN NUEVA: Manejar el pago con Stripe ---
+  const handleStripeCheckout = async (e) => {
+    e.preventDefault();
+    setSubmissionStatus(null);
+    setSubmissionMessage('');
+
+    if (!reservationData.name || !reservationData.email) {
+      setSubmissionStatus('error');
+      setSubmissionMessage(t('form_error_missing_name_email'));
+      return;
+    }
+    
+    // Verificación adicional para el precio
+    if (!event.stripe_price_id) {
+        setSubmissionStatus('error');
+        setSubmissionMessage(t('payment_error_no_price_id'));
+        return;
+    }
+
+    try {
+      const response = await axios.post(`${BACKEND_BASE_URL}/api/create-checkout-session`, {
+        price_id: event.stripe_price_id,
+        customer_email: reservationData.email,
+        customer_name: reservationData.name,
+        event_id: event.id,
+      });
+
+      const { checkout_url } = response.data;
+      if (checkout_url) {
+        window.location.href = checkout_url;
+      } else {
+        setSubmissionStatus('error');
+        setSubmissionMessage(t('payment_error_no_url'));
+      }
+    } catch (err) {
+      setSubmissionStatus('error');
+      setSubmissionMessage(t(err.response?.data?.error) || t('payment_error_general'));
+      console.error("Error en la llamada a la API de Stripe:", err);
     }
   };
 
@@ -310,7 +353,7 @@ export const EventDetails = () => {
               </div>
             )}
 
-            <form onSubmit={handleReservationSubmit} className="reservation-form">
+            <form className="reservation-form">
               <div className="form-input-group">
                 <User size={20} className="form-icon" />
                 <input 
@@ -355,12 +398,27 @@ export const EventDetails = () => {
                   required 
                 />
               </div>
-              <button type="submit" className="submit-button">
-                <Send size={20} />
-                {t('form_button_confirm_reservation')}
-              </button>
+              {/* --- RENDERIZADO CONDICIONAL DEL BOTÓN DE PAGO/RESERVA --- */}
+              {event.stripe_price_id ? (
+                <button 
+                  type="button" 
+                  className="submit-button"
+                  onClick={handleStripeCheckout}
+                >
+                  <CreditCard size={20} />
+                  {t('form_button_pay_with_stripe')}
+                </button>
+              ) : (
+                <button 
+                  type="button" 
+                  className="submit-button"
+                  onClick={handleReservationSubmit}
+                >
+                  <Send size={20} />
+                  {t('form_button_confirm_reservation')}
+                </button>
+              )}
             <div className="info-contact-section">
-              {/* Este es el enlace que se muestra debajo del botón */}
               <span onClick={() => setShowInfoModal(true)} className="info-link">
                 <MessageCircle size={20} />
                 {t('form_button_more_info')}

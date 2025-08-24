@@ -364,5 +364,13 @@
   "past_events_title": "Past Events",
   "event_card_date_label": "Date",
   "event_card_view_more": "View more",
-  "event_card_date_not_available": "Date not available"
+  "event_card_date_not_available": "Date not available",
+  "event_success_title": "Reservation Confirmed!",
+  "event_success_message_part1": "You have successfully reserved your spot for our event.",
+  "event_success_message_part2": "The remaining payment will be made in cash on the day of the event.",
+  "event_success_email_info": "You will receive a confirmation email with more information shortly.",
+  "back_to_home": "Back to Home Page",
+  "success_event_6": "If you have any questions, don't hesitate to",
+  "success_event_7": "contact us",
+  "form_button_pay_with_stripe": "Book your spot here!"
 }

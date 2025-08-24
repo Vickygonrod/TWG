@@ -364,5 +364,13 @@
   "past_events_title": "Eventos Anteriores",
   "event_card_date_label": "Fecha",
   "event_card_view_more": "Ver más",
-  "event_card_date_not_available": "Fecha no disponible"
+  "event_card_date_not_available": "Fecha no disponible",
+  "event_success_title": "¡Reserva Confirmada!",
+  "event_success_message_part1": "Has reservado tu plaza para nuestro evento.",
+  "event_success_message_part2": "El pago restante se realizará en efectivo el día del evento.",
+  "event_success_email_info": "Recibirás un email de confirmación con más información en breve.",
+  "back_to_home": "Volver a la página principal",
+  "success_event_6": "Si tienes alguna pregunta, no dudes en",
+  "success_event_7": "contactarnos",
+  "form_button_pay_with_stripe": "¡Reserva tu plaza aquí!"
 }
