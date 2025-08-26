@@ -30,7 +30,7 @@ export const EventSuccess = () => {
                 <h5>{t('event_success_message_part2')}</h5>
                 <br />
                 <p>{t('event_success_email_info')}</p>
-                <Link to="/" className="btn btn-orange btn-lg mt-4">
+                <Link to="/" className="btn btn-orange btn-lg mt-4"> {t('back_to_home')}
                 </Link>
                 <p className="mt-5">{t('success_event_6')} <Link to="/contact">{t('success_event_7')}</Link>.</p>
             </div>
