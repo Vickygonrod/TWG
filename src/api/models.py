@@ -234,25 +234,33 @@ class Photo(db.Model):
 # Nuevo modelo para manejar las reservas del formulario que creamos
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    stripe_checkout_session_id = db.Column(db.String(255), nullable=True) # ID de la sesión de Stripe
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
-    name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(20), nullable=True)
-    participants_count = db.Column(db.Integer, nullable=False, default=1)
-    status = db.Column(db.String(50), default='pending') # 'pending', 'confirmed', 'cancelled'
+    customer_name = db.Column(db.String(120), nullable=False) # Renombrado de 'name'
+    customer_email = db.Column(db.String(120), nullable=False) # Renombrado de 'email'
+    phone = db.Column(db.String(20), nullable=True) # Mantienes el campo
+    participants_count = db.Column(db.Integer, nullable=False, default=1) # Mantienes el campo
+    amount_paid = db.Column(db.Integer, nullable=True) # Cantidad pagada
+    currency = db.Column(db.String(10), nullable=True) # Moneda del pago
+    payment_status = db.Column(db.String(50), default='pending') # Estado del pago en Stripe
+    status = db.Column(db.String(50), default='pending') # Estado de la reserva
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f'<Reservation {self.name} for Event ID: {self.event_id}>'
+        return f'<Reservation {self.customer_name} for Event ID: {self.event_id}>'
 
     def serialize(self):
         return {
             "id": self.id,
+            "stripe_checkout_session_id": self.stripe_checkout_session_id,
             "event_id": self.event_id,
-            "name": self.name,
-            "email": self.email,
+            "customer_name": self.customer_name,
+            "customer_email": self.customer_email,
             "phone": self.phone,
             "participants_count": self.participants_count,
+            "amount_paid": self.amount_paid,
+            "currency": self.currency,
+            "payment_status": self.payment_status,
             "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
