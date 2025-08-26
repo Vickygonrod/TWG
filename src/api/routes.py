@@ -285,7 +285,7 @@ def stripe_webhook():
         
         customer_email = session['customer_details']['email']
         customer_name = session['metadata'].get('customer_name', '')
-        event_id = session['metadata'].get('event_id') # <--- OBTENEMOS EL ID DEL EVENTO
+        event_id = session['metadata'].get('event_id')
         
         try:
             line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
@@ -304,11 +304,10 @@ def stripe_webhook():
         if event_id:
             print("DEBUG: Es un pago de evento.")
             try:
-                # Actualizar el contador de participantes del evento
                 event_obj = db.session.get(Event, event_id)
                 if event_obj:
                     event_obj.current_participants += 1
-                    # Guardar la reserva del evento
+                    
                     new_reservation = Reservation(
                         stripe_checkout_session_id=session['id'],
                         customer_email=customer_email,
@@ -321,19 +320,30 @@ def stripe_webhook():
                     db.session.add(new_reservation)
                     db.session.commit()
                     print("DEBUG: Reserva de evento y contador de participantes actualizados con éxito.")
+                
+                    # CORRECTED CALL: Pass a single dictionary to the function
+                    notification_data = {
+                        "event_name": event_obj.name,
+                        "name": customer_name,
+                        "email": customer_email,
+                        # Note: 'phone' and 'participants_count' are not available from Stripe metadata in this part of the code
+                    }
+
+                    email_sent = send_admin_reservation_notification(notification_data)
+
+                    if email_sent:
+                        print("DEBUG: Notificación al administrador enviada con éxito.")
+                    else:
+                        print("ERROR: Fallo al enviar email de notificación al administrador.")
                 else:
                     print(f"ERROR: Evento con ID {event_id} no encontrado en la base de datos.")
                     
-                # Añadir suscriptor a la lista de eventos en MailerLite
                 add_subscriber_to_mailerlite(
                     email=customer_email,
                     first_name=first_name,
                     last_name=last_name,
-                    group_id=Config.MAILERLITE_EVENT_GROUP_ID # Usamos la nueva variable
+                    group_id=Config.MAILERLITE_EVENT_GROUP_ID
                 )
-                
-                # Opcional: remover de otras listas si ya estaban suscriptos, por ejemplo
-                # remove_subscriber_from_group(email=customer_email, group_id=Config.MAILERLITE_GROUP_LM1_ES)
 
             except Exception as e:
                 db.session.rollback()
