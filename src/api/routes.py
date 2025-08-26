@@ -255,7 +255,6 @@ def download_ebook():
 def stripe_webhook():
     print("DEBUG: Webhook de Stripe recibido. Procesando...")
     
-    # Esta línea ahora está verificada y funciona
     payload = request.get_data()
     sig_header = request.headers.get('Stripe-Signature')
 
@@ -286,6 +285,7 @@ def stripe_webhook():
         
         customer_email = session['customer_details']['email']
         customer_name = session['metadata'].get('customer_name', '')
+        event_id = session['metadata'].get('event_id') # <--- OBTENEMOS EL ID DEL EVENTO
         
         try:
             line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
@@ -297,68 +297,86 @@ def stripe_webhook():
         
         first_name = customer_name.split(' ')[0] if customer_name else ''
         last_name = ' '.join(customer_name.split(' ')[1:]) if customer_name and ' ' in customer_name else ''
-        product_name = "Ebook Español" if purchased_price_id == Config.STRIPE_PRICE_ID_ES else "Ebook English"
-
-        print(f"DEBUG: Webhook recibido para pago completado. Email: {customer_email}, Nombre: {customer_name}, Price ID: {purchased_price_id}")
-
-        print("DEBUG: Intentando guardar la orden en la base de datos.")
-        try:
-            new_order = Order(
-                stripe_checkout_session_id=session['id'],
-                customer_email=customer_email,
-                customer_name=customer_name,
-                product_name=product_name,
-                amount_total=session['amount_total'],
-                currency=session['currency'],
-                payment_status=session['payment_status']
-            )
-            db.session.add(new_order)
-            db.session.commit()
-            print("DEBUG: Compra registrada en la base de datos con éxito.")
-        except Exception as db_e:
-            db.session.rollback()
-            print(f"ERROR: Fallo al guardar la compra en la base de datos: {db_e}")
         
-        download_link = None
-        if purchased_price_id == Config.STRIPE_PRICE_ID_ES:
-            download_link = f"{Config.BACKEND_URL}/api/download-ebook?session_id={session['id']}"
-        elif purchased_price_id == Config.STRIPE_PRICE_ID_EN:
-            download_link = f"{Config.BACKEND_URL}/api/download-ebook?session_id={session['id']}"
+        print(f"DEBUG: Webhook recibido para pago completado. Email: {customer_email}, Nombre: {customer_name}, Price ID: {purchased_price_id}, Event ID: {event_id}")
 
-        if download_link:
-            email_sent = send_ebook_download_email(
-                to_email=customer_email,
-                download_link=download_link,
-                language='es' if purchased_price_id == Config.STRIPE_PRICE_ID_ES else 'en'
-            )
+        # --- LÓGICA PARA PAGOS DE EVENTOS ---
+        if event_id:
+            print("DEBUG: Es un pago de evento.")
+            try:
+                # Actualizar el contador de participantes del evento
+                event_obj = db.session.get(Event, event_id)
+                if event_obj:
+                    event_obj.current_participants += 1
+                    # Guardar la reserva del evento
+                    new_reservation = Reservation(
+                        stripe_checkout_session_id=session['id'],
+                        customer_email=customer_email,
+                        customer_name=customer_name,
+                        event_id=event_id,
+                        amount_paid=session['amount_total'],
+                        currency=session['currency'],
+                        payment_status=session['payment_status']
+                    )
+                    db.session.add(new_reservation)
+                    db.session.commit()
+                    print("DEBUG: Reserva de evento y contador de participantes actualizados con éxito.")
+                else:
+                    print(f"ERROR: Evento con ID {event_id} no encontrado en la base de datos.")
+                    
+                # Añadir suscriptor a la lista de eventos en MailerLite
+                add_subscriber_to_mailerlite(
+                    email=customer_email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    group_id=Config.MAILERLITE_EVENT_GROUP_ID # Usamos la nueva variable
+                )
+                
+                # Opcional: remover de otras listas si ya estaban suscriptos, por ejemplo
+                # remove_subscriber_from_group(email=customer_email, group_id=Config.MAILERLITE_GROUP_LM1_ES)
+
+            except Exception as e:
+                db.session.rollback()
+                print(f"ERROR: Fallo al procesar la reserva del evento o añadir a MailerLite: {e}")
+
+        # --- LÓGICA PARA PAGOS DE EBOOKS ---
+        else:
+            print("DEBUG: Es un pago de ebook.")
+            product_name = "Ebook Español" if purchased_price_id == Config.STRIPE_PRICE_ID_ES else "Ebook English"
             
-            if email_sent:
-                print("DEBUG: Email de descarga enviado con éxito vía webhook.")
-            else:
-                print("ERROR: Fallo al enviar email de descarga vía webhook.")
-
+            try:
+                new_order = Order(
+                    stripe_checkout_session_id=session['id'],
+                    customer_email=customer_email,
+                    customer_name=customer_name,
+                    product_name=product_name,
+                    amount_total=session['amount_total'],
+                    currency=session['currency'],
+                    payment_status=session['payment_status']
+                )
+                db.session.add(new_order)
+                db.session.commit()
+                print("DEBUG: Compra de ebook registrada en la base de datos con éxito.")
+            except Exception as db_e:
+                db.session.rollback()
+                print(f"ERROR: Fallo al guardar la compra del ebook en la base de datos: {db_e}")
+            
+            download_link = None
             if purchased_price_id == Config.STRIPE_PRICE_ID_ES:
-                add_subscriber_to_mailerlite(
-                    email=customer_email,
-                    first_name=first_name,
-                    last_name=last_name,
-                    group_id=MAILERLITE_GROUP_BUYER_ES
-                )
-                remove_subscriber_from_group(
-                    email=customer_email,
-                    group_id=MAILERLITE_GROUP_LM1_ES
-                )
+                download_link = f"{Config.BACKEND_URL}/api/download-ebook?session_id={session['id']}"
+                add_subscriber_to_mailerlite(email=customer_email, first_name=first_name, last_name=last_name, group_id=Config.MAILERLITE_GROUP_BUYER_ES)
+                remove_subscriber_from_group(email=customer_email, group_id=Config.MAILERLITE_GROUP_LM1_ES)
             elif purchased_price_id == Config.STRIPE_PRICE_ID_EN:
-                add_subscriber_to_mailerlite(
-                    email=customer_email,
-                    first_name=first_name,
-                    last_name=last_name,
-                    group_id=MAILERLITE_GROUP_BUYER_EN
-                )
-                remove_subscriber_from_group(
-                    email=customer_email,
-                    group_id=MAILERLITE_GROUP_LM1_EN
-                )
+                download_link = f"{Config.BACKEND_URL}/api/download-ebook?session_id={session['id']}"
+                add_subscriber_to_mailerlite(email=customer_email, first_name=first_name, last_name=last_name, group_id=Config.MAILERLITE_GROUP_BUYER_EN)
+                remove_subscriber_from_group(email=customer_email, group_id=Config.MAILERLITE_GROUP_LM1_EN)
+
+            if download_link:
+                email_sent = send_ebook_download_email(to_email=customer_email, download_link=download_link, language='es' if purchased_price_id == Config.STRIPE_PRICE_ID_ES else 'en')
+                if email_sent:
+                    print("DEBUG: Email de descarga de ebook enviado con éxito vía webhook.")
+                else:
+                    print("ERROR: Fallo al enviar email de descarga de ebook vía webhook.")
 
     return jsonify({'success': True}), 200
 
