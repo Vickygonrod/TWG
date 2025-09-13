@@ -157,6 +157,10 @@ class Event(db.Model):
     current_participants = db.Column(db.Integer, default=0, nullable=False)
     event_type = db.Column(db.String(50), nullable=False, default='pagado')
     price_1 = db.Column(db.Float, nullable=True)
+    price_2 = db.Column(db.Float, nullable=True)
+    price_3 = db.Column(db.Float, nullable=True)
+    price_4 = db.Column(db.Float, nullable=True)
+    price_5 = db.Column(db.Float, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
     second_image_url = db.Column(db.String(500), nullable=True)
@@ -194,6 +198,10 @@ class Event(db.Model):
             "current_participants": self.current_participants,
             "event_type": self.event_type,
             "price_1": self.price_1,
+            "price_2": self.price_2,
+            "price_3": self.price_3,
+            "price_4": self.price_4,
+            "price_5": self.price_5,
             "is_active": self.is_active,
             "image_url": self.image_url,
             "second_image_url": self.second_image_url,

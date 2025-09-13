@@ -188,14 +188,31 @@ content: none;}
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    font-size: 1.8em;
+    font-size: 3rem;
     font-weight: bold;
     color: #c55336;
     padding: 10px 20px;
     border-radius: 12px;
     background-color: #f8f9fa;
     border: 1px solid #eee;
+    gap: 5px; /* Espacio entre el icono y los precios */
+    margin-top: 20px;
 }
+
+.original-price {
+    text-decoration: line-through;
+    color: #888; /* Color gris para el precio tachado */
+    font-size: 1.8rem;
+    margin-right: 10px;
+}
+
+.discount-price {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #e53935; /* Un rojo o un color que destaque para el descuento */
+}
+
+
 
 .price-icon {
     margin-right: 10px;

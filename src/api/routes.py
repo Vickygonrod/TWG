@@ -742,7 +742,7 @@ def create_event():
 
 @api.route('/events', methods=['GET']) # Se cambia a 'events' para diferenciarla de la ruta de admin.
 def get_public_events():
-    """
+    """api
     Ruta para que los clientes obtengan una lista de todos los eventos activos.
     """
     try:

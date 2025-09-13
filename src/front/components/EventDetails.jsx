@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -243,7 +243,10 @@ export const EventDetails = () => {
     ? format(new Date(event.date), 'd MMMM yyyy', { locale: getLocale() })
     : t('event_details_date_not_available');
 
+  // --- CAMBIO AÑADIDO: Lógica para manejar el precio con descuento ---
   const formattedPrice = event.price_1 ? `${event.price_1} €` : t('event_details_price_not_available');
+  const hasDiscount = event.price_2 && event.price_2 < event.price_1;
+  const formattedDiscountPrice = hasDiscount ? `${event.price_2} €` : null;
 
   const isEventPast = new Date(event.date) <= new Date();
 
@@ -329,8 +332,19 @@ export const EventDetails = () => {
             {event.long_description}
           </p>
           <div className="event-price">
-            <span className="price-icon">€</span>
-            <span className="price-text">{formattedPrice}</span>
+            {/* --- CAMBIO AÑADIDO: Lógica para mostrar el precio original y el de descuento --- */}
+            {hasDiscount ? (
+              <>
+                
+                <span className="price-text original-price">{formattedPrice}</span>
+                <span className="price-text discount-price">{formattedDiscountPrice}</span>
+              </>
+            ) : (
+              <>
+                <span className="price-icon">€</span>
+                <span className="price-text">{formattedPrice}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
