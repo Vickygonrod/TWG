@@ -234,6 +234,35 @@
 }
 /* --- FIN ESTILOS SUSCRIPCIÓN --- */
 
+.event-registration-form .image-consent {
+    display: flex; /* Usamos flexbox para alinear los ítems */
+    align-items: flex-start; /* Alinea los ítems al inicio del contenedor (arriba) */
+    gap: 15px; /* Espacio entre el checkbox y el texto */
+    margin-top: 25px; /* Mantén el margen superior consistente con otros campos */
+}
+
+.event-registration-form .image-consent input[type="checkbox"] {
+    margin-top: 4px; /* Pequeño ajuste para alinear el checkbox con la primera línea de texto */
+    flex-shrink: 0; /* Evita que el checkbox se encoja */
+}
+
+.event-registration-form .image-consent .text-content {
+    display: flex;
+    flex-direction: column; /* Para que el label y el p estén uno encima del otro */
+    gap: 2px; /* Espacio entre el label y el p */
+}
+
+.event-registration-form .image-consent label {
+    margin-left: 0 !important; /* Asegura que no haya margen izquierdo de Tailwind */
+    margin-bottom: 0 !important; /* Elimina margen inferior del label si lo tiene por defecto */
+}
+
+.event-registration-form .image-consent p {
+    font-size: 0.9em; /* Quizás un poco más pequeño para la descripción */
+    color: #666;
+    margin-top: 0 !important; /* Asegura que no haya margin-top extra */
+}
+
 
 /* Media Queries para responsividad */
 @media (max-width: 768px) {

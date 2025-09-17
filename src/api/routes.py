@@ -554,6 +554,7 @@ def handle_event_registration():
         why_interested = data.get('whyInterested', None)
         comments = data.get('comments', None)
         language = data.get('language')
+        image_consent = data.get('consentForImage', False)
 
         if not all([full_name, email, event_name]):
             print("ERROR: Missing required fields for event registration.")
@@ -591,7 +592,8 @@ def handle_event_registration():
             how_did_you_hear=how_did_you_hear,
             artistic_expression=artistic_expression,
             why_interested=why_interested,
-            comments=comments
+            comments=comments,
+            image_conset=image_consent
         )
 
         db.session.add(new_participant)

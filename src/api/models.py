@@ -283,6 +283,7 @@ class EventParticipant(db.Model):
     artistic_expression = db.Column(db.String(255), nullable=True)
     why_interested = db.Column(db.Text, nullable=True)
     comments = db.Column(db.Text, nullable=True)
+    image_conset = db.Column(db.Boolean, default=False, nullable=True)
     price_paid = db.Column(db.Float, nullable=True)
     payment_status = db.Column(db.String(50), default='pending')
     is_read = db.Column(db.Boolean, default=False, nullable=False)
@@ -301,6 +302,7 @@ class EventParticipant(db.Model):
             "artistic_expression": self.artistic_expression,
             "why_interested": self.why_interested,
             "comments": self.comments,
+            "image_conset": self.image_conset,
             "price_paid": self.price_paid,
             "payment_status": self.payment_status,
             "registration_date": self.registration_date.isoformat() if self.registration_date else None,

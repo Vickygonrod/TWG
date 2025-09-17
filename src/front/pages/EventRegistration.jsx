@@ -1,17 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/eventRegistrationForm.css'; // Ruta CSS en minúscula
 import { useTranslation } from 'react-i18next';
 
 export const EventRegistration = () => {
-  const { t, i18n } = useTranslation(); // <-- ¡MODIFICADO AQUÍ! Añadido `i18n`
-
-  // --- Datos predefinidos (NO SE TRADUCEN, son nombres fijos de eventos) ---
-  const predefinedEvents = [
-    "Juega a Crear 29/06/25",
-    "Play and Create 08/06/25",
-    "Creative Flow Full-Day 20/07/25"
-  ];
+  const { t, i18n } = useTranslation();
 
   // --- Opciones artísticas (CON ESTRUCTURA DE OBJETO PARA TRADUCCIÓN) ---
   const artisticOptions = [
@@ -37,6 +30,12 @@ export const EventRegistration = () => {
     { key: "artistic_knitting", value: "Tejer" }
   ];
 
+  // --- ¡AÑADIDO AQUÍ! ---
+  // Nuevo estado para almacenar los eventos cargados del backend
+  const [activeEvents, setActiveEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  // ---------------------
+
   // --- Estado para los campos del formulario ---
   const [formData, setFormData] = useState({
     fullName: '',
@@ -48,6 +47,7 @@ export const EventRegistration = () => {
     whyInterested: '',
     comments: '',
     subscribeToNewsletter: false,
+    consentForImage: false, // <-- ¡AÑADIDO AQUÍ!
   });
 
   // --- Estados para la UI y feedback ---
@@ -56,6 +56,29 @@ export const EventRegistration = () => {
   const [submissionError, setSubmissionError] = useState('');
 
   const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // --- ¡AÑADIDO AQUÍ! ---
+  // useEffect para cargar los eventos activos del backend al inicio
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_BASE_URL}/api/events`);
+        // Mapeamos la respuesta para crear un array de objetos con 'name' y la fecha formateada
+        const formattedEvents = response.data.map(event => ({
+          name: event.name,
+          date: new Date(event.date).toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })
+        }));
+        setActiveEvents(formattedEvents);
+      } catch (error) {
+        console.error("Error fetching active events:", error);
+        setSubmissionError(t('error_loading_events'));
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    fetchEvents();
+  }, [BACKEND_BASE_URL, t, i18n.language]);
+  // ---------------------
 
   // Manejador genérico para todos los campos
   const handleChange = (e) => {
@@ -115,6 +138,9 @@ export const EventRegistration = () => {
       artisticExpression: finalArtisticExpression,
       whyInterested: formData.whyInterested,
       comments: formData.comments,
+      subscribeToNewsletter: formData.subscribeToNewsletter,
+      consentForImage: formData.consentForImage, // <-- ¡AÑADIDO AQUÍ!
+      language: i18n.language,
     };
 
     try {
@@ -141,7 +167,7 @@ export const EventRegistration = () => {
             email: formData.email,
             message: "Suscripción a la newsletter desde el formulario de registro de eventos.",
             subscribeToNewsletter: true, // Siempre true para este propósito
-            language: i18n.language // <-- ¡AÑADIDO AQUÍ!
+            language: i18n.language
         };
 
         try {
@@ -172,6 +198,7 @@ export const EventRegistration = () => {
         whyInterested: '',
         comments: '',
         subscribeToNewsletter: false,
+        consentForImage: false, // <-- ¡AÑADIDO AQUÍ!
       });
       console.log("Formulario de evento enviado con éxito al backend!", eventResponse.data);
 
@@ -222,6 +249,7 @@ export const EventRegistration = () => {
             <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 mb-1">
               {t('event_name_label')} <span className="text-red-500">*</span>
             </label>
+            {/* --- ¡MODIFICADO AQUÍ! --- */}
             <select
               id="eventName"
               name="eventName"
@@ -229,12 +257,14 @@ export const EventRegistration = () => {
               value={formData.eventName}
               onChange={handleChange}
               required
+              disabled={loadingEvents}
             >
-              <option value="">{t('select_event_placeholder')}</option>
-              {predefinedEvents.map((event, index) => (
-                <option key={index} value={event}>{event}</option>
+              <option value="">{loadingEvents ? t('loading_events_placeholder') : t('select_event_placeholder')}</option>
+              {activeEvents.map((event, index) => (
+                <option key={index} value={event.name}>{`${event.name} - ${event.date}`}</option>
               ))}
             </select>
+            {/* ------------------------- */}
           </div>
 
           <div>
@@ -361,6 +391,7 @@ export const EventRegistration = () => {
               placeholder={t('comments_placeholder')}
             ></textarea>
           </div>
+          
 
           {/* Opción de Suscripción a la Comunidad */}
           <div className="subscription-option">
@@ -380,6 +411,26 @@ export const EventRegistration = () => {
             </div>
           </div>
 
+          {/* --- ¡AÑADIDO AQUÍ! Nuevo checkbox para el consentimiento de imagen --- */}
+          <div className="image-consent relative flex items-start">
+            <div className="flex h-5 items-center">
+              <input
+                id="consentForImage"
+                name="consentForImage"
+                type="checkbox"
+                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                checked={formData.consentForImage}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="text-content">
+              <label htmlFor="consentForImage" className="font-medium text-gray-700">
+                {t('consent_for_image_label')}
+              </label>
+              <p className="text-gray-500">{t('consent_for_image_description')}</p>
+            </div>
+          </div>
+    
           <button
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"

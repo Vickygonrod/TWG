@@ -298,9 +298,9 @@
   "artistic_other": "Other",
   "artistic_other_placeholder": "Specify",
   "why_interested_label": "What attracts you or what do you expect to gain from this event?",
-  "why_interested_placeholder": "We want to understand your motivations.",
+  "why_interested_placeholder": "We want to understand your story, motivations and/or struggles to be able to guide you better on this journey.",
   "comments_label": "Any additional comments or questions?",
-  "comments_placeholder": "Write here anything else you want to share.",
+  "comments_placeholder": "Do you have any questions? Any food allergys or restrictions we should know about?, Anything else you'd like to share? Write down here :)",
   "subscribe_newsletter_question": "Do you want to stay updated on all our news and events?",
   "subscribe_newsletter_description": "Subscribe to the community here to receive updates.",
   "register_button": "Register for Event",
@@ -372,5 +372,7 @@
   "back_to_home": "Back to Home Page",
   "success_event_6": "If you have any questions, don't hesitate to",
   "success_event_7": "contact us",
-  "form_button_pay_with_stripe": "Book your spot here!"
+  "form_button_pay_with_stripe": "Book your spot here!",
+  "consent_for_image_label": "Use of image consent",
+  "consent_for_image_description": "I consent to the use of photographs and videos taken during the event for promotional purposes by The Women's Ground"
 }
