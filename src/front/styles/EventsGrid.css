@@ -92,12 +92,43 @@
     height: auto;
     flex-shrink: 0;
     scroll-snap-align: center;
+    
+    /* Usa Flexbox para controlar la disposición interna de la tarjeta */
+    display: flex;
+    flex-direction: column;
 }
 
 .events-grid .event-card img {
+    /* Aquí revertimos cualquier cambio y usamos tu código original. */
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
+}
+
+.events-grid .event-card .event-card-content {
+    flex-grow: 1; 
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.events-grid .event-card .event-card-link {
+    /* El botón se ajustará al tamaño del texto */
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #ec6540;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    align-self: flex-end; /* Alinea el botón a la derecha */
+}
+
+.events-grid .event-card .event-card-link:hover {
+    background-color: #d15636;
 }
 
 .view-all-events-container {
