@@ -4,7 +4,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.2s;
-  background-color: var(--bg-white); /* Usa la variable */
+  background-color: var(--bg-white);
   display: flex;
   flex-direction: column;
 }
@@ -28,26 +28,30 @@
 
 /* Título */
 .event-card-title {
-  font-family: var(--font-heading); /* Usa la variable */
+  font-family: var(--font-heading);
   font-size: 1.5rem;
   margin: 0 0 0.5rem;
-  color: var(--primary-color); /* Usa la variable */
+  color: var(--primary-color);
 }
 
 /* Fecha */
 .event-card-date {
   font-size: 0.9rem;
-  color: var(--secondary-color); /* Usa la variable */
+  color: var(--secondary-color);
   margin: 0 0 1rem;
 }
 
 /* Descripción */
 .event-card-description {
   font-size: 1rem;
-  color: var(--text-dark); /* Usa la variable */
+  color: var(--text-dark);
   margin: 0 0 1rem;
   line-height: 1.4;
-  height: 4.2em;
+  
+  /* Estas propiedades limitan el texto a un máximo de dos líneas */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -55,8 +59,8 @@
 /* Enlace/botón */
 .event-card-link {
   display: inline-block;
-  background-color: var(--primary-color); /* Usa la variable */
-  color: var(--text-light); /* Usa la variable */
+  background-color: var(--primary-color);
+  color: var(--text-light);
   padding: 0.5rem 1rem;
   border-radius: 5px;
   text-decoration: none;
@@ -65,17 +69,16 @@
 }
 
 .event-card-link:hover {
-  background-color: #8a3925; /* Un color más oscuro para el hover */
+  background-color: #8a3925;
 }
 
 /* Estilos para las tarjetas destacadas (hero) */
 .hero-event-card {
-  /* No se aplica flexbox, mantiene la estructura original */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Sombra más grande para destacar */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .hero-event-card .event-card-image {
   width: 100%;
-  aspect-ratio: 1 / 1; /* Relación de aspecto para la imagen hero (cuadrada) */
-  height: auto; /* Anulamos la altura fija para usar aspect-ratio */
+  aspect-ratio: 1 / 1;
+  height: auto;
 }
