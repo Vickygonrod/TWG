@@ -99,8 +99,10 @@
 }
 
 .events-grid .event-card img {
-    /* Aquí revertimos cualquier cambio y usamos tu código original. */
-    width: 100%;
+    /* Esta es la propiedad CLAVE para que la imagen no se desborde */
+    max-width: 100%;
+    
+    /* Y estas propiedades mantienen el aspecto de la imagen */
     aspect-ratio: 1/1;
     object-fit: cover;
 }
