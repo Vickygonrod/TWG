@@ -23,7 +23,7 @@ export const Navbar = () => {
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container-fluid"> {/* container-fluid para ancho completo */}
                 {/* Logo a la izquierda */}
-                <Link to="/community" className="navbar-brand">
+                <Link to="/" className="navbar-brand">
                     <img src={logo} alt="logo de The Women's Ground" className="navbar-logo" />
                 </Link>
 

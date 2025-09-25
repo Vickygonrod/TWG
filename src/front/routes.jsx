@@ -12,7 +12,6 @@ import { Landing } from "./pages/Landing";
 import { Success } from "./pages/Success";
 import { Cancel } from "./pages/Cancel";
 import { ContactForm } from "./pages/ContactForm";
-import { CommunityHome } from "./pages/CommunityHome";
 import { Cookies } from "./pages/Cookies.jsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.jsx";
 import { EventRegistration } from "./pages/EventRegistration.jsx";
@@ -24,6 +23,7 @@ import { EventsHub } from "./pages/EventsHub.jsx";
 import UploadPhotoForm from "./pages/UploadPhotoForm.jsx";
 import { AdminDashboard } from "./pages/AdminDashboard.jsx";
 import { EventSuccess } from "./pages/EventSuccess.jsx";
+import { EventsCarousel } from "./components/EventsCarousel.jsx";
 
 
 export const router = createBrowserRouter(
@@ -44,7 +44,6 @@ export const router = createBrowserRouter(
       <Route path="/eBook" element={<Landing />} />
       <Route path="/success" element={<Success />} />
       <Route path="/cancel" element={<Cancel />} />
-      <Route path="/community" element={<CommunityHome />} />
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/cookies" element={<Cookies />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -57,6 +56,7 @@ export const router = createBrowserRouter(
       <Route path="/uploadphotos/:id" element={<UploadPhotoForm />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/event-success" element={<EventSuccess />} />
+      <Route path="/carrousel" element={<EventsCarousel />} />
 
     </Route>
   )

@@ -160,6 +160,9 @@
     font-size: 0.9em;
 }
 
+.toeventshub {
+    align-items: center;
+}
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .community-header h1 {
@@ -199,3 +202,4 @@
         margin-top: 15px; /* Ajuste de margen en móvil */
     }
 }
+

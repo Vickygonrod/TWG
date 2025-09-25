@@ -4,7 +4,6 @@ import ebookimgEs from "../images/booksNBG-es.png";
 import ebookimgEn from "../images/booksNBG-en.png";
 import logo from "../images/logo.png";
 import tesoroImage from "../images/tesoro.png";
-import { NavbarLanding } from "../components/NavbarLanding";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import NewsletterSignUpPopup from '../components/NewsletterSignUpPopup.jsx';
@@ -130,7 +129,6 @@ export const Landing = () => {
 
     return(
         <>
-            <NavbarLanding />
             <div className="landing-page-wrapper">
 
                 {/* --- Sección Principal/Hero --- */}

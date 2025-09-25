@@ -1,15 +1,19 @@
+// src/front/EventsHub.jsx
+
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
-import { useTranslation } from 'react-i18next'; // Importamos el hook de traducción
+import { useTranslation } from 'react-i18next';
 import { UpcomingEvents } from "../components/UpcomingEvents.jsx";
 import { PastEventsCarousel } from "../components/PastEventsCarousel.jsx";
 import { UpcomingEventsCarousel } from "../components/UpcomingEventsCarousel.jsx";
+import { TrustpilotWidget } from "../components/TrustpilotWidget.jsx";
+import { TestimonialsCarousel } from "../components/TestimonialsCarousel.jsx"; // ¡Importa el nuevo componente!
 import "../styles/UpcomingEvents.css";
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const EventsHub = () => {
-    const { t } = useTranslation(); // Inicializamos el hook de traducción
+    const { t } = useTranslation();
     const [allEvents, setAllEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -28,6 +32,18 @@ export const EventsHub = () => {
             }
         };
         fetchAllEvents();
+    }, []);
+
+    // Carga el script de Trustpilot cuando el componente se monta
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js';
+        script.async = true;
+        document.body.appendChild(script);
+        return () => {
+            document.body.removeChild(script);
+        };
     }, []);
 
     const today = new Date();
@@ -52,6 +68,15 @@ export const EventsHub = () => {
             {otherUpcomingEvents.length > 0 && <UpcomingEventsCarousel events={otherUpcomingEvents} />}
             
             <PastEventsCarousel events={pastEvents} />
+
+            <div className="testimonials-style">
+            
+            <TestimonialsCarousel />
+            </div>
+
+            <div className="trustpilot flex justify-center my-8 px-4">
+                <TrustpilotWidget />
+            </div>
         </div>
     );
 };

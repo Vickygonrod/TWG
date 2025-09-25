@@ -1,26 +1,111 @@
+/* src/styles/EventsGrid.css */
+
 .events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
   gap: 2rem;
   padding: 2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.events-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .past-events-carousel-section {
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .other-events-carousel-section {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  position: relative;
 }
 
 .past-events-carousel-section .section-title::after {
-  content: none; /* Esto elimina la línea */
+  content: none;
 }
 
 .other-events-carousel-section .section-title::after {
-  content: none; /* Esto elimina la línea */
+  content: none;
+}
+
+/* Estilos para el contenedor del carrusel */
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+/* Estilos de las flechas */
+.carousel-arrow {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5em;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-arrow:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-arrow.left {
+  left: 10px;
+}
+
+.carousel-arrow.right {
+  right: 10px;
+}
+
+/* * ESTILOS CORREGIDOS
+ * He añadido reglas para las tarjetas de evento y las imágenes dentro de .events-grid.
+ * Esto es para asegurarnos de que el estilo se aplique a las tarjetas que están dentro del carrusel.
+ */
+.events-grid .event-card {
+    min-width: 300px;
+    height: auto;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+}
+
+.events-grid .event-card img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+}
+
+.view-all-events-container {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.toevents {
+    margin-top: 0;
+    padding-bottom: 40px;
 }

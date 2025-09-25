@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { EventCard } from './EventCard';
-import "../styles/EventsGrid.css";
+import "../styles/EventsGrid.css"; 
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const PastEventsCarousel = () => {
+export const EventsCarousel = () => {
     const { t } = useTranslation();
     const [events, setEvents] = useState(null); 
     const [loading, setLoading] = useState(true);
@@ -21,29 +22,35 @@ export const PastEventsCarousel = () => {
     };
 
     useEffect(() => {
-        const fetchEvents = async () => {
+        const fetchAndSortEvents = async () => {
             try {
                 setLoading(true);
                 const response = await axios.get(`${BACKEND_BASE_URL}/api/events`);
                 
-                const today = new Date();
-                const pastEvents = response.data
-                    .filter(event => new Date(event.date) <= today)
-                    .sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                setEvents(pastEvents);
+                const sortedEvents = response.data.sort((a, b) => {
+                    const priorityA = a.priority || 99;
+                    const priorityB = b.priority || 99;
+                    
+                    if (priorityA !== priorityB) {
+                        return priorityA - priorityB;
+                    } else {
+                        return new Date(a.date) - new Date(b.date);
+                    }
+                });
+
+                setEvents(sortedEvents);
             } catch (err) {
-                console.error("Error fetching past events:", err);
-                setError(t('past_events_error_message'));
+                console.error("Error fetching events:", err);
+                setError(t('events_error_message'));
             } finally {
                 setLoading(false);
             }
         };
-        fetchEvents();
-    }, []);
+        fetchAndSortEvents();
+    }, [t]);
 
     if (loading) {
-        return <div className="loading-message">{t('past_events_loading_message')}</div>;
+        return <div className="loading-message">{t('events_loading_message')}</div>;
     }
     
     if (error) {
@@ -51,12 +58,12 @@ export const PastEventsCarousel = () => {
     }
 
     if (!events || events.length === 0) {
-        return <div className="no-events-message">{t('past_events_no_events_message')}</div>;
+        return <div className="no-events-message">{t('no_events_message')}</div>;
     }
 
     return (
-        <div className="past-events-carousel-section">
-            <h2 className="section-title">{t('past_events_title')}</h2>
+        <div className="all-events-carousel-section">
+            <h2 className="section-title">{t('all_events_title')}</h2>
             <div className="carousel-wrapper">
                 <button className="carousel-arrow left" onClick={() => scrollCarousel('left')}>&#9664;</button>
                 <div className="events-grid" ref={carouselRef}>
@@ -66,6 +73,15 @@ export const PastEventsCarousel = () => {
                 </div>
                 <button className="carousel-arrow right" onClick={() => scrollCarousel('right')}>&#9654;</button>
             </div>
+            
+            {/* AQUÍ ESTÁ EL BOTÓN DENTRO DEL COMPONENTE */}
+            <div className="toevents view-all-events-container">
+                <Link to="/events" className="btn btn-orange">
+                    {t('view_all_events_button')}
+                </Link>
+            </div>
+            {/* FIN DEL BOTÓN */}
+
         </div>
     );
 };

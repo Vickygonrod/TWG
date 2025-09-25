@@ -1,0 +1,109 @@
+/* --- Carruseles de Testimonios --- */
+.testimonial-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  min-height: fit-content;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testimonial-section {
+  padding: 20px;
+  margin: 0;
+}
+
+.landing-section, section {
+  min-height: 0;
+}
+
+.testimonial-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  width: 100%;
+  gap: 30px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  max-height: fit-content;
+}
+
+.testimonial-container::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonial-item {
+  background-color: #ffffff;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  /* CAMBIO CRUCIAL: Mantiene el contenido pegado a la parte superior */
+  justify-content: flex-start;
+  scroll-snap-align: center;
+  margin: 0 10px;
+}
+
+.testimonial-text-content {
+  overflow: hidden;
+  transition: height 0.3s ease-out; /* Animación de expansión */
+  position: relative;
+}
+
+.testimonial-text-content p {
+  margin: 0;
+}
+
+.read-more-btn {
+  background: none;
+  border: none;
+  color: #007bff; /* Color del enlace, puedes cambiarlo */
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-top: 10px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.read-more-btn:hover {
+  text-decoration: none;
+}
+
+/* --- Flechas de Carrusel --- */
+.carousel-arrow {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5em;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-arrow:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-arrow.left {
+  left: 10px;
+}
+
+.carousel-arrow.right {
+  right: 10px;
+}

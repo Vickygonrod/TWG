@@ -8,14 +8,10 @@ import { CookieConsentBanner } from "./components/CookieConsentBanner"
 export const Layout = () => {
     const location = useLocation();
 
-    const noNavbarFooterPaths = ['/ebook']
-
-    const shouldHideNavbarAndFooter = noNavbarFooterPaths.includes(location.pathname);
-
 
     return (
         <ScrollToTop>
-            {!shouldHideNavbarAndFooter && <Navbar />}
+            <Navbar />
             <Outlet />
             <Footer />
             <CookieConsentBanner />

@@ -53,7 +53,16 @@ h2.section-title {
   margin-top: 4rem;
 }
 
-/* --- Mensajes de estado (cargando, error) --- */
+.testimonials-style {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.trustpilot {
+  padding: 20px;
+}
+
 .loading-message, .error-message, .no-events-message {
   text-align: center;
   font-size: 1.2rem;

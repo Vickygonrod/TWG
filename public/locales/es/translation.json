@@ -374,5 +374,27 @@
   "success_event_7": "contactarnos",
   "form_button_pay_with_stripe": "¡Reserva tu plaza aquí!",
   "consent_for_image_label": "Concentimiento para uso de imágenes",
-  "consent_for_image_description": "Doy mi consentimiento para que las fotos y videos tomados durante el evento puedan ser utilizados por The Women's Ground en sus redes sociales y materiales promocionales."
+  "consent_for_image_description": "Doy mi consentimiento para que las fotos y videos tomados durante el evento puedan ser utilizados por The Women's Ground en sus redes sociales y materiales promocionales.",
+  "testimonial_event_title": "Lo que dicen de nuestros eventos",
+  "testimonial_event_1_title": "Un espacio para el alma",
+  "testimonial_event_1_p1": "Estuve en dos eventos de The Women’s Ground y la experiencia fue maravillosa. 🌸 Pude conectar con mi creatividad de una forma que no me habría imaginado",
+  "testimonial_event_1_p2": "Me encantó compartir con otras mujeres que también estaban en su propio proceso. Sentirnos acompañadas, escuchadas y en sintonía hizo que todo fuera aún más especial. Es muy bonito poder conectar con otras personas desde un lugar tan auténtico y creativo.",
+  "testimonial_event_1_p3": "Estoy encantada de que exista un proyecto así y lo recomiendo a cualquier mujer que quiera reconectar con su energía femenina y con su creatividad 💫",
+  "testimonial_event_1_p4": "Juliana Nieto",
+  "testimonial_event_2_title": "Volver a fluir y crear",
+  "testimonial_event_2_p1": "Si buscas un espacio para soltar el control y reconectar con esa niña interior que adora pintar y jugar, el taller de Victoria y The Women's Ground es justo lo que necesitas. Desde el momento en que entras, la música, el ambiente y la calidez de Victoria te hacen sentir completamente bienvenida.",
+  "testimonial_event_2_p2": "Lo que más me sorprendió fue la forma en que el taller fluye. Empezamos con unos juegos creativos que fueron perfectos para romper el hielo y recordarnos lo divertido que es crear sin un objetivo.",
+  "testimonial_event_2_p3": "Tener el tiempo suficiente para sumergirme de lleno en la creación fue un regalo. Me llevo una sensación de calma, muchísima inspiración y la certeza de que mi creatividad no había desaparecido, solo estaba escondida. Este taller no es solo sobre pintar, es sobre encontrar una comunidad, ser vulnerable sin miedo al juicio y, sobre todo, celebrar la alegría de simplemente ser y crear. Lo recomiendo al 100%.",
+  "testimonial_event_2_p4": "Oriana Quintana",
+  "testimonial_event_3_title": "Descubriendo mi capacidad creativa",
+  "testimonial_event_3_p1": "Participé en una actividad en línea que ofreció The Women’s Ground. Mi experiencia fue realmente maravillosa. Siempre he sido una mujer muy estructurada, de tareas predefinidas en mi profesión, trabajo, hogar, y me he considerado una mujer cero creativa, aunque soy apasionada del arte y la literatura. Participar en esta actividad totalmente nueva, divertida y profunda, despertó en mi otra manera de reconocerme como mujer, de atenderme y, en especial, de atreverme a descubrir otras habilidades que tenía ocultas, que no conocía, solo porque desconfiaba de mi capacidad creativa.",
+  "testimonial_event_3_p2": "Desde la actividad y con las herramientas que me dieron, he aprendido a darme mis espacios, mis “momentos sagrados” y ha sido muy sabroso sentirse así. La dinámica del día a día, las obligaciones que no son pocas, las tareas, no nos permite darnos cuenta de todo lo que podemos crear desde diversas maneras de dialogar con una misma. A partir del 5 de junio un día después de cumplir 64 años de edad, me apropié de mi diario de descompresión como parte de mi, se convirtió en mi refugio diario, en mi rutina deseada, una manera de hablarme de encontrarme y sentirme. Es mi “momento sagrado”. Me costó arrancar, pero una vez que inicié no he parado.",
+  "testimonial_event_3_p3": "De igual modo, me atreví a crear y de manera sorpresiva para mí, comencé a soltar la mano para expresar con dibujos lo que siento, lo que vivo, mis experiencias, cómo me veo y lo que deseo, todo ello en mi diario creativo. Meditar me impulsa a crear y expresar lo que siento. Me encantaría que muchas mujeres puedan ser parte de estas experiencias, darse la oportunidad de encontrar sus momentos para crear y, como yo, espero lo disfruten e integren a sus modos de vida y lo podamos compartir. Para mí no es algo complementario, no es hacer algo más… hoy lo siento como parte de mi vida. Gracias a The Women’s Ground por esta hermosa oportunidad",
+  "testimonial_event_3_p4": "María Angelina Rodríguez",
+  "events_error_message": "No se pudieron cargar los eventos. Por favor, inténtalo de nuevo más tarde.",
+  "events_loading_message": "Cargando eventos...",
+  "no_events_message": "No hay eventos para mostrar.",
+  "all_events_title": "Todos los eventos",
+  "view_all_events_button": "Ver todos los eventos"
+
 }
