@@ -18,9 +18,9 @@ import {
   Upload,
   CreditCard // <--- Importa este ícono
 } from 'lucide-react';
+import '../styles/EventDetails.css';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
-import '../styles/EventDetails.css';
 
 // --- COMPONENTES ---
 import UploadPhotoForm from '../pages/UploadPhotoForm.jsx';
