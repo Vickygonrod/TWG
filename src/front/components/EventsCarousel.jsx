@@ -25,16 +25,25 @@ export const EventsCarousel = () => {
         const fetchAndSortEvents = async () => {
             try {
                 setLoading(true);
+                // La respuesta del backend ya viene ordenada por prioridad (asc)
                 const response = await axios.get(`${BACKEND_BASE_URL}/api/events`);
                 
+                // Aplicamos una lógica de ordenamiento secundaria (y defensiva) en el frontend:
                 const sortedEvents = response.data.sort((a, b) => {
-                    const priorityA = a.priority || 99;
-                    const priorityB = b.priority || 99;
                     
+                    // 1. Usamos la propiedad correcta: 'priority_order'
+                    const priorityA = a.priority_order || 999; 
+                    const priorityB = b.priority_order || 999;
+                    
+                    // a) ORDENAR POR PRIORIDAD (Debe coincidir con el backend: menor número primero)
                     if (priorityA !== priorityB) {
                         return priorityA - priorityB;
-                    } else {
-                        return new Date(a.date) - new Date(b.date);
+                    } 
+                    
+                    // b) EN CASO DE EMPATE, ORDENAR POR FECHA (descendente: más nuevo primero)
+                    else {
+                        // Date(b) - Date(a) ordena de forma descendente (más nuevo -> más viejo)
+                        return new Date(b.date) - new Date(a.date);
                     }
                 });
 
@@ -74,14 +83,11 @@ export const EventsCarousel = () => {
                 <button className="carousel-arrow right" onClick={() => scrollCarousel('right')}>&#9654;</button>
             </div>
             
-            {/* AQUÍ ESTÁ EL BOTÓN DENTRO DEL COMPONENTE */}
             <div className="toevents view-all-events-container">
                 <Link to="/events" className="btn btn-orange">
                     {t('view_all_events_button')}
                 </Link>
             </div>
-            {/* FIN DEL BOTÓN */}
-
         </div>
     );
 };
