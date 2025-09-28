@@ -261,7 +261,7 @@ def process_checkout_session(app_instance, session):
         try:
             customer_email = session.get("customer_details", {}).get("email")
             
-            # LÓGICA DE OBTENCIÓN DE NOMBRE (ya implementada correctamente)
+            # LÓGICA DE OBTENCIÓN DE NOMBRE: Prioriza metadata, luego details, luego un default.
             customer_name = session.get("metadata", {}).get("customer_name")
             if not customer_name:
                 customer_name = session.get("customer_details", {}).get("name")
@@ -281,7 +281,7 @@ def process_checkout_session(app_instance, session):
             if event:
                 product_name = event.name 
                 
-                # 2. Guardar Reserva
+                # 2. Guardar Reserva y Actualizar Participantes del Evento
                 reservation = Reservation(
                     stripe_checkout_session_id=session["id"],
                     event_id=event.id,
@@ -296,7 +296,7 @@ def process_checkout_session(app_instance, session):
                 db.session.add(reservation)
                 event.current_participants += int(reservation.participants_count)
                 
-                # 3. Notificaciones y MailerLite
+                # 3. Notificaciones y MailerLite (LÓGICA DINÁMICA)
                 send_admin_reservation_notification({
                     "event_name": event.name,
                     "name": customer_name,
@@ -305,12 +305,21 @@ def process_checkout_session(app_instance, session):
                     "participants_count": reservation.participants_count
                 })
 
-                # ⭐️ CORRECCIÓN APLICADA AQUÍ ⭐️
+                # ⭐️ LÓGICA DE GRUPO DINÁMICO ⭐️
+                target_group_id = event.mailerlite_group_id 
+                
+                # Respaldo: Si el ID no está en la DB, usa el ID global de Yoga/Portrait
+                if not target_group_id:
+                    print("WARNING: mailerlite_group_id no encontrado en la DB para el evento. Usando grupo de respaldo (YOGA_PORTRAIT).")
+                    # Esta variable debe existir en el ámbito global del archivo routes.py
+                    target_group_id = MAILERLITE_GROUP_YOGA_PORTRAIT 
+
+                # Suscribir con el ID de grupo dinámico o de respaldo
                 add_subscriber_to_mailerlite(
                     customer_email, 
                     customer_name.split(' ')[0] if customer_name else '', 
                     ' '.join(customer_name.split(' ')[1:]) if customer_name else '', 
-                    MAILERLITE_GROUP_YOGA_PORTRAIT  # <--- USAMOS LA VARIABLE GLOBAL
+                    target_group_id 
                 )
 
             # --- Si es un ebook ---
