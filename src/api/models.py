@@ -170,8 +170,8 @@ class Event(db.Model):
     priority_order = db.Column(db.Integer, default=999, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # --- AÑADIDO: Campo para el ID del precio de Stripe ---
     stripe_price_id = db.Column(db.String(255), nullable=True, default=None)
+    mailerlite_group_id = db.Column(db.String(255), nullable=True)
 
     # Relación con RetreatDetails (uno a uno)
     retreat_details = db.relationship('RetreatDetails', backref='event', uselist=False)
@@ -212,9 +212,8 @@ class Event(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "retreat_details": self.retreat_details.serialize() if self.retreat_details else None,
             "photos": [photo.serialize() for photo in self.photos],
-            
-            # --- AÑADIDO: Serializa el price_id de Stripe ---
-            "stripe_price_id": self.stripe_price_id
+            "stripe_price_id": self.stripe_price_id,
+            "mailerlite_group_id": self.mailerlite_group_id
         }
 
 
