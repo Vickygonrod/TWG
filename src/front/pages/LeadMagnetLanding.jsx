@@ -95,7 +95,8 @@ export const LeadMagnetLanding = () => {
             <div className="landing-section hero lead-magnet-hero">
                 <div className="row headerRow">
                     <div className="leftheader col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
-                        <h1>{t('leadmagnet_title')}</h1>
+                        <h1>{t('title_quickguide')}</h1>
+                        <h2>{t('leadmagnet_title')}</h2>
                         <h2>{t('leadmagnet_subtitle')}</h2>
                         <h4 className="subtitle">{t('leadmagnet_description')}</h4>
                         {/* Mensajes de feedback */}

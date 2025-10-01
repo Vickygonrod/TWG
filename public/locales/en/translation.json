@@ -395,5 +395,6 @@
   "events_loading_message": "Loading events...",
   "no_events_message": "No events to display.",
   "all_events_title": "All Events",
-  "view_all_events_button": "View All Events"
+  "view_all_events_button": "View All Events",
+  "title_quickguide": "Download your free quick guide:"
 }

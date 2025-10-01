@@ -310,7 +310,7 @@
   "registration_failure": "No se ha podido finalizar el registro al evento.",
   "error_specify_other_artistic_expression": "Por favor, especifica tu 'otra' expresión artística.",
   "leadmagnet_title": "Desbloquea tu Creatividad",
-  "leadmagnet_subtitle": "Conecta con tu Energía Femenina",
+  "leadmagnet_subtitle": "Conectar con tu Energía Femenina",
   "leadmagnet_description": "La creatividad es tu llave para reconectar con tu poder. Redescubre esa chispa nutriendo tu intuición y fluidez.",
   "leadmagnet_firstname_label": "Nombre",
   "leadmagnet_lastname_label": "Apellido",
@@ -395,6 +395,7 @@
   "events_loading_message": "Cargando eventos...",
   "no_events_message": "No hay eventos para mostrar.",
   "all_events_title": "Todos los eventos",
-  "view_all_events_button": "Ver todos los eventos"
+  "view_all_events_button": "Ver todos los eventos",
+  "title_quickguide": "Descarga gratis tu guía rápida:"
 
 }
