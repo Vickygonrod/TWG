@@ -399,12 +399,15 @@ def handle_lead_magnet_subscribe():
         first_name = data.get('firstName')
         last_name = data.get('lastName')
         email = data.get('email')
-        language = data.get('language')
+        language = data.get('language') # e.g., 'es-ES', 'en', 'es'
 
         if not all([first_name, last_name, email, language]):
             return jsonify(error="Faltan campos obligatorios."), 400
         
+        # 1. Guardar/Actualizar en la Base de Datos (DB)
+        # -------------------------------------------------
         try:
+            # Lógica para guardar/actualizar en DB (dejo el código anterior)
             existing_subscriber = Subscriber.query.filter_by(email=email).first()
             if existing_subscriber:
                 existing_subscriber.first_name = first_name
@@ -423,17 +426,38 @@ def handle_lead_magnet_subscribe():
         except Exception as db_e:
             db.session.rollback()
             print(f"ERROR: Fallo al guardar suscriptor en la base de datos: {db_e}")
-        
-        target_group_id = None
-        if language == 'es':
-            target_group_id = MAILERLITE_GROUP_LM1_ES
-        elif language == 'en':
-            target_group_id = MAILERLITE_GROUP_LM1_EN
-        
-        if not target_group_id:
-            print(f"ERROR: No se encontró un ID de grupo válido para el idioma '{language}'.")
-            return jsonify(error="No se pudo procesar la suscripción debido a un error de configuración."), 500
+            # Continuamos, no queremos un fallo de DB que detenga la suscripción
+            # Pero en producción, podrías querer manejar este error más seriamente.
 
+
+        # 2. Lógica de Mapeo de Idiomas (Mejorado)
+        # ----------------------------------------
+        
+        # Diccionario para mapear códigos de idioma principal a IDs de grupo de MailerLite
+        LANGUAGE_MAPPING = {
+            'es': MAILERLITE_GROUP_LM1_ES,
+            'en': MAILERLITE_GROUP_LM1_EN,
+            # Añade otros idiomas aquí si los tienes, e.g., 'fr': MAILERLITE_GROUP_LM1_FR
+        }
+
+        # Normalizar el idioma: toma solo el código principal (ej: 'es-ES' -> 'es')
+        normalized_lang = language.split('-')[0].lower()
+        
+        # Buscar el ID de grupo
+        target_group_id = LANGUAGE_MAPPING.get(normalized_lang)
+
+        # 3. Aplicar Lógica de Respaldo (Fallback)
+        # ----------------------------------------
+        if not target_group_id:
+            # Si el ID del grupo no se encontró, usamos la lista de respaldo (el grupo en español)
+            print(f"ERROR: No se encontró un ID de grupo válido para el idioma '{language}'. Usando lista de respaldo: {FALLBACK_GROUP_ID}")
+            target_group_id = FALLBACK_GROUP_ID
+        else:
+            print(f"DEBUG: Idioma '{language}' mapeado a grupo: {target_group_id}")
+
+
+        # 4. Añadir a MailerLite
+        # -------------------------
         mailerlite_added = add_subscriber_to_mailerlite(
             email=email,
             first_name=first_name,
@@ -443,8 +467,10 @@ def handle_lead_magnet_subscribe():
 
         if not mailerlite_added:
             print(f"ERROR: Fallo al añadir suscriptor {email} en MailerLite.")
+            # Aunque la DB lo tenga, la acción principal falló. Error 500 para el cliente.
             return jsonify(error="Error al suscribirte. Por favor, inténtalo de nuevo."), 500
         
+        # Éxito
         return jsonify(message="¡Gracias por suscribirte! Revisa tu bandeja de entrada."), 200
 
     except Exception as e:
