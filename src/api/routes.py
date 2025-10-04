@@ -256,6 +256,49 @@ def download_ebook():
         return jsonify(error="An unexpected error occurred during download."), 500
 
 
+def send_reservation_confirmation_email(to_email, customer_name, event_name):
+    """
+    Envía el email de confirmación de reserva al cliente usando un template de MailerSend.
+    """
+    mailersend_api_key = os.getenv("MAILERSEND_API_KEY")
+    # ⭐️ OBTENER NUEVA VARIABLE DE ENTORNO ⭐️
+    template_id = os.getenv("MAILERSEND_TEMPLATE_RESERVATION_CONFIRMATION") 
+
+    if not mailersend_api_key or not template_id:
+        print("ERROR: MAILERSEND_API_KEY o Template ID de confirmación no configurados.")
+        return False
+    
+    try:
+        mailer = emails.NewEmail(mailersend_api_key)
+        mail_body = {}
+
+        mail_from = {
+            "name": os.getenv("MAILERSEND_SENDER_NAME"),
+            "email": os.getenv("MAILERSEND_SENDER_EMAIL"),
+        }
+        mailer.set_mail_from(mail_from, mail_body)
+        
+        recipients = [{"email": to_email}]
+        mailer.set_mail_to(recipients, mail_body)
+
+        mailer.set_template_id(template_id, mail_body)
+        
+        # Estas variables deben coincidir con las que definiste en el template de MailerSend
+        variables = [{"email": to_email, "substitutions": [
+            {"var": "name", "value": customer_name.split(' ')[0] if customer_name else 'Cliente'},
+            {"var": "event_name", "value": event_name}
+        ]}]
+        mailer.set_variables(variables, mail_body)
+        
+        response = mailer.send(mail_body)
+        
+        print(f"DEBUG: Email de confirmación de reserva enviado a {to_email}. Respuesta API: {response}")
+        return True
+
+    except Exception as e:
+        print(f"ERROR al enviar email de confirmación de reserva: {e}")
+        return False
+
 def process_checkout_session(app_instance, session):
     with app_instance.app_context():
         try:
@@ -305,7 +348,12 @@ def process_checkout_session(app_instance, session):
                     "participants_count": reservation.participants_count
                 })
 
-                # ⭐️ LÓGICA DE GRUPO DINÁMICO ⭐️
+                send_reservation_confirmation_email(
+                    customer_email,
+                    customer_name,
+                    event.name # Usamos event.name como el nombre del producto
+                )
+
                 target_group_id = event.mailerlite_group_id 
                 
                 # Respaldo: Si el ID no está en la DB, usa el ID global de Yoga/Portrait
@@ -362,6 +410,10 @@ def process_checkout_session(app_instance, session):
             db.session.rollback()
             print(f"❌ ERROR procesando checkout.session.completed en background: {e}")
 
+
+        print(f"ERROR al enviar email de confirmación de reserva: {e}")
+        return False
+
 @api.route("/stripe-webhook", methods=["POST"])
 def stripe_webhook():
     payload = request.get_data()
@@ -374,18 +426,13 @@ def stripe_webhook():
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
 
-        # ⚠️ Importante: obtener line_items (Stripe no lo incluye por defecto)
         checkout_session = stripe.checkout.Session.retrieve(
             session["id"], expand=["line_items"]
         )
         session["line_items"] = checkout_session["line_items"]
 
-        # ⭐️ CAMBIO CLAVE 1: Obtener la INSTANCIA REAL de la aplicación Flask
-        # Esto funciona porque el webhook SÍ se ejecuta dentro de un contexto de solicitud.
         app_instance = current_app._get_current_object()
 
-        # ⭐️ CAMBIO CLAVE 2: Lanzar thread y pasar la instancia de la aplicación
-        # Los argumentos ahora son (app_instance, session)
         threading.Thread(target=process_checkout_session, args=(app_instance, session)).start()
 
     return jsonify({"success": True}), 200
