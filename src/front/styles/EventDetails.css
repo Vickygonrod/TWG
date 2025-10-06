@@ -285,6 +285,25 @@
     background-color: #8a3925;
 }
 
+/* ------------------------------------------------------------- */
+/* --- MODIFICACIONES CRÍTICAS Y MEJORAS DE RESPONSIVE DESIGN --- */
+/* ------------------------------------------------------------- */
+
+
+/* FIX CRÍTICO: SOLUCIÓN AL PROBLEMA DE SCROLL EN MÓVILES (iOS/Android) */
+/* Usamos 'touch-action: pan-y' en las clases internas del carrusel 
+   para asegurar que el desplazamiento vertical de la página no sea
+   capturado por el componente 'react-responsive-carousel' cuando se intenta hacer swipe.
+*/
+.carousel-root,
+.carousel .slider-wrapper,
+.carousel .slider,
+.carousel .slide {
+    -ms-touch-action: pan-y !important; 
+    touch-action: pan-y !important;
+}
+
+
 /* Media Queries para Responsive Design */
 @media (max-width: 768px) {
     .event-details-container {
@@ -312,5 +331,21 @@
 
     .section-title {
         font-size: 1.8em;
+    }
+
+    /* MEJORA: Dar una relación de aspecto consistente al carrusel en móvil */
+    .event-image-container {
+        /* Relación de aspecto común para móviles (ajusta si es necesario) */
+        aspect-ratio: 16 / 10; 
+        width: 100%;
+        min-height: unset; /* Anula el min-height fijo si usamos aspect-ratio */
+    }
+
+    /* MEJORA: Asegurar que la imagen del carrusel llene su contenedor */
+    .carousel .slide img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        max-height: none; 
     }
 }

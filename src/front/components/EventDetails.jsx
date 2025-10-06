@@ -312,6 +312,8 @@ export const EventDetails = () => {
                 showArrows={true} 
                 showStatus={false} 
                 showThumbs={true}
+                swipeable={false}      
+                emulateTouch={false}    
                 className="event-carousel"
               >
                 {photos.map((url, index) => (
