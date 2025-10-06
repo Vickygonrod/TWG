@@ -256,50 +256,9 @@ def download_ebook():
         return jsonify(error="An unexpected error occurred during download."), 500
 
 
-def send_reservation_confirmation_email(to_email, customer_name, event_name):
-    """
-    Envía el email de confirmación de reserva al cliente usando un template de MailerSend.
-    """
-    mailersend_api_key = os.getenv("MAILERSEND_API_KEY")
-    # ⭐️ OBTENER NUEVA VARIABLE DE ENTORNO ⭐️
-    template_id = os.getenv("MAILERSEND_TEMPLATE_RESERVATION_CONFIRMATION") 
-
-    if not mailersend_api_key or not template_id:
-        print("ERROR: MAILERSEND_API_KEY o Template ID de confirmación no configurados.")
-        return False
-    
-    try:
-        mailer = emails.NewEmail(mailersend_api_key)
-        mail_body = {}
-
-        mail_from = {
-            "name": os.getenv("MAILERSEND_SENDER_NAME"),
-            "email": os.getenv("MAILERSEND_SENDER_EMAIL"),
-        }
-        mailer.set_mail_from(mail_from, mail_body)
-        
-        recipients = [{"email": to_email}]
-        mailer.set_mail_to(recipients, mail_body)
-
-        mailer.set_template_id(template_id, mail_body)
-        
-        # Estas variables deben coincidir con las que definiste en el template de MailerSend
-        variables = [{"email": to_email, "substitutions": [
-            {"var": "name", "value": customer_name.split(' ')[0] if customer_name else 'Cliente'},
-            {"var": "event_name", "value": event_name}
-        ]}]
-        mailer.set_variables(variables, mail_body)
-        
-        response = mailer.send(mail_body)
-        
-        print(f"DEBUG: Email de confirmación de reserva enviado a {to_email}. Respuesta API: {response}")
-        return True
-
-    except Exception as e:
-        print(f"ERROR al enviar email de confirmación de reserva: {e}")
-        return False
 
 def process_checkout_session(app_instance, session):
+    # CRÍTICO: Envuelve TODA la lógica en el contexto de la aplicación para acceder a DB y Config
     with app_instance.app_context():
         try:
             customer_email = session.get("customer_details", {}).get("email")
@@ -315,6 +274,8 @@ def process_checkout_session(app_instance, session):
             amount_total = session.get("amount_total")
             currency = session.get("currency")
             payment_status = session.get("payment_status")
+            # Asumiendo que has importado stripe
+            # La estructura de line_items ya está expandida en el webhook
             price_id = session["line_items"]["data"][0]["price"]["id"]
 
             product_name = None 
@@ -340,6 +301,8 @@ def process_checkout_session(app_instance, session):
                 event.current_participants += int(reservation.participants_count)
                 
                 # 3. Notificaciones y MailerLite (LÓGICA DINÁMICA)
+                
+                # Envío de email de notificación al ADMINISTRADOR (Problema inicial corregido)
                 send_admin_reservation_notification({
                     "event_name": event.name,
                     "name": customer_name,
@@ -348,18 +311,14 @@ def process_checkout_session(app_instance, session):
                     "participants_count": reservation.participants_count
                 })
 
-                send_reservation_confirmation_email(
-                    customer_email,
-                    customer_name,
-                    event.name # Usamos event.name como el nombre del producto
-                )
-
+                # LÓGICA DE MAILERLITE PARA EVENTOS (Restaurada)
                 target_group_id = event.mailerlite_group_id 
                 
                 # Respaldo: Si el ID no está en la DB, usa el ID global de Yoga/Portrait
                 if not target_group_id:
                     print("WARNING: mailerlite_group_id no encontrado en la DB para el evento. Usando grupo de respaldo (YOGA_PORTRAIT).")
-                    # Esta variable debe existir en el ámbito global del archivo routes.py
+                    # CRÍTICO: MAILERLITE_GROUP_YOGA_PORTRAIT debe estar disponible en este ámbito (importado de Config o dotenv)
+                    # Asumiendo que es una variable global o de Config, usa la que corresponda en tu entorno
                     target_group_id = MAILERLITE_GROUP_YOGA_PORTRAIT 
 
                 # Suscribir con el ID de grupo dinámico o de respaldo
@@ -373,18 +332,27 @@ def process_checkout_session(app_instance, session):
             # --- Si es un ebook ---
             else:
                 # 1. Obtener nombre del producto desde Config
+                # Asumiendo que Config está disponible
                 product_name = Config.PRODUCT_INFO[price_id]["name"] 
                 
                 # 2. Enviar email de descarga y gestionar MailerLite
                 product_info = Config.PRODUCT_INFO[price_id]
                 download_link = f"{Config.BACKEND_URL}/download/{price_id}"
                 lang = "es" if price_id == Config.STRIPE_PRICE_ID_ES else "en"
+                
+                # Envío del email transaccional al CLIENTE
                 send_ebook_download_email(customer_email, download_link, lang)
 
-                # mover de grupo default al específico
+                # LÓGICA DE MAILERLITE PARA EBOOKS (Restaurada)
+                # Mover de grupo default al específico
                 remove_subscriber_from_group(customer_email, Config.MAILERLITE_DEFAULT_GROUP_ID)
                 group_id = Config.MAILERLITE_GROUP_ES if lang == "es" else Config.MAILERLITE_GROUP_EN
-                add_subscriber_to_mailerlite(customer_email, customer_name.split(' ')[0] if customer_name else '', ' '.join(customer_name.split(' ')[1:]) if customer_name else '', group_id)
+                add_subscriber_to_mailerlite(
+                    customer_email, 
+                    customer_name.split(' ')[0] if customer_name else '', 
+                    ' '.join(customer_name.split(' ')[1:]) if customer_name else '', 
+                    group_id
+                )
 
 
             # --- Guardar Orden (Común a ambos) ---
@@ -407,12 +375,10 @@ def process_checkout_session(app_instance, session):
             print(f"✅ Procesado correctamente checkout.session.completed para {customer_email} - Producto: {product_name}")
 
         except Exception as e:
-            db.session.rollback()
+            # En caso de cualquier fallo, revertimos la transacción de DB
+            db.session.rollback() 
             print(f"❌ ERROR procesando checkout.session.completed en background: {e}")
 
-
-        print(f"ERROR al enviar email de confirmación de reserva: {e}")
-        return False
 
 @api.route("/stripe-webhook", methods=["POST"])
 def stripe_webhook():
