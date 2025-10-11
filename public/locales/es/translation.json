@@ -396,6 +396,12 @@
   "no_events_message": "No hay eventos para mostrar.",
   "all_events_title": "Todos los eventos",
   "view_all_events_button": "Ver todos los eventos",
-  "title_quickguide": "Descarga gratis tu guía rápida:"
+  "title_quickguide": "Descarga gratis tu guía rápida:",
+  "waitlist_title": "Del lienzo al paladar",
+  "waitlist_subtitle": "Pinta tus sentimientos y luego cómetelos",
+  "waitlist_description": "Una experiencia para explorar tu creatividad a través de la pintura de tartas, para aprender una nueva técnica y trabajar el desapego al comerlas al final con un cafecito y buena conversación",
+  "waitlist_subdescription": " Únete a la lista de espera y sé la primera en recibir toda la información",
+  "waitlist_submitting_btn" : "Apuntando...",
+  "waitlist_submit_btn": "Apúntame a la lista de espera"
 
 }

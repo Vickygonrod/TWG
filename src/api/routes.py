@@ -49,6 +49,7 @@ MAILERLITE_GROUP_LM1_EN = os.getenv("MAILERLITE_GROUP_LM1_EN")
 MAILERLITE_GROUP_BUYER_ES = "159915664912417882"
 MAILERLITE_GROUP_BUYER_EN = os.getenv("MAILERLITE_GROUP_BUYER_EN")
 MAILERLITE_GROUP_YOGA_PORTRAIT = os.getenv("MAILERLITE_GROUP_YOGA_PORTRAIT")
+WAITING_LIST_GROUP_ID = os.getenv("WAITING_LIST_GROUP_ID")
 
 # --- NUEVA VARIABLE DE ENTORNO PARA LA WEBHOOK DE STRIPE ---
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
@@ -490,6 +491,83 @@ def handle_lead_magnet_subscribe():
         print(f"ERROR GENERAL en /api/lead-magnet-subscribe: {e}")
         return jsonify(error="Ocurrió un error inesperado al procesar tu solicitud."), 500
 
+
+@api.route('/waitlist-subscribe', methods=['POST'])
+def handle_waitlist_subscribe():
+    print("DEBUG: Entrando a handle_waitlist_subscribe.")
+    try:
+        data = request.json
+        first_name = data.get('firstName')
+        last_name = data.get('lastName')
+        email = data.get('email')
+        language = data.get('language') # e.g., 'es-ES', 'en', 'es'
+
+        # *** Validación de Campos ***
+        if not all([first_name, last_name, email]): 
+            # El idioma no es crítico para la suscripción, pero sí para la UX
+            return jsonify(error="Faltan campos obligatorios."), 400
+        
+        # 1. Guardar/Actualizar en la Base de Datos (DB) ✅
+        # -------------------------------------------------
+        try:
+            existing_subscriber = Subscriber.query.filter_by(email=email).first()
+            if existing_subscriber:
+                # Actualiza los datos si el suscriptor ya existe
+                existing_subscriber.first_name = first_name
+                existing_subscriber.last_name = last_name
+                # Si tu modelo tiene un campo para registrar que está en la lista de espera, 
+                # lo actualizarías aquí: existing_subscriber.is_waitlist = True
+                db.session.commit()
+                print(f"DEBUG: Email {email} encontrado en DB. Datos actualizados.")
+            else:
+                # Crea un nuevo suscriptor
+                new_subscriber = Subscriber(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
+                    # Si tu modelo tiene un campo para la lista de espera, 
+                    # lo inicializarías aquí: is_waitlist=True
+                )
+                db.session.add(new_subscriber)
+                db.session.commit()
+                print(f"DEBUG: Nuevo suscriptor añadido a tu DB: {email}")
+        except Exception as db_e:
+            db.session.rollback()
+            print(f"ERROR: Fallo al guardar suscriptor en la base de datos: {db_e}")
+            # El fallo en la DB no detiene el proceso de MailerLite
+        # -------------------------------------------------
+        
+        
+        # 2. Asignar ID de Grupo de Lista de Espera 
+        # --------------------------------------------------------
+        # Usamos el ID de grupo específico para la lista de espera
+        target_group_id = WAITING_LIST_GROUP_ID # ¡Asegúrate de que esta variable esté cargada!
+
+        print(f"DEBUG: Añadiendo suscriptor a la lista de espera de MailerLite con ID: {target_group_id}")
+
+
+        # 3. Añadir a MailerLite
+        # -------------------------
+        mailerlite_added = add_subscriber_to_mailerlite(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            group_id=target_group_id, # <-- ID ÚNICO DE LA LISTA DE ESPERA
+        )
+
+        if not mailerlite_added:
+            print(f"ERROR: Fallo al añadir suscriptor {email} a la lista de espera de MailerLite.")
+            # Si MailerLite falla, devolvemos un error al cliente
+            return jsonify(error="Error al suscribirte a la lista de espera. Por favor, inténtalo de nuevo."), 500
+        
+        # Éxito: Mensaje de lista de espera
+        return jsonify(message="¡Estupendo! Estás en la lista de espera. Te avisaremos cuando el evento esté disponible."), 200
+
+    except Exception as e:
+        print(f"ERROR GENERAL en /api/waitlist-subscribe: {e}")
+        return jsonify(error="Ocurrió un error inesperado al procesar tu solicitud."), 500
+
+        
 @api.route('/contact', methods=['POST'])
 def handle_contact_form():
     print("DEBUG: Entrando a handle_contact_form.")

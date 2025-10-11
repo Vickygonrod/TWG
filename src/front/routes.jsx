@@ -24,6 +24,7 @@ import UploadPhotoForm from "./pages/UploadPhotoForm.jsx";
 import { AdminDashboard } from "./pages/AdminDashboard.jsx";
 import { EventSuccess } from "./pages/EventSuccess.jsx";
 import { EventsCarousel } from "./components/EventsCarousel.jsx";
+import { WaitlistLanding } from "./pages/WaitlistLanding.jsx";
 
 
 export const router = createBrowserRouter(
@@ -57,6 +58,7 @@ export const router = createBrowserRouter(
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/event-success" element={<EventSuccess />} />
       <Route path="/carrousel" element={<EventsCarousel />} />
+      <Route path="/listaespera" element={<WaitlistLanding />} />
 
     </Route>
   )

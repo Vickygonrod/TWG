@@ -396,5 +396,11 @@
   "no_events_message": "No events to display.",
   "all_events_title": "All Events",
   "view_all_events_button": "View All Events",
-  "title_quickguide": "Download your free quick guide:"
+  "title_quickguide": "Download your free quick guide:",
+  "waitlist_title": "From Canvas to Palate",
+  "waitlist_subtitle": "Paint Your Feelings, Then Eat Them",
+  "waitlist_description": "An experience to explore your creativity by painting cakes, learning a new technique, and practicing detachment by eating them at the end with coffee and good conversation.",
+  "waitlist_subdescription": "Join the waitlist and be the first to receive all the information",
+  "waitlist_submitting_btn": "Signing Up...",
+  "waitlist_submit_btn": "Sign Me Up for the Waitlist"
 }
