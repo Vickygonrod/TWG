@@ -320,3 +320,4 @@ def remove_subscriber_from_group(email, group_id):
     except Exception as e:
         print(f"ERROR inesperado al remover suscriptor: {e}")
         return False
+

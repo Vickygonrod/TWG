@@ -1047,39 +1047,112 @@ def delete_event(event_id):
         print(f"Error deleting event with id {event_id}: {e}")
         return jsonify({"msg": "Internal server error"}), 500
 
+# Asegúrate de que las siguientes importaciones están disponibles
+# from tu_app import db
+# from tu_app.models import Event, InformationRequest, Subscriber
+# from .email_services import send_admin_info_request_notification, add_subscriber_to_mailerlite 
+# Y las constantes de MailerLite deben estar accesibles aquí.
+
 @api.route('/information-request', methods=['POST'])
 def handle_information_request():
     payload = request.get_json()
-    # ... tu validación de campos ...
+    
+    # 0. Validar campos obligatorios
+    if not all([payload.get('event_id'), payload.get('name'), payload.get('email')]):
+        return jsonify({"msg": "Faltan campos obligatorios (event_id, name, email)."}), 400
     
     try:
-        event = Event.query.get(payload['event_id'])
+        event_id = payload['event_id']
+        event = Event.query.get(event_id)
         if not event:
             return jsonify({"msg": "Evento no encontrado."}), 404
 
+        # 1. Guardar el Lead (InformationRequest)
         new_request = InformationRequest(
-            event_id=payload['event_id'],
+            event_id=event_id,
             name=payload['name'],
             email=payload['email'],
             phone=payload.get('phone'),
-            comments=payload.get('comments'),
+            comments=payload.get('message'), # Usamos 'message' del frontend, mapeado a 'comments' en la DB
             is_read=False
         )
         
         db.session.add(new_request)
         db.session.commit()
+        print(f"DEBUG: InformationRequest guardado para {payload['email']}")
 
-        # --- ENVÍO DE EMAIL AL ADMINISTRADOR ---
+        # 2. --- PROCESAR SUSCRIPCIÓN AUTOMÁTICA (Lógica integrada) ---
+        
+        full_name = payload['name'].strip()
+        name_parts = full_name.split(maxsplit=1)
+        
+        first_name = name_parts[0] if name_parts else ''
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
+        email = payload['email']
+        
+        # NOTA: Definimos el idioma como 'es' por defecto, ya que el frontend no lo envía
+        lead_language = 'es' 
+
+        # A. Determinar el grupo de MailerLite
+        target_group_id = None
+        if lead_language == 'es':
+            # Asume que MAILERLITE_GROUP_ES está accesible en este archivo
+            target_group_id = MAILERLITE_GROUP_ES 
+        elif lead_language == 'en':
+            target_group_id = MAILERLITE_GROUP_EN
+        else:
+            target_group_id = MAILERLITE_DEFAULT_GROUP_ID 
+
+        try:
+            # B. Gestión en la Base de Datos local
+            existing_subscriber = Subscriber.query.filter_by(email=email).first()
+            if existing_subscriber:
+                existing_subscriber.first_name = first_name
+                existing_subscriber.last_name = last_name
+                db.session.commit()
+                print(f"DEBUG: Email {email} ya suscrito en DB. Datos actualizados.")
+            else:
+                new_subscriber = Subscriber(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
+                )
+                db.session.add(new_subscriber)
+                db.session.commit()
+                print(f"DEBUG: Nuevo suscriptor añadido a DB: {email}")
+
+            # C. Gestión en MailerLite
+            if target_group_id:
+                # add_subscriber_to_mailerlite debe ser importada desde email_services
+                mailerlite_added = add_subscriber_to_mailerlite(
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    group_id=target_group_id
+                )
+                if mailerlite_added:
+                    print(f"DEBUG: Suscriptor {email} añadido/actualizado en MailerLite al grupo {target_group_id}.")
+                else:
+                    print(f"ERROR: Fallo al añadir/actualizar suscriptor {email} en MailerLite.")
+            else:
+                print("WARNING: ID de grupo de MailerLite no válido. Suscriptor no añadido a MailerLite.")
+
+        except Exception as db_e:
+            db.session.rollback()
+            print(f"ERROR: Fallo al gestionar suscriptor en DB o MailerLite para {email}: {db_e}")
+
+        # 3. ENVÍO DE EMAIL AL ADMINISTRADOR
         admin_notification_data = {
             'event_name': event.name,
-            'name': payload['name'],
-            'email': payload['email'],
+            'name': full_name,
+            'email': email,
             'phone': payload.get('phone'),
-            'comments': payload.get('comments')
+            'comments': payload.get('message') 
         }
+        # send_admin_info_request_notification debe ser importada desde email_services
         send_admin_info_request_notification(admin_notification_data)
         
-        return jsonify({"msg": "Solicitud de información enviada con éxito!", "id": new_request.id}), 201
+        return jsonify({"msg": "Solicitud de información y suscripción enviada con éxito!", "id": new_request.id}), 201
 
     except Exception as e:
         db.session.rollback()
