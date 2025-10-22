@@ -191,36 +191,42 @@ export const EventDetails = () => {
     try {
         const event_id = parseInt(id);
         
+        // Envío de datos completo (incluyendo phone y message)
         const response = await axios.post(INFO_REQUEST_ENDPOINT, {
             event_id: event_id,
             name: infoRequestData.name,
             email: infoRequestData.email,
+            phone: infoRequestData.phone,   
+            message: infoRequestData.message, 
             source: 'event_details_modal_info_lead'
         });
 
         setSubmissionStatus('success');
         setSubmissionMessage(t(response.data.msg) || t('event_info_request_success_lead'));
         
-        setShowInfoModal(false); 
+        // *** LÓGICA CLAVE: ELIMINAMOS CUALQUIER NAVEGACIÓN O REDIRECCIÓN ***
         
-        // REDIRECCIÓN AL CHECKOUT/RESERVA
+        // 1. Resetear todos los campos del formulario de información
+        setInfoRequestData({ name: '', email: '', phone: '', message: '' }); 
+        
+        // 2. Cerramos el modal
+        // Usamos un pequeño delay solo para asegurar que el usuario vea el mensaje 
+        // de éxito si el formulario se enviara muy rápido.
         setTimeout(() => {
-            if (event.stripe_price_id) {
-                window.location.href = `${BACKEND_BASE_URL}/api/create-checkout-session?event_id=${event.id}&email=${infoRequestData.email}&name=${infoRequestData.name}`;
-            } else {
-                window.location.href = '#reservation-form-section'; 
-            }
-        }, 1500); 
+          setShowInfoModal(false); 
+        }, 500); 
 
-        setInfoRequestData({ name: '', email: '' }); 
+        // Si deseas redirigir a Stripe SÓLO si el evento lo requiere, ese código
+        // debería ir DENTRO de este setTimeout, pero lo hemos quitado para cumplir
+        // tu solicitud de NO REDIRIGIR.
 
     } catch (err) {
       setSubmissionStatus('error');
+      // El mensaje de error permanece en el modal para que el usuario lo vea
       setSubmissionMessage(t(err.response?.data?.msg) || t('event_info_request_error'));
       console.error("Error al enviar la solicitud de información:", err);
     }
   };
-
 
   const getLocale = () => {
     return i18n.language === 'en' ? enUS : es;
