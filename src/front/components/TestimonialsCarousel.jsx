@@ -37,6 +37,8 @@ export const TestimonialsCarousel = () => {
     { title: 'testimonial_event_1_title', p1: 'testimonial_event_1_p1', p2: 'testimonial_event_1_p2', p3: 'testimonial_event_1_p3', p4: 'testimonial_event_1_p4' },
     { title: 'testimonial_event_2_title', p1: 'testimonial_event_2_p1', p2: 'testimonial_event_2_p2', p3: 'testimonial_event_2_p3', p4: 'testimonial_event_2_p4' },
     { title: 'testimonial_event_3_title', p1: 'testimonial_event_3_p1', p2: 'testimonial_event_3_p2', p3: 'testimonial_event_3_p3', p4: 'testimonial_event_3_p4' },
+    { title: 'testimonial_event_4_title', p1: 'testimonial_event_4_p1', p2: 'testimonial_event_4_p2', p3: 'testimonial_event_4_p3', p4: 'testimonial_event_4_p4' },
+    { title: 'testimonial_event_5_title', p1: 'testimonial_event_5_p1', p2: 'testimonial_event_5_p2', p3: 'testimonial_event_5_p3', p4: 'testimonial_event_5_p4' },
   ];
 
   return (

@@ -132,7 +132,7 @@ section h3 { font-size: 2.2em; margin-bottom: 40px; }
 .btn-orange {
   background-color: var(--primary-color);
   color: var(--text-light);
-  font-size: 1.5em;
+  font-size: 1.1em;
 }
 
 .btn-orange:hover {
@@ -404,4 +404,9 @@ section h3 { font-size: 2.2em; margin-bottom: 40px; }
   .form-column h3, .form-column p { text-align: left; }
   .form-column .form-wrapper { max-width: 400px; width: 100%; }
   .form-column h3, .form-column p { text-align: center; }
+}
+
+.info-page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
 }

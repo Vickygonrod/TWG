@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale'; 
@@ -16,15 +16,11 @@ import {
   MessageCircle,
   X,
   Upload,
-  CreditCard // <--- Importa este ícono
+  CreditCard 
 } from 'lucide-react';
 import '../styles/EventDetails.css';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
-
-// --- COMPONENTES ---
-import UploadPhotoForm from '../pages/UploadPhotoForm.jsx';
-import PhotoGallery from '../pages/PhotoGallery.jsx';
 
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -42,21 +38,19 @@ export const EventDetails = () => {
     phone: '',
     participants_count: 1
   });
+  
+  // Estado inicial simplificado para la captura de leads
   const [infoRequestData, setInfoRequestData] = useState({
     name: '',
     email: '',
-    phone: '',
-    comments: ''
+    phone: '', 
+    message: ''
   });
 
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const [submissionMessage, setSubmissionMessage] = useState('');
 
-  // --- Lógica para verificar si es admin ---
-  // const jwtToken = localStorage.getItem("admin_access_token");
-  // const isAdmin = !!jwtToken;
-  // const [showAdminUploadForm, setShowAdminUploadForm] = useState(false);
-
+  // --- Lógica de useEffect (se mantiene) ---
   useEffect(() => {
     const fetchEventDetails = async () => {
       const eventId = parseInt(id);
@@ -85,7 +79,6 @@ export const EventDetails = () => {
     fetchEventDetails();
   }, [id, t]);
 
-  // --- Lógica para actualizar las fotos localmente tras una subida exitosa ---
   const handlePhotoUploadSuccess = (newPhoto) => {
     setEvent(prevEvent => ({
       ...prevEvent,
@@ -102,12 +95,13 @@ export const EventDetails = () => {
   };
 
   const handleInfoRequestChange = (e) => {
-    const { name, value } = e.target;
-    setInfoRequestData(prevState => ({
+  const { name, value } = e.target;
+  // AHORA ACEPTAMOS NAME, EMAIL, PHONE y MESSAGE
+  setInfoRequestData(prevState => ({
       ...prevState,
       [name]: value
-    }));
-  };
+  }));
+};
 
   // --- FUNCIÓN ORIGINAL: Maneja la reserva SIN PAGO ---
   const handleReservationSubmit = async (e) => {
@@ -151,7 +145,6 @@ export const EventDetails = () => {
       return;
     }
     
-    // Verificación adicional para el precio
     if (!event.stripe_price_id) {
         setSubmissionStatus('error');
         setSubmissionMessage(t('payment_error_no_price_id'));
@@ -180,28 +173,46 @@ export const EventDetails = () => {
     }
   };
 
+  // Lógica de captura de Lead y Redirección
   const handleInfoRequestSubmit = async (e) => {
     e.preventDefault();
     setSubmissionStatus(null);
     setSubmissionMessage('');
 
+    // Validación simplificada
+    if (!infoRequestData.name || !infoRequestData.email) {
+        setSubmissionStatus('error');
+        setSubmissionMessage(t('form_error_missing_name_email_info'));
+        return;
+    }
+    
+    const INFO_REQUEST_ENDPOINT = `${BACKEND_BASE_URL}/api/information-request`; 
+
     try {
-      const event_id = parseInt(id);
-      const response = await axios.post(`${BACKEND_BASE_URL}/api/information-request`, {
-        event_id: event_id,
-        ...infoRequestData
-      });
+        const event_id = parseInt(id);
+        
+        const response = await axios.post(INFO_REQUEST_ENDPOINT, {
+            event_id: event_id,
+            name: infoRequestData.name,
+            email: infoRequestData.email,
+            source: 'event_details_modal_info_lead'
+        });
 
-      setSubmissionStatus('success');
-      setSubmissionMessage(t(response.data.msg) || t('event_info_request_success'));
-      setShowInfoModal(false);
+        setSubmissionStatus('success');
+        setSubmissionMessage(t(response.data.msg) || t('event_info_request_success_lead'));
+        
+        setShowInfoModal(false); 
+        
+        // REDIRECCIÓN AL CHECKOUT/RESERVA
+        setTimeout(() => {
+            if (event.stripe_price_id) {
+                window.location.href = `${BACKEND_BASE_URL}/api/create-checkout-session?event_id=${event.id}&email=${infoRequestData.email}&name=${infoRequestData.name}`;
+            } else {
+                window.location.href = '#reservation-form-section'; 
+            }
+        }, 1500); 
 
-      setInfoRequestData({
-        name: '',
-        email: '',
-        phone: '',
-        comments: ''
-      });
+        setInfoRequestData({ name: '', email: '' }); 
 
     } catch (err) {
       setSubmissionStatus('error');
@@ -209,6 +220,7 @@ export const EventDetails = () => {
       console.error("Error al enviar la solicitud de información:", err);
     }
   };
+
 
   const getLocale = () => {
     return i18n.language === 'en' ? enUS : es;
@@ -243,14 +255,12 @@ export const EventDetails = () => {
     ? format(new Date(event.date), 'd MMMM yyyy', { locale: getLocale() })
     : t('event_details_date_not_available');
 
-  // --- CAMBIO AÑADIDO: Lógica para manejar el precio con descuento ---
   const formattedPrice = event.price_1 ? `${event.price_1} €` : t('event_details_price_not_available');
   const hasDiscount = event.price_2 && event.price_2 < event.price_1;
   const formattedDiscountPrice = hasDiscount ? `${event.price_2} €` : null;
 
   const isEventPast = new Date(event.date) <= new Date();
 
-  // --- CÓDIGO DEL CARRUSEL ---
   const photos = [
     event.image_url,
     event.second_image_url,
@@ -261,28 +271,6 @@ export const EventDetails = () => {
 
   return (
     <div className="event-details-container">
-      
-      {/* ------------------- SECCIÓN SÓLO PARA ADMIN ------------------- */}
-      {/* {isAdmin && (
-        <div className="admin-section">
-          <button 
-            className="admin-button" 
-            onClick={() => setShowAdminUploadForm(!showAdminUploadForm)}
-          >
-            <Upload size={20} />
-            {showAdminUploadForm ? 'Ocultar Formulario de Fotos' : 'Subir Fotos al Álbum'}
-          </button>
-          {showAdminUploadForm && (
-            <div className="admin-upload-form-container">
-              <UploadPhotoForm 
-                eventId={event.id} 
-                jwtToken={jwtToken}
-                onUploadSuccess={handlePhotoUploadSuccess}
-              />
-            </div>
-          )}
-        </div>
-      )} */}
       
       <div className="event-card-container">
         
@@ -327,6 +315,24 @@ export const EventDetails = () => {
             )}
           </div>
         </div>
+
+        {!isEventPast && (
+            <a 
+                href="#reservation-form-section" 
+                className="cta-main-button submit-button btn-orange" // Clases de botón para destacar
+                style={{ 
+                    textDecoration: 'none', 
+                    display: 'inline-block', // Ajusta el ancho al contenido
+                    textAlign: 'center',
+                    padding: '15px 40px', 
+                    marginLeft: '50px',
+                    fontSize: '1.1rem',
+                    alignSelf: 'center'
+                }} 
+            >
+                {t('cta_main_reserve_spot')} 
+            </a>
+        )}
         
         <div className="event-description-section">
           <h2 className="section-title">{t('event_details_about_title')}</h2>
@@ -334,10 +340,8 @@ export const EventDetails = () => {
             {event.long_description}
           </p>
           <div className="event-price">
-            {/* --- CAMBIO AÑADIDO: Lógica para mostrar el precio original y el de descuento --- */}
             {hasDiscount ? (
               <>
-                
                 <span className="price-text original-price">{formattedPrice}</span>
                 <span className="price-text discount-price">{formattedDiscountPrice}</span>
               </>
@@ -352,8 +356,8 @@ export const EventDetails = () => {
       </div>
       
       
-
-      <div className="event-form-section">
+      {/* SECCIÓN DE FORMULARIO DE RESERVA (con ID para el scroll) */}
+      <div className="event-form-section" id="reservation-form-section"> 
         {isEventPast ? (
           <div className="event-ended-message">
             <h2 className="section-title text-center">{t('event_details_ended_title')}</h2>
@@ -370,6 +374,7 @@ export const EventDetails = () => {
             )}
 
             <form className="reservation-form">
+              {/* Formulario de Reserva: Mantiene todos los campos */}
               <div className="form-input-group">
                 <User size={20} className="form-icon" />
                 <input 
@@ -414,7 +419,7 @@ export const EventDetails = () => {
                   required 
                 />
               </div>
-              {/* --- RENDERIZADO CONDICIONAL DEL BOTÓN DE PAGO/RESERVA --- */}
+              {/* Botones de Reserva / Pago */}
               {event.stripe_price_id ? (
                 <button 
                   type="button" 
@@ -436,7 +441,6 @@ export const EventDetails = () => {
               )}
             <div className="info-contact-section">
               <span onClick={() => setShowInfoModal(true)} className="info-link">
-                <MessageCircle size={20} />
                 {t('form_button_more_info')}
               </span>
             </div>
@@ -446,14 +450,37 @@ export const EventDetails = () => {
         )}
       </div>
 
+      {/* --- MODAL DE CAPTURA DE LEAD (Contáctanos) - CENTRADO Y MEJORADO --- */}
       {showInfoModal && (
-        <div className="modal-overlay">
+        <div 
+          className="modal-overlay"
+          // *** Estilos Flexbox para centrar el modal en la pantalla ***
+          style={{
+            display: 'flex',
+            alignItems: 'center', // Centrado vertical
+            justifyContent: 'center', // Centrado horizontal
+          }}
+        >
           <div className="info-modal">
-            <button className="modal-close-button" onClick={() => setShowInfoModal(false)}>
-              <X size={24} />
-            </button>
-            <h2 className="section-title text-center">{t('modal_title_info_request')}</h2>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <button className="modal-close-button" onClick={() => setShowInfoModal(false)}>
+                    <X size={20} />
+                </button>
+            </div>
+            
+            {/* Títulos y Subtítulos de Captura de Lead */}
+            <h3 className="section-title text-center">{t('modal_title_info_lead')}</h3>
+            <p className="modal-subtitle">{t('modal_subtitle_info_lead')}</p>
+            
+            {submissionMessage && submissionStatus && (
+                <div className={`submission-message ${submissionStatus}`}>
+                    {submissionMessage}
+                </div>
+            )}
+
             <form onSubmit={handleInfoRequestSubmit} className="info-request-form">
+              {/* Campo Nombre (Simplificado) */}
               <div className="form-input-group">
                 <User size={20} className="form-icon" />
                 <input 
@@ -465,6 +492,7 @@ export const EventDetails = () => {
                   required 
                 />
               </div>
+              {/* Campo Email (Simplificado) */}
               <div className="form-input-group">
                 <Mail size={20} className="form-icon" />
                 <input 
@@ -476,28 +504,44 @@ export const EventDetails = () => {
                   required 
                 />
               </div>
+              {/* AÑADIDO: Campo Teléfono */}
               <div className="form-input-group">
                 <Phone size={20} className="form-icon" />
                 <input 
                   type="tel" 
-                  placeholder={t('form_placeholder_phone_optional')}
+                  placeholder={t('form_placeholder_phone_optional')} // Reutilizamos esta clave
                   name="phone"
                   value={infoRequestData.phone}
-                  onChange={handleInfoRequestChange} 
+                  onChange={handleInfoRequestChange}
                 />
               </div>
-              <div className="form-input-group">
-                <MessageCircle size={20} className="form-icon" />
+              {/* AÑADIDO: Campo Comentarios/Mensaje */}
+              <div className="form-input-group message-group">
+                <MessageCircle size={20} className="form-icon" style={{ alignSelf: 'flex-start', marginTop: '10px' }} />
                 <textarea 
-                  placeholder={t('form_placeholder_comments')}
-                  name="comments"
-                  value={infoRequestData.comments}
+                  placeholder={t('form_placeholder_message_optional')} // NUEVA CLAVE DE TRADUCCIÓN
+                  name="message"
+                  value={infoRequestData.message}
                   onChange={handleInfoRequestChange}
-                ></textarea>
+                  rows="4" 
+                />
               </div>
+              
+              {/* DISCLAIMER DE TÉRMINOS Y CONDICIONES */}
+              <p className="privacy-disclaimer">
+                  <small>
+                      <span dangerouslySetInnerHTML={{
+                          __html: t('eventinfo_privacy_disclaimer', { 
+                              privacyPolicyLink: `<a href="/privacy" target="_blank" rel="noopener noreferrer">${t('leadmagnet_privacy_link_text')}</a>`,
+                              termsLink: `<a href="/terms" target="_blank" rel="noopener noreferrer">${t('eventinfo_terms_link_text')}</a>`
+                          })
+                      }} />
+                  </small>
+              </p>
+
               <button type="submit" className="submit-button">
                 <Send size={20} />
-                {t('form_button_send_request')}
+                {t('form_button_send_info_and_reserve')}
               </button>
             </form>
           </div>

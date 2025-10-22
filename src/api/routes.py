@@ -534,13 +534,7 @@ def handle_waitlist_subscribe():
         except Exception as db_e:
             db.session.rollback()
             print(f"ERROR: Fallo al guardar suscriptor en la base de datos: {db_e}")
-            # El fallo en la DB no detiene el proceso de MailerLite
-        # -------------------------------------------------
-        
-        
-        # 2. Asignar ID de Grupo de Lista de Espera 
-        # --------------------------------------------------------
-        # Usamos el ID de grupo específico para la lista de espera
+          
         target_group_id = WAITING_LIST_GROUP_ID # ¡Asegúrate de que esta variable esté cargada!
 
         print(f"DEBUG: Añadiendo suscriptor a la lista de espera de MailerLite con ID: {target_group_id}")
