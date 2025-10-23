@@ -45,6 +45,8 @@ MAILERLITE_GROUP_EN = os.getenv("MAILERLITE_GROUP_EN")
 MAILERLITE_DEFAULT_GROUP_ID = os.getenv("MAILERLITE_DEFAULT_GROUP_ID")
 MAILERLITE_GROUP_LM1_ES = os.getenv("MAILERLITE_GROUP_LM1_ES")
 MAILERLITE_GROUP_LM1_EN = os.getenv("MAILERLITE_GROUP_LM1_EN")
+MAILERLITE_GROUP_ES_IR = os.getenv("MAILERLITE_GROUP_ES_IR")
+MAILERLITE_GROUP_EN_IR = os.getenv("MAILERLITE_GROUP_EN_IR")
 # IDs para los nuevos grupos de compradores
 MAILERLITE_GROUP_BUYER_ES = "159915664912417882"
 MAILERLITE_GROUP_BUYER_EN = os.getenv("MAILERLITE_GROUP_BUYER_EN")
@@ -1097,11 +1099,11 @@ def handle_information_request():
         target_group_id = None
         if lead_language == 'es':
             # Asume que MAILERLITE_GROUP_ES está accesible en este archivo
-            target_group_id = MAILERLITE_GROUP_ES 
+            target_group_id = MAILERLITE_GROUP_ES_IR 
         elif lead_language == 'en':
-            target_group_id = MAILERLITE_GROUP_EN
+            target_group_id = MAILERLITE_GROUP_EN_IR
         else:
-            target_group_id = MAILERLITE_DEFAULT_GROUP_ID 
+            target_group_id = MAILERLITE_GROUP_ES_IR
 
         try:
             # B. Gestión en la Base de Datos local
