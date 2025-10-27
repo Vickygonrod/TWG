@@ -22,6 +22,12 @@ import '../styles/EventDetails.css';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
 
+// --- NUEVAS IMPORTACIONES DE CAROUSELES ---
+import { TestimonialsCarousel } from '../components/TestimonialsCarousel.jsx'; // Asumiendo esta ruta
+import { PastEventsCarousel } from '../components/PastEventsCarousel.jsx';     // Asumiendo esta ruta
+import { TrustpilotWidget } from "../components/TrustpilotWidget.jsx";
+
+
 const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const EventDetails = () => {
@@ -78,6 +84,17 @@ export const EventDetails = () => {
     
     fetchEventDetails();
   }, [id, t]);
+
+  useEffect(() => {
+          const script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = '//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js';
+          script.async = true;
+          document.body.appendChild(script);
+          return () => {
+              document.body.removeChild(script);
+          };
+      }, []);
 
   const handlePhotoUploadSuccess = (newPhoto) => {
     setEvent(prevEvent => ({
@@ -204,21 +221,13 @@ export const EventDetails = () => {
         setSubmissionStatus('success');
         setSubmissionMessage(t(response.data.msg) || t('event_info_request_success_lead'));
         
-        // *** LÓGICA CLAVE: ELIMINAMOS CUALQUIER NAVEGACIÓN O REDIRECCIÓN ***
-        
         // 1. Resetear todos los campos del formulario de información
         setInfoRequestData({ name: '', email: '', phone: '', message: '' }); 
         
         // 2. Cerramos el modal
-        // Usamos un pequeño delay solo para asegurar que el usuario vea el mensaje 
-        // de éxito si el formulario se enviara muy rápido.
         setTimeout(() => {
           setShowInfoModal(false); 
         }, 500); 
-
-        // Si deseas redirigir a Stripe SÓLO si el evento lo requiere, ese código
-        // debería ir DENTRO de este setTimeout, pero lo hemos quitado para cumplir
-        // tu solicitud de NO REDIRIGIR.
 
     } catch (err) {
       setSubmissionStatus('error');
@@ -325,10 +334,10 @@ export const EventDetails = () => {
         {!isEventPast && (
             <a 
                 href="#reservation-form-section" 
-                className="cta-main-button submit-button btn-orange" // Clases de botón para destacar
+                className="cta-main-button submit-button btn-orange" 
                 style={{ 
                     textDecoration: 'none', 
-                    display: 'inline-block', // Ajusta el ancho al contenido
+                    display: 'inline-block', 
                     textAlign: 'center',
                     padding: '15px 40px', 
                     marginLeft: '50px',
@@ -454,6 +463,17 @@ export const EventDetails = () => {
 
           </>
         )}
+      </div>
+      
+      {/* ------------------------------------------- */}
+      {/* --- NUEVOS CAROUSELES PARA CONFIANZA --- */}
+      {/* ------------------------------------------- */}
+      
+      <PastEventsCarousel />
+
+      <TestimonialsCarousel />
+      <div className="trustpilot flex justify-center my-8 px-4">
+                      <TrustpilotWidget />
       </div>
 
       {/* --- MODAL DE CAPTURA DE LEAD (Contáctanos) - CENTRADO Y MEJORADO --- */}
