@@ -454,7 +454,8 @@ export const EventDetails = () => {
                   {t('form_button_confirm_reservation')}
                 </button>
               )}
-            <div className="info-contact-section">
+            <div className="info-contact-section"
+            style={{ position: 'relative', zIndex: 1000 }}>
               <span onClick={() => setShowInfoModal(true)} className="info-link">
                 {t('form_button_more_info')}
               </span>
@@ -465,16 +466,7 @@ export const EventDetails = () => {
         )}
       </div>
       
-      {/* ------------------------------------------- */}
-      {/* --- NUEVOS CAROUSELES PARA CONFIANZA --- */}
-      {/* ------------------------------------------- */}
-      
-      <PastEventsCarousel />
-
-      <TestimonialsCarousel />
-      <div className="trustpilot flex justify-center my-8 px-4">
-                      <TrustpilotWidget />
-      </div>
+     
 
       {/* --- MODAL DE CAPTURA DE LEAD (Contáctanos) - CENTRADO Y MEJORADO --- */}
       {showInfoModal && (
@@ -557,9 +549,9 @@ export const EventDetails = () => {
               <p className="privacy-disclaimer">
                   <small>
                       <span dangerouslySetInnerHTML={{
-                          __html: t('eventinfo_privacy_disclaimer', { 
-                              privacyPolicyLink: `<a href="/privacy" target="_blank" rel="noopener noreferrer">${t('leadmagnet_privacy_link_text')}</a>`,
-                              termsLink: `<a href="/terms" target="_blank" rel="noopener noreferrer">${t('eventinfo_terms_link_text')}</a>`
+                        __html: t('eventinfo_privacy_disclaimer', { 
+                          privacyPolicyLink: `<a href="/privacy" target="_blank" rel="noopener noreferrer">${t('leadmagnet_privacy_link_text')}</a>`,
+                          termsLink: `<a href="/terms" target="_blank" rel="noopener noreferrer">${t('eventinfo_terms_link_text')}</a>`
                           })
                       }} />
                   </small>
@@ -573,6 +565,12 @@ export const EventDetails = () => {
           </div>
         </div>
       )}
+                          <PastEventsCarousel />
+                    
+                          <TestimonialsCarousel />
+                          <div className="trustpilot flex justify-center my-8 px-4">
+                                          <TrustpilotWidget />
+                          </div>
     </div>
   );
 };
