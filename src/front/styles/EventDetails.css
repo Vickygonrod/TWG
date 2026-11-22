@@ -48,7 +48,7 @@
     height: 50px;
     border: 4px solid rgba(0, 0, 0, 0.1);
     border-radius: 50%;
-    border-top-color: #c55336;
+    border-top-color: #b10e58;
     animation: spin 1s ease-in-out infinite;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .info-contact-section:hover {
-    color: #ffb380;
+    color: #ef5098;
 }
 
 @media (min-width: 768px) {
@@ -136,7 +136,7 @@
 /* Títulos y Descripciones */
 .event-title {
     font-size: 2.5em;
-    color: #c55336;
+    color: #b10e58;
     margin-bottom: 10px;
 }
 
@@ -203,7 +203,7 @@
     align-items: center;
     font-size: 3rem;
     font-weight: bold;
-    color: #c55336;
+    color: #b10e58;
     padding: 10px 20px;
     border-radius: 12px;
     background-color: #f8f9fa;
@@ -268,7 +268,7 @@
 }
 
 .submit-button {
-    background-color: #c55336;
+    background-color: #b10e58;
     color: #fff;
     border: none;
     padding: 15px 30px;

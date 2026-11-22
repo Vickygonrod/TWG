@@ -84,7 +84,7 @@ export const EventsCarousel = () => {
             </div>
             
             <div className="toevents view-all-events-container">
-                <Link to="/events" className="btn btn-orange">
+                <Link to="/eventshub" className="btn btn-orange">
                     {t('view_all_events_button')}
                 </Link>
             </div>

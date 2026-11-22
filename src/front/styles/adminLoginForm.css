@@ -22,7 +22,7 @@
 
 .admin-login-page h2 {
     font-family: "Playfair Display", serif;
-    color: #c55336; /* Tu color principal */
+    color: #b10e58; /* Tu color principal */
     font-size: 2.5em;
     font-weight: bold;
     text-align: center;
@@ -75,7 +75,7 @@
 .admin-login-page input[type="text"]:focus,
 .admin-login-page input[type="email"]:focus,
 .admin-login-page input[type="password"]:focus {
-    border-color: #c55336;
+    border-color: #b10e58;
     box-shadow: 0 0 0 3px rgba(197, 83, 54, 0.2);
     outline: none;
 }
@@ -92,7 +92,7 @@
 
 /* Botón de envío (Submit Button) */
 .admin-login-page button[type="submit"] {
-    background-color: #c55336; /* Tu color principal */
+    background-color: #b10e58; /* Tu color principal */
     font-family: "Lora", sans-serif;
     color: #fff;
     font-size: 1.3em; /* Un poco más pequeño que el de registro de eventos */

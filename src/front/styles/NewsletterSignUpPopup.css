@@ -57,7 +57,7 @@
 .popup-title {
     text-align: center;
     font-size: 2em;
-    color: #c55336;
+    color: #b10e58;
     margin-bottom: 15px;
     line-height: 1.2;
 }
@@ -99,13 +99,13 @@
 
 .form-group input[type="text"]:focus,
 .form-group input[type="email"]:focus {
-    border-color: #8a3925;
+    border-color: #ef5098;
     outline: none;
 }
 
 .submit-btn {
     padding: 15px 25px;
-    background-color: #c55336;
+    background-color: #b10e58;
     color: white;
     border: none;
     border-radius: 5px;
@@ -117,7 +117,7 @@
 }
 
 .submit-btn:hover:not(:disabled) {
-    background-color: #8a3925;
+    background-color: #ef5098;
     transform: translateY(-2px);
 }
 

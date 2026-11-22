@@ -2,7 +2,7 @@
 
 /* --- Variables CSS (Recomendado) --- */
 :root {
-  --primary-color: #ec6540;
+  --primary-color: #b10e58;
   --secondary-color: #424242cf;
   --text-dark: #333;
   --text-light: #fff;
@@ -136,7 +136,7 @@ section h3 { font-size: 2.2em; margin-bottom: 40px; }
 }
 
 .btn-orange:hover {
-  background-color: #8a3925;
+  background-color: #ef5098;
   color: #c7c6c6;
 }
 
@@ -146,7 +146,7 @@ section h3 { font-size: 2.2em; margin-bottom: 40px; }
 }
 
 .btn-secondary:hover {
-  background-color: #cf7a65;
+  background-color: #ef5098;
   color: #e4d9d9;
 }
 

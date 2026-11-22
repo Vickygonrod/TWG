@@ -119,7 +119,7 @@
     /* El botón se ajustará al tamaño del texto */
     display: inline-block;
     padding: 8px 16px;
-    background-color: #ec6540;
+    background-color: #b10e58;
     color: white;
     text-decoration: none;
     border-radius: 5px;
@@ -130,7 +130,7 @@
 }
 
 .events-grid .event-card .event-card-link:hover {
-    background-color: #d15636;
+    background-color: #b10e58;
 }
 
 .view-all-events-container {

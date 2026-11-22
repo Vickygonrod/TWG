@@ -23,7 +23,7 @@
 
 .event-registration-form h2 {
     font-family: "Playfair Display", serif;
-    color: #c55336;
+    color: #b10e58;
     font-size: 2.5em;
     font-weight: bold;
     text-align: center;
@@ -79,7 +79,7 @@
 .event-registration-form input[type="email"]:focus,
 .event-registration-form textarea:focus,
 .event-registration-form select:focus {
-    border-color: #c55336;
+    border-color: #b10e58;
     box-shadow: 0 0 0 3px rgba(197, 83, 54, 0.2);
     outline: none;
 }
@@ -98,7 +98,7 @@
     -moz-appearance: none;
     width: 18px;
     height: 18px;
-    border: 2px solid #c55336;
+    border: 2px solid #b10e58;
     border-radius: 4px;
     cursor: pointer;
     position: relative;
@@ -109,8 +109,8 @@
 }
 
 .event-registration-form input[type="checkbox"]:checked {
-    background-color: #c55336;
-    border-color: #c55336;
+    background-color: #b10e58;
+    border-color: #b10e58;
 }
 
 .event-registration-form input[type="checkbox"]:checked::after {
@@ -154,8 +154,8 @@
 
 .event-registration-form .bg-red-100 {
     background-color: #fff0f5;
-    border-color: #e53e3e;
-    color: #c53030;
+    border-color: #b10e58;
+    color: #b10e58;
     padding: 12px 20px;
     border-radius: 6px;
     margin-bottom: 20px;
@@ -163,7 +163,7 @@
 
 /* Botón de envío (Submit Button) */
 .event-registration-form button[type="submit"] {
-    background-color: #c55336;
+    background-color: #b10e58;
     font-family: "Lora", sans-serif;
     color: #fff;
     font-size: 1.5em;
@@ -182,7 +182,7 @@
 }
 
 .event-registration-form button[type="submit"]:hover {
-    background-color: #8a3925;
+    background-color: #ef5098;
     color: #c7c6c6;
     transform: scale(1.02);
 }

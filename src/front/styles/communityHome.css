@@ -19,7 +19,7 @@
 
 .community-header h1 {
     font-size: 2.5em;
-    color: #c55336; /* Un color oscuro para el título */
+    color: #b10e58; /* Un color oscuro para el título */
     margin-bottom: 15px;
 }
 
@@ -129,24 +129,24 @@
 
 
 .btn-orange {
-  background-color: #c55336;
+  background-color: #b10e58;
   color: #fff;
   font-size: 1.1em;
   font-family: 'Lora', sans-serif;
 }
 
 .btn-orange:hover {
-  background-color: #8a3925; /* Naranja más oscuro */
+  background-color: #ef5098; /* Naranja más oscuro */
   color: #c7c6c6;
 }
 
 .btn-secondary {
   background-color: #e4d9d9;
-  color: #c55336;
+  color: #b10e58;
 }
 
 .btn-secondary:hover {
-  background-color: #cf7a65;
+  background-color: #ef5098;
   color: #e4d9d9;
 }
 

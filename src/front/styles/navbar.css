@@ -17,7 +17,7 @@ body {
 
 /* Estilo general para los enlaces de texto de la navbar */
 .navbar .text {
-    color: #c55336;
+    color: #b10e58;
     font-size: 1.2em;
     text-decoration: none; /* Elimina subrayado */
     white-space: nowrap; /* Evita que el texto se rompa */
@@ -28,7 +28,7 @@ body {
 .navbar-nav .nav-link {
     padding-left: 1rem; /* Bootstrap default es 0.5rem, puedes ajustarlo si quieres más espacio */
     padding-right: 1rem;
-    color: #c55336; /* Asegura el color del texto */
+    color: #b10e58; /* Asegura el color del texto */
 }
 
 .navbar-nav .nav-link .text {
