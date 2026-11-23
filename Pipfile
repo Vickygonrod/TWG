@@ -26,6 +26,8 @@ flask-jwt-extended = "*"
 cloudinary = "*"
 celery = "*"
 redis = "*"
+flask-wtf = "*"
+wtforms-sqlalchemy = "*"
 
 [requires]
 python_version = "3.13"

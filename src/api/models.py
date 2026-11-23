@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
@@ -43,7 +44,7 @@ class User(db.Model):
         }
 
 
-class Admins(db.Model): # Cambiado de Admins a Admin (singular, más convencional para un modelo)
+class Admins(UserMixin, db.Model): # Cambiado de Admins a Admin (singular, más convencional para un modelo)
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     # Cambiamos 'password' a '_password' para la propiedad segura

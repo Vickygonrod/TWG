@@ -1,13 +1,16 @@
 
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, request, jsonify, url_for, send_from_directory, render_template, redirect, abort
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_jwt_extended import JWTManager
+from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_wtf.csrf import CSRFProtect, validate_csrf, CSRFError
+from wtforms.validators import ValidationError
 from datetime import timedelta 
 from api.utils import APIException, generate_sitemap
-from api.models import db, Order, Subscriber
+from api.models import db, Order, Subscriber, Admins
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
@@ -34,16 +37,43 @@ jwt = JWTManager(app)
 # --- CONFIGURACIÓN DE FLASK-LOGIN (PARA EL PANEL DE FLASK-ADMIN) ---
 # Flask-Admin usa Flask-Login para su propio sistema de autenticación de sesiones.
 # Necesitas una clave secreta para las sesiones de Flask.
-app.secret_key = os.getenv("FLASK_SECRET_KEY", os.urandom(24)) # MUY IMPORTANTE: ¡Define FLASK_SECRET_KEY en tu .env!
+# Clave para firmar las sesiones de administración
+app.config["SECRET_KEY"] = os.environ["FLASK_SECRET_KEY"]
+
+# Cookies seguras para Flask-Admin
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+# Configuración de CSRF
+app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+
+csrf = CSRFProtect()
+csrf.init_app(app)
+# Configuración de autenticación para Flask-Admin
+login_manager = LoginManager()
+login_manager.init_app(app)
+# Protección CSRF para los formularios de Flask
+
+
+@login_manager.user_loader
+def load_admin(admin_id):
+    try:
+        return db.session.get(Admins, int(admin_id))
+    except (ValueError, TypeError):
+        return None
                                                            
 
 CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_URL", "*")}})
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
-if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
-        "postgres://", "postgresql://")
+
+if db_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+              .replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
+              .replace("postgresql://", "postgresql+psycopg2://", 1)
+    )
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 
@@ -51,8 +81,56 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, directory=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'migrations')), compare_type=True)
 db.init_app(app)
 
+@app.route('/admin-login', methods=['GET', 'POST'])
+def admin_login_page():
+    if request.method == 'GET':
+        return render_template('admin_login.html')
+
+    # Validar CSRF antes de comprobar las credenciales
+    try:
+        validate_csrf(request.form.get('csrf_token', ''))
+    except (ValidationError, CSRFError):
+        return jsonify({"error": "Solicitud no válida"}), 400
+
+    email = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '')
+
+    admin = db.session.execute(
+        db.select(Admins).where(Admins.email == email)
+    ).scalar_one_or_none()
+
+    if admin is None or not admin.verify_password(password):
+        return render_template(
+            'admin_login.html',
+            error='Email o contraseña incorrectos'
+        ), 401
+
+    # Evitar reutilizar una sesión anterior
+    from flask import session
+    session.clear()
+
+    login_user(admin, remember=False)
+
+    return redirect('/admin/')
+
+@app.route('/admin-logout', methods=['POST'])
+def admin_logout():
+    if not current_user.is_authenticated:
+        abort(403)
+
+    # Validar el token CSRF
+    try:
+        validate_csrf(request.form.get('csrf_token', ''))
+    except (ValidationError, CSRFError):
+        abort(400)
+
+    logout_user()
+
+    return redirect('/admin-login')
+
+
 # add the admin
-# setup_admin(app)
+setup_admin(app)
 
 # add the admin
 setup_commands(app)

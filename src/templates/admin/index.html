@@ -1,0 +1,15 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+    <h2>Panel de administración de The Women's Ground</h2>
+
+    <p>Selecciona una sección del menú superior para gestionar los datos.</p>
+
+    <form method="POST" action="{{ url_for('admin_logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <button type="submit">
+            Cerrar sesión
+        </button>
+    </form>
+{% endblock %}
