@@ -52,7 +52,7 @@ MIGRATE = Migrate(app, db, directory=os.path.abspath(os.path.join(os.path.dirnam
 db.init_app(app)
 
 # add the admin
-# setup_admin(app)
+setup_admin(app)
 
 # add the admin
 setup_commands(app)
