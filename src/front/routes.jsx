@@ -28,6 +28,7 @@ import { WaitlistLanding } from "./pages/WaitlistLanding.jsx";
 import { EventInfoLanding } from "./pages/EventInfoLanding.jsx";
 
 
+
 export const router = createBrowserRouter(
   createRoutesFromElements(
     // CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -61,6 +62,7 @@ export const router = createBrowserRouter(
       <Route path="/carrousel" element={<EventsCarousel />} />
       <Route path="/listaespera" element={<WaitlistLanding />} />
       <Route path="/informacion" element={<EventInfoLanding />} />
+
 
     </Route>
   )

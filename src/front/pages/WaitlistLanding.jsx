@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import '../styles/landingStyle.css';
 // Puedes usar una imagen diferente o la misma si aplica
-import eventImage from '../images/valencia.jpg'; 
+import eventImage from '../images/breatheflow.jpg'; 
 import { Link } from 'react-router-dom';
 
 export const WaitlistLanding = () => {
@@ -96,8 +96,8 @@ export const WaitlistLanding = () => {
                 <div className="row headerRow">
                     <div className="leftheader col-md-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12">
                         {/* *** CAMBIO DE TEXTOS PARA EL EVENTO *** */}
-                        <h1>{t('waitlist_title')}</h1>
-                        <h2>{t('waitlist_subtitle')}</h2>
+                        <h2>{t('waitlist_title')}</h2>
+                        <h3>{t('waitlist_subtitle')}</h3>
                         <h4 className="subtitle">{t('waitlist_description')}</h4>
                         <h4> {t('waitlist_subdescription')} </h4> <br />
                         {/* -------------------------------------- */}

@@ -159,22 +159,25 @@ section h3 { font-size: 2.2em; margin-bottom: 40px; }
 }
 
 .about-author-section{
+  text-align:center;
   align-items: center;
 }
 .author-content {
   display: flex;
-  align-items: center;
+  align-items: right;
   gap: 30px;
   text-align: center;
-  flex-wrap: wrap;
-  justify-content: center;
 }
-.author-content div {
-  flex: 1;
-  min-width: 300px;
-  max-width: 600px;
-  font-size: 1.2em;
+
+
+.about-author-section .logo {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
 }
+
 
 /* --- Carruseles (Características y Testimonios) --- */
 .feature-carousel-wrapper, .testimonial-carousel-wrapper {

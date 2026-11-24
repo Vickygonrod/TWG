@@ -197,24 +197,28 @@ export const Landing = () => {
                 </section>
 
                 {/* --- Sección Sobre la Autora/Comunidad --- */}
-                <section className="landing-section about-author-section">
-                    <div className="container">
+                <section className="row landing-section about-author-section">
+                    <div className="container col-md-8 col-lg-8 col-xl-8 col-sm-12 col-xs-12">
                         <h3>{t('landing_ebook_33')}</h3>
-                        <div className="author-content">
+                        <div className="row align-items-center justify-content-center">
+                            <div className="author-image col-md-4 col-lg-4 col-xl-4 col-sm-12 col-xs-12">
                             <img src={logo} alt="logo" className="logo"/>
-                            <div>
+                        </div>
+                        <div className="author-content col-md-4 col-lg-4 col-xl-4 col-sm-12 col-xs-12">
                                 <p>{t('landing_ebook_34')} <br />
                                 <br /> {t('landing_ebook_35')} <br />
                                 <br />{t('landing_ebook_36')}</p>
+                        </div>
+                        </div>
                                 <button 
                                     onClick={handleOpenCommunityPopup}
                                     className="btn btn-secondary"
                                 > 
                                     {t('landing_ebook_37')}
                                 </button>
-                            </div>
-                        </div>
                     </div>
+                            
+                        
                 </section>
                
 
