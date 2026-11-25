@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import NewsletterSignUpPopup from "../components/NewsletterSignUpPopup.jsx";
 import "../styles/retreatStyle.css";
-import heroImage from "../images/eventoplaya.jpeg";
-import playImage from "../images/valencia.jpg";
-import moveImage from "../images/breatheflow.jpg";
-import createImage from "../images/ebook.png";
+import heroImage from "../images/eventoplaya.png";
+import playImage from "../images/yogaplaya.jpg";
+import moveImage from "../images/clasedeyogajuntoalmar.png";
+import createImage from "../images/arte.jpg";
 import dayImage from "../images/breatheflow.jpg";
 import houseImage from "../images/terraza.png";
 import terraceImage from "../images/azotea.png";
@@ -39,7 +39,7 @@ export const RetreatLanding = () => {
     const activities = [
         {
             id: "play",
-            title: "Play.",
+            title: "Relax.",
             image: images.play,
             description: t(
                 "retreat_play_description",
@@ -106,7 +106,7 @@ export const RetreatLanding = () => {
         {
             id: "private",
             name: t("retreat_room_private", "Habitación privada"),
-            image: "/retreat/room-private.jpg",
+            image: images.roomPrivate,
             description: t(
                 "retreat_room_private_description",
                 "Un espacio solo para ti."
@@ -115,7 +115,7 @@ export const RetreatLanding = () => {
         {
             id: "double",
             name: t("retreat_room_double", "Habitación doble"),
-            image: "/retreat/room-double.jpg",
+            image: images.roomDouble,
             description: t(
                 "retreat_room_double_description",
                 "Comparte la experiencia."
@@ -124,7 +124,7 @@ export const RetreatLanding = () => {
         {
             id: "shared",
             name: t("retreat_room_shared", "Habitación compartida"),
-            image: "/retreat/room-shared.jpg",
+            image: images.roomShared,
             description: t(
                 "retreat_room_shared_description",
                 "Disfruta en compañía."
@@ -132,82 +132,79 @@ export const RetreatLanding = () => {
         }
     ];
 
+    const gallery = [
+        { src: images.hero, caption: t("retreat_gallery_hero", "El espíritu de nuestro retiro creativo.") },
+        ...activities.map(a => ({ src: a.image, caption: `${a.title} ${a.description}` })),
+        { src: images.day, caption: t("retreat_gallery_day", "Un momento para respirar y disfrutar a tu ritmo.") },
+        { src: images.house, caption: t("retreat_gallery_house", "La terraza de nuestra casa.") },
+        { src: images.terrace, caption: t("retreat_gallery_terrace", "La azotea del alojamiento.") },
+        { src: images.livingRoom, caption: t("retreat_gallery_living", "El salón y las zonas comunes.") },
+        ...rooms.map(r => ({ src: r.image, caption: `${r.name}. ${r.description}` }))
+    ];
+    const [activePhoto, setActivePhoto] = useState(null);
+    const dialogRef = useRef(null);
+    const touchStart = useRef(null);
+    const triggerRef = useRef(null);
+    const isGalleryOpen = activePhoto !== null;
+    const navigate = (direction) => setActivePhoto(i => i === null ? null : (i + direction + gallery.length) % gallery.length);
+    const closeGallery = () => setActivePhoto(null);
+    const photoProps = (src) => ({
+        className: "retreat-clickable-photo",
+        role: "button",
+        tabIndex: 0,
+        onClick: (e) => { triggerRef.current = e.currentTarget; setActivePhoto(gallery.findIndex(photo => photo.src === src)); },
+        onKeyDown: (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.currentTarget.click();
+            }
+        }
+    });
+    useEffect(() => {
+        if (!isGalleryOpen) return;
+        const dialog = dialogRef.current;
+        const previousOverflow = document.body.style.overflow;
+        dialog.showModal();
+        document.body.style.overflow = "hidden";
+        return () => {
+            dialog.close();
+            document.body.style.overflow = previousOverflow;
+            triggerRef.current?.focus();
+        };
+    }, [isGalleryOpen]);
+
     return (
         <>
             <main className="retreat-page">
 
                 {/* HERO */}
                 <header className="retreat-hero">
-                    <div className="retreat-hero-content">
-                        <span className="retreat-eyebrow">
-                            {t("retreat_location", "Gran Canaria")}
-                            {" · "}
-                            {t("retreat_label", "Retiro creativo")}
-                        </span>
-
-                        <h1>
-                            {t("retreat_hero_title", "Unos días para")}
-                            <em>
-                                {t("retreat_hero_accent", "volver a jugar.")}
-                            </em>
-                        </h1>
-
-                        <p>
-                            {t(
-                                "retreat_hero_description",
-                                "Cuatro días para crear, moverte, disfrutar del mar y compartir con otras mujeres."
-                            )}
-                        </p>
-
-                        <a
-                            href="#retreat-experience"
-                            className="retreat-button"
-                        >
-                            {t(
-                                "retreat_hero_cta",
-                                "Descubre la experiencia"
-                            )}
-                            <span aria-hidden="true">↗</span>
-                        </a>
-                    </div>
-
-                    <div className="retreat-hero-image">
-                        <img
-                            src={images.hero}
-                            alt={t("retreat_hero_alt", "El lugar del retiro")}
-                            fetchPriority="high"
-                        />
+                    <div className="container retreat-container">
+                        <div className="row align-items-center gy-4">
+                            <div className="col-12 col-md-6 retreat-hero-content">
+                                <span className="retreat-eyebrow">{t("retreat_location", "Gran Canaria")} · {t("retreat_label", "Retiro creativo")}</span>
+                                <h1>{t("retreat_hero_title", "Unos días para")}<em>{t("retreat_hero_accent", " volver a jugar.")}</em></h1>
+                                <p>{t("retreat_hero_description", "Cinco días para crear, moverte, disfrutar del mar y compartir con otras mujeres.")}</p>
+                                <a href="#retreat-experience" className="retreat-button">{t("retreat_hero_cta", "Descubre más sobre el retiro")}</a>
+                            </div>
+                            <div className="col-12 col-md-6 retreat-hero-image">
+                                <img {...photoProps(images.hero)} src={images.hero} alt={t("retreat_hero_alt", "El lugar del retiro")} fetchPriority="high" />
+                            </div>
+                        </div>
+                        <div className="row retreat-info-bar text-center">
+                            <div className="col-4"><strong>5</strong><span>{t("retreat_days", "Días para ti")}</span></div>
+                            <div className="col-4"><strong>Gran Canaria</strong><span>{t("retreat_seaside", "Junto al mar")}</span></div>
+                            <div className="col-4"><strong>Play · Move · Create</strong><span>{t("retreat_philosophy", "Nuestra filosofía")}</span></div>
+                        </div>
                     </div>
                 </header>
-
-                {/* QUICK INFO */}
-                <div className="retreat-info-bar">
-                    <div>
-                        <strong>4</strong>
-                        <span>{t("retreat_days", "Días para ti")}</span>
-                    </div>
-
-                    <div>
-                        <strong>Gran Canaria</strong>
-                        <span>
-                            {t("retreat_seaside", "Junto al mar")}
-                        </span>
-                    </div>
-
-                    <div>
-                        <strong>Play · Move · Create</strong>
-                        <span>
-                            {t("retreat_philosophy", "Nuestra filosofía")}
-                        </span>
-                    </div>
-                </div>
 
                 {/* EXPERIENCE */}
                 <section
                     id="retreat-experience"
                     className="retreat-section retreat-experience"
                 >
-                    <div className="retreat-container">
+                    <div className="container retreat-container">
                         <div className="retreat-section-heading">
                             <span className="retreat-eyebrow">
                                 01 — {t("retreat_experience", "La experiencia")}
@@ -228,14 +225,13 @@ export const RetreatLanding = () => {
                             </p>
                         </div>
 
-                        <div className="retreat-activity-grid">
+                        <div className="row retreat-activity-grid">
                             {activities.map((activity) => (
                                 <article
-                                    className="retreat-activity"
+                                    className="col-4 retreat-activity"
                                     key={activity.id}
                                 >
-                                    <img
-                                        src={activity.image}
+                                    <img {...photoProps(activity.image)} src={activity.image}
                                         alt={activity.title}
                                         loading="lazy"
                                     />
@@ -249,16 +245,17 @@ export const RetreatLanding = () => {
                 </section>
 
                 {/* TYPICAL DAY */}
-                <section className="retreat-day">
-                    <div className="retreat-day-image">
-                        <img
-                            src={images.day}
+                <section className="retreat-section retreat-day">
+                    <div className="container retreat-container">
+                        <div className="row align-items-center gy-4">
+                    <div className="col-12 col-md-6 retreat-day-image">
+                        <img {...photoProps(images.day)} src={images.day}
                             alt={t("retreat_day_alt", "Una mañana en el retiro")}
                             loading="lazy"
                         />
                     </div>
 
-                    <div className="retreat-day-content">
+                    <div className="col-12 col-md-6 retreat-day-content">
                         <span className="retreat-eyebrow">
                             02 — {t("retreat_your_pace", "A tu ritmo")}
                         </span>
@@ -279,13 +276,15 @@ export const RetreatLanding = () => {
                             ))}
                         </div>
                     </div>
+                </div>
+                    </div>
                 </section>
 
                 {/* BENEFITS */}
                 <section className="retreat-section retreat-benefits">
-                    <div className="retreat-container">
+                    <div className="container retreat-container">
                         <span className="retreat-eyebrow">
-                            {t("retreat_benefits_label", "Mucho más que un viaje")}
+                          03 — {t("retreat_benefits_label", "Mucho más que un viaje")}
                         </span>
 
                         <h2>
@@ -295,8 +294,8 @@ export const RetreatLanding = () => {
                             )}
                         </h2>
 
-                        <div className="retreat-benefits-grid">
-                            <div>
+                        <div className="row retreat-benefits-grid gy-4">
+                            <div className="col-12 col-md-4">
                                 <span>01</span>
                                 <h3>{t("retreat_benefit_1", "Inspiración")}</h3>
                                 <p>
@@ -307,7 +306,7 @@ export const RetreatLanding = () => {
                                 </p>
                             </div>
 
-                            <div>
+                            <div className="col-12 col-md-4">
                                 <span>02</span>
                                 <h3>{t("retreat_benefit_2", "Conexión")}</h3>
                                 <p>
@@ -318,7 +317,7 @@ export const RetreatLanding = () => {
                                 </p>
                             </div>
 
-                            <div>
+                            <div className="col-12 col-md-4">
                                 <span>03</span>
                                 <h3>{t("retreat_benefit_3", "Ligereza")}</h3>
                                 <p>
@@ -337,10 +336,10 @@ export const RetreatLanding = () => {
                     id="retreat-house"
                     className="retreat-section retreat-house"
                 >
-                    <div className="retreat-container">
+                    <div className="container retreat-container">
                         <div className="retreat-section-heading">
                             <span className="retreat-eyebrow">
-                                03 — {t("retreat_house_label", "El lugar")}
+                                04 — {t("retreat_house_label", "El lugar")}
                             </span>
 
                             <h2>
@@ -358,25 +357,10 @@ export const RetreatLanding = () => {
                             </p>
                         </div>
 
-                        <div className="retreat-house-gallery">
-                            <img
-                                className="retreat-house-main"
-                                src={images.house}
-                                alt={t("retreat_house_alt", "La casa")}
-                                loading="lazy"
-                            />
-
-                            <img
-                                src={images.terrace}
-                                alt={t("retreat_terrace_alt", "La terraza")}
-                                loading="lazy"
-                            />
-
-                            <img
-                                src={images.livingRoom}
-                                alt={t("retreat_living_alt", "Zonas comunes")}
-                                loading="lazy"
-                            />
+                        <div className="row retreat-house-gallery">
+                            <div className="col-4"><img {...photoProps(images.house)} src={images.house} alt={t("retreat_house_alt", "La casa")} loading="lazy" /></div>
+                            <div className="col-4"><img {...photoProps(images.terrace)} src={images.terrace} alt={t("retreat_terrace_alt", "La terraza")} loading="lazy" /></div>
+                            <div className="col-4"><img {...photoProps(images.livingRoom)} src={images.livingRoom} alt={t("retreat_living_alt", "Zonas comunes")} loading="lazy" /></div>
                         </div>
                     </div>
                 </section>
@@ -386,10 +370,10 @@ export const RetreatLanding = () => {
                     id="retreat-rooms"
                     className="retreat-section retreat-rooms"
                 >
-                    <div className="retreat-container">
+                    <div className="container retreat-container">
                         <div className="retreat-section-heading">
                             <span className="retreat-eyebrow">
-                                04 — {t("retreat_rooms_label", "Tu espacio")}
+                                05 — {t("retreat_rooms_label", "Tu espacio")}
                             </span>
 
                             <h2>
@@ -400,14 +384,11 @@ export const RetreatLanding = () => {
                             </h2>
                         </div>
 
-                        <div className="retreat-room-grid">
+                        <div className="row retreat-room-grid gy-4">
                             {rooms.map((room) => (
-                                <article
-                                    className="retreat-room-card"
-                                    key={room.id}
-                                >
-                                    <img
-                                        src={room.image}
+                                <div className="col-12 col-md-4" key={room.id}>
+                                <article className="retreat-room-card">
+                                    <img {...photoProps(room.image)} src={room.image}
                                         alt={room.name}
                                         loading="lazy"
                                     />
@@ -416,14 +397,16 @@ export const RetreatLanding = () => {
                                         <h3>{room.name}</h3>
                                         <p>{room.description}</p>
 
-                                        <span className="retreat-room-link">
-                                            {t(
-                                                "retreat_room_coming_soon",
-                                                "Más detalles próximamente"
-                                            )}
-                                        </span>
+                                       <button
+                        type="button"
+                        className="retreat-button"
+                        onClick={() => setShowNewsletterPopup(true)}
+                    >
+                        {t("retreat_final_cta", "Reservar esta habitación")}
+                    </button>
                                     </div>
                                 </article>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -449,13 +432,44 @@ export const RetreatLanding = () => {
 
                     <button
                         type="button"
-                        className="retreat-button retreat-button-light"
+                        className="retreat-button"
                         onClick={() => setShowNewsletterPopup(true)}
                     >
-                        {t("retreat_final_cta", "Quiero saber más")}
+                        {t("retreat_final_cta", "Reservar mi plaza")}
                     </button>
                 </section>
 
+                <dialog ref={dialogRef} className="retreat-lightbox"
+                    aria-label={t("retreat_gallery_label", "Galería de fotografías")}
+                    onCancel={e => { e.preventDefault(); closeGallery(); }}
+                    onClick={e => { if (e.target === e.currentTarget) closeGallery(); }}
+                    onKeyDown={e => {
+                        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                            e.preventDefault(); navigate(e.key === "ArrowLeft" ? -1 : 1);
+                        }
+                    }}>
+                    {isGalleryOpen && (
+                        <div className="retreat-lightbox-panel">
+                            <div className="retreat-lightbox-top">
+                                <span aria-live="polite">{activePhoto + 1} / {gallery.length}</span>
+                                <button type="button" autoFocus onClick={closeGallery} aria-label={t("retreat_gallery_close", "Cerrar")}>×</button>
+                            </div>
+                            <div className="retreat-lightbox-stage"
+                                onTouchStart={e => { touchStart.current = e.touches[0].clientX; }}
+                                onTouchEnd={e => {
+                                    if (touchStart.current === null) return;
+                                    const delta = e.changedTouches[0].clientX - touchStart.current;
+                                    if (Math.abs(delta) > 50) navigate(delta > 0 ? -1 : 1);
+                                    touchStart.current = null;
+                                }}>
+                                <button type="button" onClick={() => navigate(-1)} aria-label={t("retreat_gallery_previous", "Anterior")}>‹</button>
+                                <img src={gallery[activePhoto].src} alt={gallery[activePhoto].caption} />
+                                <button type="button" onClick={() => navigate(1)} aria-label={t("retreat_gallery_next", "Siguiente")}>›</button>
+                            </div>
+                            <p aria-live="polite">{gallery[activePhoto].caption}</p>
+                        </div>
+                    )}
+                </dialog>
             </main>
 
             {showNewsletterPopup && (

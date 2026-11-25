@@ -1,391 +1,123 @@
-/* ==================================================
-   COMPATIBILIDAD CON LOS ESTILOS GLOBALES DE TWG
-   ================================================== */
-
-/* Evitar que las secciones hereden el layout
-   y la altura de la landing del ebook */
-
-.retreat-page section {
+/* Retreat landing — scoped styles, Bootstrap columns */
+.retreat-page {
+    --rt-primary: #b10e58;
+    --rt-wine: #790d3d;
+    --rt-aqua: #64b9b9;
+    --rt-yellow: #feb212;
+    --rt-blush: #fce5ed;
+    --rt-blue-light: #eaf5f6;
+    --rt-white: #ffffff;
+    --rt-text: #40333b;
+    width: 100%;
+    background: var(--rt-white);
+    color: var(--rt-text);
+    font-family: 'DM Sans', sans-serif;
+}
+.retreat-page *, .retreat-page *::before, .retreat-page *::after { box-sizing: border-box; }
+.retreat-page section, .retreat-page .retreat-hero {
     display: block;
     width: 100%;
     min-height: 0;
-    padding: 0;
-    box-sizing: border-box;
-    background-color: transparent;
-}
-
-/* Recuperar el espaciado de nuestras secciones */
-
-.retreat-page .retreat-section {
-    padding: clamp(65px, 8vw, 120px) 0;
-}
-
-/* Evitar que los spans hereden Playfair Display */
-
-.retreat-page span {
-    font-family: inherit;
-    font-weight: inherit;
-    font-style: normal;
-    color: inherit;
-}
-
-/* Tipografía */
-
-.retreat-page {
-    font-family: 'DM Sans', sans-serif;
-    background-color: #ffffff;
-}
-
-.retreat-page h1,
-.retreat-page h2,
-.retreat-page h3 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    color: var(--rt-primary);
-    line-height: 1.12;
-    margin: 0 0 20px;
-}
-
-.retreat-page h4,
-.retreat-page h5 {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-}
-
-.retreat-page p {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 400;
-}
-
-/* Etiquetas pequeñas */
-
-.retreat-page .retreat-eyebrow {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    color: var(--rt-ocean);
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-}
-
-/* Fondos controlados por sección,
-   no por nth-child */
-
-.retreat-page .retreat-experience,
-.retreat-page .retreat-house {
-    background-color: #ffffff;
-}
-
-.retreat-page .retreat-day,
-.retreat-page .retreat-rooms {
-    background-color: var(--rt-blush);
-}
-
-/* Día tipo: recuperar CSS Grid */
-
-.retreat-page .retreat-day {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0;
-    align-items: stretch;
-}
-
-/* Beneficios: una sección ligera,
-   con azul solamente en los detalles */
-
-.retreat-page .retreat-benefits {
-    background-color: #ffffff;
-    color: var(--rt-text);
-    border-top: 1px solid #e9e9e9;
-}
-
-.retreat-page .retreat-benefits h2,
-.retreat-page .retreat-benefits h3 {
-    color: var(--rt-primary);
-}
-
-.retreat-page .retreat-benefits .retreat-eyebrow {
-    color: var(--rt-ocean);
-}
-
-.retreat-page .retreat-benefits-grid > div > span {
-    color: var(--rt-ocean);
-    font-family: 'Fraunces', serif;
-    font-weight: 400;
-}
-
-/* Barra informativa */
-
-.retreat-page .retreat-info-bar span {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: #ffffff;
-}
-
-/* Habitaciones: líneas limpias, sin sombras */
-
-.retreat-page .retreat-room-card {
-    border: none;
-    border-radius: 4px;
-    box-shadow: none;
-}
-
-.retreat-page .retreat-room-link {
-    color: var(--rt-primary);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding-top: 18px;
-    border-top: 1px solid #eeeeee;
-}
-
-/* Botones independientes de Bootstrap */
-
-.retreat-page .retreat-button {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    border-radius: 4px;
-    letter-spacing: 0.01em;
-}
-
-.retreat-page .retreat-button:hover {
-    background-color: var(--rt-wine);
-    color: #ffffff;
-}
-
-/* CTA final */
-
-.retreat-page .retreat-final-cta {
-    background-color: var(--rt-primary);
-    color: #ffffff;
-    padding: 90px 8%;
+    margin: 0;
+    padding: 72px 16px;
+    background: var(--rt-white);
     text-align: center;
 }
-
-.retreat-page .retreat-final-cta h2 {
-    color: #ffffff;
-}
-
-.retreat-page .retreat-final-cta > span {
-    color: var(--rt-yellow);
+.retreat-page .retreat-container { width: 100%; max-width: 1100px; margin: 0 auto; }
+.retreat-page .row { display: flex; flex-wrap: wrap; flex-direction: row; align-items: stretch; }
+.retreat-page h1, .retreat-page h2, .retreat-page h3 {
+    font-family: 'Fraunces', Georgia, serif;
     font-weight: 600;
-}
-
-.retreat-page .retreat-button-light {
-    background-color: #ffffff;
     color: var(--rt-primary);
+    line-height: 1.15;
+    margin: 0 0 16px;
 }
-
-.retreat-page .retreat-button-light:hover {
-    background-color: var(--rt-blush);
-    color: var(--rt-primary);
-}
-
-/* ==================================================
-   RESPONSIVE
-   ================================================== */
-
+.retreat-page h1 { font-size: clamp(2.5rem, 5vw, 4.4rem); }
+.retreat-page h2 { font-size: clamp(2rem, 4vw, 4rem); }
+.retreat-page h3 { font-size: clamp(1.3rem, 2.4vw, 2rem); }
+.retreat-page p { font: 400 1.3rem/1.65 'DM Sans', sans-serif; color: var(--rt-text); margin: 0 0 16px; }
+.retreat-page span { font-family: 'DM Sans', sans-serif; color: inherit; font-style: normal; }
+.retreat-page .retreat-eyebrow { display: inline-block; color: #367d7d; font-size: 1.3rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; }
+.retreat-page .retreat-eyebrow::before { content: ''; display: inline-block; width: 18px; height: 3px; background: var(--rt-aqua); vertical-align: middle; margin-right: 8px; }
+.retreat-page .retreat-section-heading { max-width: 750px; margin: 0 auto 36px; }
+.retreat-page img { display: block; position: static; width: 100%; height: auto; object-fit: cover; border-radius: 4px; }
+.retreat-page .retreat-button { display: inline-block; background: var(--rt-primary); color: white; border: 0; border-radius: 4px; padding: 13px 24px; font: 600 1rem/1.4 'DM Sans', sans-serif; text-decoration: none; cursor: pointer; }
+.retreat-page .retreat-button:hover { background: var(--rt-wine); color: white; }
+.retreat-page .retreat-button:focus-visible { outline: 3px solid var(--rt-yellow); outline-offset: 4px; }
+/* Hero */
+.retreat-page .retreat-hero { background: var(--rt-blush); padding-top: 64px; padding-bottom: 32px; }
+.retreat-page .retreat-hero-content { padding: 20px 24px; }
+.retreat-page .retreat-hero-content em { color: var(--rt-wine); }
+.retreat-page .retreat-hero-content p { max-width: 450px; margin: 0 auto 24px; }
+.retreat-page .retreat-hero-image img { aspect-ratio: 4 / 3; }
+.retreat-page .retreat-info-bar { margin-top: 32px; padding-top: 22px; border-top: 1px solid #dcb9ca; }
+.retreat-page .retreat-info-bar strong, .retreat-page .retreat-info-bar span { display: block; }
+.retreat-page .retreat-info-bar strong { color: var(--rt-wine); font-size: clamp(1.2rem, 2vw, 1.2rem); }
+.retreat-page .retreat-info-bar span { color: var(--rt-text); font-size: 1.2rem; }
+/* Activities — three square photographs */
+.retreat-page .retreat-activity-grid { max-width: 960px; margin: 0 auto; }
+.retreat-page .retreat-activity { padding: 0 14px; }
+.retreat-page .retreat-activity img { aspect-ratio: 1 / 1; max-width: 280px; margin: 0 auto 18px; }
+.retreat-page .retreat-activity p { max-width: 280px; margin: 0 auto; }
+/* Typical day */
+.retreat-page .retreat-day { background: var(--rt-blue-light); }
+.retreat-page .retreat-day-image img { aspect-ratio: 1 / 1; }
+.retreat-page .retreat-day-content { text-align: left; padding: 12px 36px; }
+.retreat-page .retreat-schedule-item { border-left: 3px solid var(--rt-aqua); padding-left: 15px; margin-top: 18px; }
+.retreat-page .retreat-schedule-item h4 { font: 700 1rem/1.4 'DM Sans', sans-serif; color: var(--rt-primary); margin: 0 0 4px; }
+.retreat-page .retreat-schedule-item p { margin: 0; }
+/* Benefits */
+.retreat-page .retreat-benefits-grid { margin-top: 30px; }
+.retreat-page .retreat-benefits-grid > div { padding-inline: 24px; }
+.retreat-page .retreat-benefits-grid > div > span { display: inline-flex; align-items: center; justify-content: center; background: var(--rt-yellow); color: var(--rt-wine); width: 42px; height: 42px; border-radius: 50%; margin-bottom: 16px; font-weight: 700; }
+/* House */
+.retreat-page .retreat-house {background: var(--rt-blush); }
+.retreat-page .retreat-house { padding-top: 40px; }
+.retreat-page .retreat-house-gallery > div { padding-inline: 7px; }
+.retreat-page .retreat-house-gallery img { aspect-ratio: 4 / 3; }
+/* Rooms */
+.retreat-page .retreat-room-card { height: 100%; background: white; border-radius: 4px; overflow: hidden; }
+.retreat-page .retreat-room-card img { aspect-ratio: 4 / 3; border-radius: 0; }
+.retreat-page .retreat-room-content { padding: 24px 16px; }
+.retreat-page .retreat-room-content h3 { font-size: 1.5rem; }
+.retreat-page .retreat-room-link { display: block; border-top: 1px solid #eadde3; padding-top: 14px; font-size: .85rem; color: var(--rt-primary); }
+/* Final CTA */
+.retreat-page .retreat-final-cta { background: var(--rt-blue-light); color: var(--rt-primary); padding: 75px 20px; }
+.retreat-page .retreat-final-cta > span { display: block; color: var(--rt-yellow); font-size: 1.8rem; font-weight: 700; margin-bottom: 16px; }
+.retreat-page .retreat-final-cta h2, .retreat-page .retreat-final-cta p { color: var(--rt-primary); }
+.retreat-page .retreat-button-light { background: white; color: var(--rt-primary); }
+.retreat-page .retreat-button-light:hover { background: var(--rt-blush); color: var(--rt-wine); }
 @media (max-width: 767px) {
-
-    .retreat-page .retreat-section {
-        padding: 60px 0;
-    }
-
-    .retreat-page .retreat-day {
-        grid-template-columns: 1fr;
-    }
-
-    .retreat-page .retreat-info-bar span {
-        font-size: 0.7rem;
-    }
-
-    .retreat-page .retreat-final-cta {
-        padding: 65px 6%;
-    }
-
-    .retreat-page .retreat-section-heading {
-        margin-bottom: 35px;
-    }
-
-    .retreat-page .retreat-room-content {
-        padding: 24px;
-    }
+    .retreat-page section, .retreat-page .retreat-hero { padding: 44px 12px; }
+    .retreat-page .retreat-section-heading { margin-bottom: 26px; }
+    .retreat-page .retreat-hero-content { padding: 0 12px 24px; }
+    .retreat-page .retreat-info-bar span { font-size: .72rem; }
+    .retreat-page .retreat-activity { padding-inline: 5px; }
+    .retreat-page .retreat-activity h3 { font-size: clamp(1rem, 5vw, 1.5rem); margin-bottom: 8px; }
+    .retreat-page .retreat-activity p { font-size: .8rem; line-height: 1.45; }
+    .retreat-page .retreat-activity img { margin-bottom: 12px; }
+    .retreat-page .retreat-day-content { padding: 24px 12px 0; }
+    .retreat-page .retreat-house-gallery > div { padding-inline: 4px; }
+    .retreat-page .retreat-room-card { max-width: 420px; margin: 0 auto; }
 }
 
-    .retreat-page {
-        background-color: #fce5ed !important;
-        border: 5px solid #b10e58 !important;
-    }
-
-    .retreat-page h1 {
-        color: #b10e58 !important;
-        font-size: 70px !important;
-        text-align: center !important;
-    }
-
-    /* =========================================
-   IMAGE SIZES & PROPORTIONS
-   ========================================= */
-
-/* Contenedor general centrado */
-
-.retreat-page .retreat-container {
-    width: 90%;
-    max-width: 1150px;
-    margin: 0 auto;
-}
-
-/* HERO */
-
-.retreat-page .retreat-hero {
-    max-width: 1400px;
-    margin: 0 auto;
-    min-height: 0;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-}
-
-.retreat-page .retreat-hero-content {
-    padding: 50px 8%;
-}
-
-.retreat-page .retreat-hero-image {
-    height: 550px;
-    min-height: 0;
-}
-
-.retreat-page .retreat-hero-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* PLAY, MOVE & CREATE */
-
-.retreat-page .retreat-activity img {
-    width: 100%;
-    height: 300px;
-    aspect-ratio: auto;
-    object-fit: cover;
-    object-position: center;
-}
-
-.retreat-page .retreat-activity {
-    text-align: center;
-}
-
-.retreat-page .retreat-activity p {
-    margin-inline: auto;
-}
-
-/* UN DÍA EN EL RETIRO */
-
-.retreat-page .retreat-day {
-    align-items: center;
-}
-
-.retreat-page .retreat-day-image {
-    height: 500px;
-    min-height: 0;
-}
-
-.retreat-page .retreat-day-image img {
-    height: 100%;
-    object-fit: cover;
-}
-
-.retreat-page .retreat-day-content {
-    padding: 40px 8%;
-}
-
-/* GALERÍA DE LA CASA */
-
-.retreat-page .retreat-house-gallery {
-    height: 450px;
-    grid-template-columns: 1.6fr 1fr;
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.retreat-page .retreat-house-gallery img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* HABITACIONES */
-
-.retreat-page .retreat-room-card img {
-    width: 100%;
-    height: 230px;
-    aspect-ratio: auto;
-    object-fit: cover;
-}
-
-.retreat-page .retreat-room-content {
-    text-align: center;
-}
-
-/* =========================================
-   TABLET
-   ========================================= */
-
-@media (max-width: 992px) {
-
-    .retreat-page .retreat-hero-image {
-        height: 450px;
-    }
-
-    .retreat-page .retreat-activity img {
-        height: 240px;
-    }
-
-    .retreat-page .retreat-room-card img {
-        height: 190px;
-    }
-}
-
-/* =========================================
-   MOBILE
-   ========================================= */
-
+/* Photo gallery */
+.retreat-page .retreat-clickable-photo { cursor: pointer; transition: filter .2s ease; }
+.retreat-page .retreat-clickable-photo:hover { filter: brightness(.92); }
+.retreat-page .retreat-clickable-photo:focus-visible { outline: 3px solid var(--rt-aqua); outline-offset: 3px; }
+.retreat-page .retreat-lightbox { position: fixed; inset: 0; margin: auto; width: min(1050px, 96vw); max-width: 96vw; max-height: 95dvh; padding: 0; border: 0; background: transparent; color: white; overflow: auto; }
+.retreat-page .retreat-lightbox::backdrop { background: rgba(25, 12, 21, .92); }
+.retreat-page .retreat-lightbox-panel { padding: 12px; text-align: center; }
+.retreat-page .retreat-lightbox-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.retreat-page .retreat-lightbox-stage { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 12px; touch-action: pan-y; }
+.retreat-page .retreat-lightbox-stage img { width: 100%; height: min(68dvh, 680px); object-fit: contain; border-radius: 4px; }
+.retreat-page .retreat-lightbox button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: var(--rt-wine); color: white; font: 400 30px/1 sans-serif; cursor: pointer; }
+.retreat-page .retreat-lightbox button:hover { background: var(--rt-wine); }
+.retreat-page .retreat-lightbox button:focus-visible { outline: 3px solid var(--rt-yellow); outline-offset: 3px; }
+.retreat-page .retreat-lightbox p { color: white; margin: 16px auto 0; max-width: 750px; }
 @media (max-width: 767px) {
-
-    .retreat-page .retreat-hero {
-        grid-template-columns: 1fr;
-    }
-
-    .retreat-page .retreat-hero-content {
-        padding: 40px 6%;
-        text-align: center;
-        align-items: center;
-    }
-
-    .retreat-page .retreat-hero-image {
-        height: 320px;
-    }
-
-    .retreat-page .retreat-activity img {
-        height: 260px;
-    }
-
-    .retreat-page .retreat-day-image {
-        height: 300px;
-    }
-
-    .retreat-page .retreat-house-gallery {
-        height: auto;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 250px 150px;
-    }
-
-    .retreat-page .retreat-house-main {
-        grid-column: span 2;
-        grid-row: auto;
-    }
-
-    .retreat-page .retreat-room-card img {
-        height: 250px;
-    }
+    .retreat-page .retreat-lightbox-stage { grid-template-columns: 36px minmax(0, 1fr) 36px; gap: 4px; }
+    .retreat-page .retreat-lightbox-stage img { height: min(58dvh, 480px); }
+    .retreat-page .retreat-lightbox button { width: 36px; height: 36px; }
 }
+@media (prefers-reduced-motion: reduce) { .retreat-page .retreat-clickable-photo { transition: none; } }
