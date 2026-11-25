@@ -15,8 +15,8 @@ export const Landing = () => {
     const currentEbookImage = i18n.language === 'en' ? ebookimgEn : ebookimgEs;
     const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
 
-    const STRIPE_PRICE_ID_ES = 'price_1RXrctCdOcKHFOeVgQHbd1Lb';
-    const STRIPE_PRICE_ID_EN = 'price_1RXrdaCdOcKHFOeV2PJwznvr';
+    const STRIPE_PRICE_ID_ES = 'price_1UfPhLCdOcKHFOeVQUt8UprM';
+    const STRIPE_PRICE_ID_EN = 'price_1UfPiUCdOcKHFOeVyfWinkeT';
 
     const testimonialsRef = useRef(null);
     const formRef = useRef(null); 
@@ -147,8 +147,8 @@ export const Landing = () => {
                     <div className="cta-header">
                         <span className="pack-title">{t('landing_ebook_4')}</span>
                         <div className="price-box">
-                            <span className="original-price">20€</span>
-                            <span className="current-price">15€</span>
+                            <span className="original-price">15€</span>
+                            <span className="current-price">9.99€</span>
                         </div>
                     </div>
                     <button className="btn btn-orange"
