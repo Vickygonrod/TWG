@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
-export const ContactForm = () => {
+export const ContactForm = ({ isPopup = false, source = "" }) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -32,9 +32,10 @@ export const ContactForm = () => {
         try {
             const dataToSend = {
                 ...formData,
-                // El idioma de la app se envía automáticamente.
-                // Usamos i18n.language para obtener el idioma actual ('es' o 'en').
-                language: i18n.language, 
+                message: source
+                    ? `[Consulta desde: ${source}]\n\n${formData.message}`
+                    : formData.message,
+                language: i18n.language,
             };
 
             const response = await axios.post(`${BACKEND_BASE_URL}/api/contact`, dataToSend);
@@ -66,9 +67,23 @@ export const ContactForm = () => {
     };
 
     return (
-         <div className="contact-form min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center p-4">
-            <div className="rounded-xl shadow-2xl p-6 sm:p-8 lg:p-10 max-w-lg w-full transform transition-all duration-300 hover:scale-105">
-            <h2 className="mb-4 text-center">{t('contact_form_1')}</h2>
+          <div className={
+        isPopup
+            ? "contact-form contact-form-popup"
+            : "contact-form min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center p-4"
+    }>
+        <div className={
+            isPopup
+                ? "contact-form-popup-inner"
+                : "rounded-xl shadow-2xl p-6 sm:p-8 lg:p-10 max-w-lg w-full transform transition-all duration-300 hover:scale-105"
+        }>
+
+            {!isPopup && (
+                <h2 className="mb-4 text-center">
+                    {t('contact_form_1')}
+                </h2>
+            )}
+
             <form onSubmit={handleSubmit}>
                 <div className="row mb-3">
                     <div className="col-md-6">

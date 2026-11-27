@@ -1,0 +1,285 @@
+/* =========================================
+   RETREAT ROOM PAGES
+   ========================================= */
+
+.retreat-room-page .room-back-link {
+    display: block;
+    text-align: left;
+    color: var(--rt-wine);
+    text-decoration: none;
+    font-size: .9rem;
+    margin-bottom: 30px;
+}
+
+.retreat-room-page .room-back-link:hover {
+    color: var(--rt-primary);
+    text-decoration: underline;
+}
+
+/* BASIC INFORMATION */
+
+.retreat-room-page .room-hero {
+    background: var(--rt-blush);
+    padding-bottom: 60px;
+}
+
+.retreat-room-page .room-hero h3 {
+    color: var(--rt-wine);
+    font-size: 1.4rem;
+}
+
+.retreat-room-page .room-basic-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.retreat-room-page .room-basic-info span {
+    background: white;
+    color: var(--rt-wine);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+/* THE HOUSE */
+
+.retreat-room-page .retreat-house {
+    background: white;
+}
+
+/* ROOM DETAILS */
+
+.retreat-room-page .room-details {
+    background: var(--rt-blue-light);
+}
+
+.retreat-room-page .room-details-content {
+    text-align: left;
+    padding: 20px 36px;
+}
+
+.retreat-room-page .room-details img {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.retreat-room-page .room-features {
+    list-style: none;
+    padding: 0;
+    margin: 25px 0;
+}
+
+.retreat-room-page .room-features li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 15px;
+}
+
+.retreat-room-page .room-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #367d7d;
+    font-weight: 700;
+}
+
+/* PAYMENT OPTIONS */
+
+.retreat-room-page .room-prices {
+    background: white;
+    scroll-margin-top: 80px;
+}
+
+.retreat-room-page .room-payment-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.retreat-room-page .room-payment-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 36px 24px;
+    border: 1px solid #eadde3;
+    border-top: 5px solid var(--rt-primary);
+    border-radius: 4px;
+    background: white;
+}
+
+.retreat-room-page .room-installment-card {
+    border-top-color: var(--rt-aqua);
+}
+
+.retreat-room-page .room-payment-card h3 {
+    color: var(--rt-wine);
+}
+
+.retreat-room-page .room-price {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    color: var(--rt-primary);
+    margin: 16px 0;
+}
+
+.retreat-room-page .room-payment-total {
+    font-size: .9rem;
+    color: var(--rt-wine);
+}
+
+.retreat-room-page .room-payment-card .retreat-button {
+    margin-top: auto;
+    width: 100%;
+    max-width: 280px;
+}
+
+.retreat-room-page .room-installment-card .retreat-button {
+    background: var(--rt-aqua);
+    color: #243d3d;
+}
+
+.retreat-room-page .room-installment-card .retreat-button:hover {
+    background: #367d7d;
+    color: white;
+}
+
+.retreat-room-page .room-payment-card button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* CLICKABLE PHOTOGRAPHS */
+
+.retreat-room-page .room-photo-trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.retreat-room-page .room-photo-trigger img {
+    transition: filter .2s ease;
+}
+
+.retreat-room-page .room-photo-trigger:hover img {
+    filter: brightness(.92);
+}
+
+/* PHOTO GALLERY */
+
+.retreat-room-page .room-gallery-dialog {
+    position: fixed;
+    inset: 0;
+    width: min(94vw, 1000px);
+    max-width: 94vw;
+    max-height: 95vh;
+    margin: auto;
+    padding: 20px;
+    border: 0;
+    background: transparent;
+    color: white;
+    overflow: auto;
+}
+
+.retreat-room-page .room-gallery-dialog::backdrop {
+    background: rgba(0, 0, 0, .92);
+}
+
+.retreat-room-page .room-gallery-content {
+    position: relative;
+    text-align: center;
+    padding: 36px 42px 12px;
+}
+
+.retreat-room-page .room-gallery-content img {
+    width: 100%;
+    height: 70vh;
+    object-fit: contain;
+}
+
+.retreat-room-page .room-gallery-content p {
+    color: white;
+    margin: 16px 0 5px;
+}
+
+.retreat-room-page .room-gallery-content span {
+    color: white;
+    font-size: .85rem;
+}
+
+.retreat-room-page .room-gallery-close,
+.retreat-room-page .room-gallery-prev,
+.retreat-room-page .room-gallery-next {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--rt-primary);
+    color: white;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.8rem;
+    z-index: 2;
+}
+
+.retreat-room-page .room-gallery-close {
+    top: 0;
+    right: 0;
+}
+
+.retreat-room-page .room-gallery-prev {
+    top: 45%;
+    left: 0;
+}
+
+.retreat-room-page .room-gallery-next {
+    top: 45%;
+    right: 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 767px) {
+
+    .retreat-room-page .room-hero {
+        padding-bottom: 35px;
+    }
+
+    .retreat-room-page .room-back-link {
+        margin-bottom: 20px;
+    }
+
+    .retreat-room-page .room-details-content {
+        padding: 20px 16px;
+    }
+
+    .retreat-room-page .room-payment-card {
+        padding: 28px 20px;
+    }
+
+    .retreat-room-page .room-gallery-content {
+        padding: 40px 10px 12px;
+    }
+
+    .retreat-room-page .room-gallery-content img {
+        height: 55vh;
+    }
+
+    .retreat-room-page .room-gallery-prev,
+    .retreat-room-page .room-gallery-next {
+        width: 32px;
+        height: 32px;
+    }
+}

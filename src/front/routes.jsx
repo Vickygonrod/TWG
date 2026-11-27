@@ -27,6 +27,7 @@ import { EventsCarousel } from "./components/EventsCarousel.jsx";
 import { WaitlistLanding } from "./pages/WaitlistLanding.jsx";
 import { EventInfoLanding } from "./pages/EventInfoLanding.jsx";
 import { RetreatLanding } from "./pages/RetreatLanding.jsx";
+import { RetreatRoom } from "./pages/RetreatRoom.jsx";
 
 
 
@@ -64,6 +65,7 @@ export const router = createBrowserRouter(
       <Route path="/listaespera" element={<WaitlistLanding />} />
       <Route path="/informacion" element={<EventInfoLanding />} />
       <Route path="/retiro" element={<RetreatLanding />} />
+      <Route path="/retiro/room/:roomId" element={<RetreatRoom />} />
 
 
     </Route>

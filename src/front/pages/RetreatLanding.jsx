@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import NewsletterSignUpPopup from "../components/NewsletterSignUpPopup.jsx";
+import { RetreatContact } from "../components/RetreatContact.jsx";
 import "../styles/retreatStyle.css";
 import heroImage from "../images/eventoplaya.png";
 import playImage from "../images/yogaplaya.jpg";
@@ -13,6 +14,7 @@ import livingRoomImage from "../images/livingroom.png";
 import privateRoomImage from "../images/habIndi.png";
 import doubleRoomImage  from "../images/hab2.png";
 import sharedRoomImage from "../images/hab4.png";
+import { Link } from "react-router-dom";
 
 
 
@@ -397,13 +399,12 @@ export const RetreatLanding = () => {
                                         <h3>{room.name}</h3>
                                         <p>{room.description}</p>
 
-                                       <button
-                        type="button"
-                        className="retreat-button"
-                        onClick={() => setShowNewsletterPopup(true)}
-                    >
-                        {t("retreat_final_cta", "Reservar esta habitación")}
-                    </button>
+                                       <Link
+                                            to={`/retiro/room/${room.id}`}
+                                            className="retreat-button retreat-room-button"
+                                        >
+                                            {t("retreat_view_room", "Ver detalles y reservar")}
+                                        </Link>
                                     </div>
                                 </article>
                                 </div>
@@ -437,7 +438,9 @@ export const RetreatLanding = () => {
                     >
                         {t("retreat_final_cta", "Reservar mi plaza")}
                     </button>
+                
                 </section>
+                <RetreatContact />
 
                 <dialog ref={dialogRef} className="retreat-lightbox"
                     aria-label={t("retreat_gallery_label", "Galería de fotografías")}

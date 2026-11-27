@@ -115,9 +115,206 @@
 .retreat-page .retreat-lightbox button:hover { background: var(--rt-wine); }
 .retreat-page .retreat-lightbox button:focus-visible { outline: 3px solid var(--rt-yellow); outline-offset: 3px; }
 .retreat-page .retreat-lightbox p { color: white; margin: 16px auto 0; max-width: 750px; }
+/*    RETREAT CONTACT CTA   */
+.retreat-page .retreat-contact { background: var(--rt-blush); padding: 65px 20px; }
+.retreat-page .retreat-contact-content { max-width: 750px; margin: 0 auto; text-align: center; }
+.retreat-page .retreat-contact-content > p { max-width: 580px; margin: 0 auto 24px; }
+.retreat-page .retreat-contact-buttons { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; margin: 30px 0; }
+.retreat-page .retreat-contact-buttons a { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; border: 1px solid var(--rt-primary); }
+.retreat-page .retreat-contact-buttons i { font-size: 1.2rem; }
+.retreat-page .retreat-whatsapp-button { background: white; color: var(--rt-primary); }
+.retreat-page .retreat-whatsapp-button:hover { background: var(--rt-primary); color: white; }
+.retreat-page .retreat-contact-note { font-size: .9rem; font-style: italic; color: var(--rt-wine); margin-bottom: 0; }
+
+
 @media (max-width: 767px) {
     .retreat-page .retreat-lightbox-stage { grid-template-columns: 36px minmax(0, 1fr) 36px; gap: 4px; }
     .retreat-page .retreat-lightbox-stage img { height: min(58dvh, 480px); }
     .retreat-page .retreat-lightbox button { width: 36px; height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) { .retreat-page .retreat-clickable-photo { transition: none; } }
+
+
+@media (max-width: 767px) {
+
+    .retreat-page .retreat-contact {
+        padding: 44px 16px;
+    }
+
+    .retreat-page .retreat-contact-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .retreat-page .retreat-contact-buttons a {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* =========================================
+   RETREAT CONTACT POPUP
+   ========================================= */
+
+.retreat-page .retreat-contact-dialog {
+    position: fixed;
+    inset: 0;
+    width: min(600px, 94vw);
+    max-width: 94vw;
+    max-height: 92dvh;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: white;
+    color: var(--rt-text, #40333B);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.retreat-page .retreat-contact-dialog::backdrop {
+    background: rgba(35, 18, 29, .75);
+    backdrop-filter: blur(4px);
+}
+
+.retreat-page .retreat-contact-popup-panel {
+    position: relative;
+    padding: 40px;
+}
+
+.retreat-page .retreat-contact-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: var(--rt-blush);
+    color: var(--rt-primary);
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+.retreat-page .retreat-contact-close:hover {
+    background: var(--rt-primary);
+    color: white;
+}
+
+/* POPUP HEADING */
+
+.retreat-page .retreat-contact-popup-heading {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.retreat-page .retreat-contact-popup-heading h2 {
+    color: var(--rt-primary);
+    margin: 10px 0;
+}
+
+.retreat-page .retreat-contact-popup-heading p {
+    font-size: .95rem;
+    line-height: 1.5;
+}
+
+/* CONTACT FORM */
+
+.retreat-page .contact-form-popup {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+}
+
+.retreat-page .contact-form-popup-inner {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    text-align: left;
+}
+
+.retreat-page .contact-form-popup .form-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    color: var(--rt-wine);
+    font-size: .9rem;
+}
+
+.retreat-page .contact-form-popup .form-control {
+    width: 100%;
+    border: 1px solid #e1d5dc;
+    border-radius: 5px;
+    padding: 10px 12px;
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .95rem;
+}
+
+.retreat-page .contact-form-popup .form-control:focus {
+    border-color: var(--rt-aqua);
+    box-shadow: 0 0 0 3px rgba(100, 185, 185, .15);
+    outline: none;
+}
+
+.retreat-page .contact-form-popup textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.retreat-page .contact-form-popup .form-check-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    color: var(--rt-text, #40333B);
+}
+
+.retreat-page .contact-form-popup .form-check-input:checked {
+    background-color: var(--rt-primary);
+    border-color: var(--rt-primary);
+}
+
+.retreat-page .contact-form-popup .retreat-button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.retreat-page .contact-form-popup .retreat-button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+/* EMAIL CTA BUTTON */
+
+.retreat-page .retreat-contact-buttons button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    border: 1px solid var(--rt-primary);
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 767px) {
+
+    .retreat-page .retreat-contact-popup-panel {
+        padding: 40px 22px 24px;
+    }
+
+    .retreat-page .retreat-contact-dialog {
+        max-height: 90dvh;
+    }
+
+    .retreat-page .retreat-contact-buttons button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
