@@ -19,13 +19,17 @@ import { Link } from "react-router-dom";
 
 
 
+import { useRetreat } from "../hooks/useRetreat.js";
+import { normalizeRoom, formatRetreatDates } from "../data/retreatRooms.js";
+
 export const RetreatLanding = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const { retreat, loading, error } = useRetreat();
     const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
 
     // Sustituir por las imágenes reales del retiro.
    const images = {
-    hero: heroImage,
+    hero: retreat?.image_url || heroImage,
     play: playImage,
     move: moveImage,
     create: createImage,
@@ -103,36 +107,7 @@ export const RetreatLanding = () => {
         }
     ];
 
-    // Habitaciones de ejemplo. Sustituir por las reales.
-    const rooms = [
-        {
-            id: "private",
-            name: t("retreat_room_private", "Habitación privada"),
-            image: images.roomPrivate,
-            description: t(
-                "retreat_room_private_description",
-                "Un espacio solo para ti."
-            )
-        },
-        {
-            id: "double",
-            name: t("retreat_room_double", "Habitación doble"),
-            image: images.roomDouble,
-            description: t(
-                "retreat_room_double_description",
-                "Comparte la experiencia."
-            )
-        },
-        {
-            id: "shared",
-            name: t("retreat_room_shared", "Habitación compartida"),
-            image: images.roomShared,
-            description: t(
-                "retreat_room_shared_description",
-                "Disfruta en compañía."
-            )
-        }
-    ];
+    const rooms = (retreat?.rooms || []).map(normalizeRoom);
 
     const gallery = [
         { src: images.hero, caption: t("retreat_gallery_hero", "El espíritu de nuestro retiro creativo.") },
@@ -141,7 +116,7 @@ export const RetreatLanding = () => {
         { src: images.house, caption: t("retreat_gallery_house", "La terraza de nuestra casa.") },
         { src: images.terrace, caption: t("retreat_gallery_terrace", "La azotea del alojamiento.") },
         { src: images.livingRoom, caption: t("retreat_gallery_living", "El salón y las zonas comunes.") },
-        ...rooms.map(r => ({ src: r.image, caption: `${r.name}. ${r.description}` }))
+        ...rooms.flatMap(r => r.gallery)
     ];
     const [activePhoto, setActivePhoto] = useState(null);
     const dialogRef = useRef(null);
@@ -175,6 +150,8 @@ export const RetreatLanding = () => {
         };
     }, [isGalleryOpen]);
 
+    if (loading || error || !retreat) return <main className="retreat-page"><section><p role="status">{loading ? t("retreat_loading", "Cargando retiro…") : error || t("retreat_unavailable", "Retiro no disponible")}</p></section><RetreatContact /></main>;
+
     return (
         <>
             <main className="retreat-page">
@@ -184,9 +161,10 @@ export const RetreatLanding = () => {
                     <div className="container retreat-container">
                         <div className="row align-items-center gy-4">
                             <div className="col-12 col-md-6 retreat-hero-content">
-                                <span className="retreat-eyebrow">{t("retreat_location", "Gran Canaria")} · {t("retreat_label", "Retiro creativo")}</span>
+                                <span className="retreat-eyebrow">{retreat.location} · {t("retreat_label", "Retiro creativo")}</span>
                                 <h1>{t("retreat_hero_title", "Unos días para")}<em>{t("retreat_hero_accent", " volver a jugar.")}</em></h1>
-                                <p>{t("retreat_hero_description", "Cinco días para crear, moverte, disfrutar del mar y compartir con otras mujeres.")}</p>
+                                <p>{retreat.short_description || t("retreat_hero_description_generic", "Unos días para crear, moverte, disfrutar del mar y compartir con otras mujeres.")}</p>
+                                <p>{formatRetreatDates(retreat, i18n.language)}</p>
                                 <a href="#retreat-experience" className="retreat-button">{t("retreat_hero_cta", "Descubre más sobre el retiro")}</a>
                             </div>
                             <div className="col-12 col-md-6 retreat-hero-image">
@@ -194,8 +172,8 @@ export const RetreatLanding = () => {
                             </div>
                         </div>
                         <div className="row retreat-info-bar text-center">
-                            <div className="col-4"><strong>5</strong><span>{t("retreat_days", "Días para ti")}</span></div>
-                            <div className="col-4"><strong>Gran Canaria</strong><span>{t("retreat_seaside", "Junto al mar")}</span></div>
+                            <div className="col-4"><strong>{retreat.duration_days ?? "—"}</strong><span>{t("retreat_days", "Días para ti")}</span></div>
+                            <div className="col-4"><strong>{retreat.location}</strong><span>{t("retreat_seaside", "Junto al mar")}</span></div>
                             <div className="col-4"><strong>Play · Move · Create</strong><span>{t("retreat_philosophy", "Nuestra filosofía")}</span></div>
                         </div>
                     </div>
@@ -345,14 +323,11 @@ export const RetreatLanding = () => {
                             </span>
 
                             <h2>
-                                {t(
-                                    "retreat_house_title",
-                                    "Nuestra casa durante cuatro días."
-                                )}
+                                {retreat.house_name || t("retreat_house_title_generic", "Nuestra casa durante el retiro.")}
                             </h2>
 
                             <p>
-                                {t(
+                                {retreat.house_description || t(
                                     "retreat_house_description",
                                     "Un lugar para sentirnos en casa, disfrutar juntas y encontrar nuestros propios rincones de inspiración."
                                 )}
@@ -390,17 +365,17 @@ export const RetreatLanding = () => {
                             {rooms.map((room) => (
                                 <div className="col-12 col-md-4" key={room.id}>
                                 <article className="retreat-room-card">
-                                    <img {...photoProps(room.image)} src={room.image}
+                                    {room.image && <img {...photoProps(room.image)} src={room.image}
                                         alt={room.name}
                                         loading="lazy"
-                                    />
+                                    />}
 
                                     <div className="retreat-room-content">
                                         <h3>{room.name}</h3>
-                                        <p>{room.description}</p>
+                                        <p>{room.subtitle || room.description}</p>
 
                                        <Link
-                                            to={`/retiro/room/${room.id}`}
+                                            to={`/retiro/room/${room.slug}`}
                                             className="retreat-button retreat-room-button"
                                         >
                                             {t("retreat_view_room", "Ver detalles y reservar")}

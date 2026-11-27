@@ -3,10 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { RetreatHouse } from "../components/RetreatHouse.jsx";
-import {
-    retreatRooms,
-    retreatConfig
-} from "../data/retreatRooms.js";
+import { normalizeRoom, formatRetreatDates } from "../data/retreatRooms.js";
+import { useRetreat } from "../hooks/useRetreat.js";
 
 import "../styles/retreatStyle.css";
 import "../styles/retreatRoomStyle.css";
@@ -17,14 +15,16 @@ export const RetreatRoom = () => {
     const { roomId } = useParams();
     const { t, i18n } = useTranslation();
 
-    const room = retreatRooms[roomId];
+    const { retreat, loading, error } = useRetreat();
+    const rawRoom = retreat?.rooms.find(item => item.slug === roomId);
+    const room = rawRoom ? normalizeRoom(rawRoom) : null;
 
     const [gallery, setGallery] = useState([]);
     const [activePhoto, setActivePhoto] = useState(null);
 
     const dialogRef = useRef(null);
 
-    const installmentCount = retreatConfig.installmentCount;
+
 
     const openGallery = (photos, index) => {
         setGallery(photos);
@@ -64,20 +64,9 @@ export const RetreatRoom = () => {
         window.scrollTo(0, 0);
     }, [roomId]);
 
-    const formatPrice = (price) => {
+    const formatPrice = (cents, currency) => new Intl.NumberFormat(i18n.language || "es-ES", { style: "currency", currency }).format(cents / 100);
 
-        if (price === null || price === undefined) {
-            return t("retreat_price_pending", "Próximamente");
-        }
-
-        return new Intl.NumberFormat(
-            i18n.language || "es-ES",
-            {
-                style: "currency",
-                currency: retreatConfig.currency
-            }
-        ).format(price);
-    };
+    if (loading || error) return <main className="retreat-page retreat-room-page"><section><p role="status">{loading ? t("retreat_loading", "Cargando retiro…") : error}</p><Link to="/retiro">Volver al retiro</Link></section></main>;
 
     if (!room) {
         return (
@@ -93,50 +82,8 @@ export const RetreatRoom = () => {
         );
     }
 
-    const showFullPayment = room.paymentOptions.full.enabled;
-
-    const showInstallments =
-        room.paymentOptions.installments.enabled &&
-        [2, 3].includes(installmentCount);
-
-    const installmentUrl =
-        room.paymentOptions.installments.checkoutUrls[
-            installmentCount
-        ];
-
-    const totalCents = room.price === null
-        ? null
-        : Math.round(room.price * 100);
-
-    const installmentPrice = totalCents !== null && showInstallments
-        ? Math.floor(totalCents / installmentCount) / 100
-        : null;
-
-    const lastInstallment = installmentPrice !== null
-        ? (totalCents -
-            Math.round(installmentPrice * 100) *
-            (installmentCount - 1)) / 100
-        : null;
-
-    const renderBookingButton = (url) => {
-
-        if (!url || room.price === null) {
-            return (
-                <button
-                    className="retreat-button"
-                    disabled
-                >
-                    {t("retreat_booking_soon", "Próximamente")}
-                </button>
-            );
-        }
-
-        return (
-            <a href={url} className="retreat-button">
-                {t("retreat_book_room", "Reservar mi plaza")}
-            </a>
-        );
-    };
+    const paymentOptions = [...(room.payment_options || [])].filter(option => option.is_active).sort((a, b) => a.installments - b.installments);
+    const features = [room.bed_type, room.private_bathroom === true ? t("retreat_private_bathroom", "Baño privado") : room.private_bathroom === false ? t("retreat_shared_bathroom", "Baño no privado") : null].filter(Boolean);
 
     return (
         <main className="retreat-page retreat-room-page">
@@ -159,27 +106,27 @@ export const RetreatRoom = () => {
                         <div className="col-12 col-md-6 retreat-hero-content">
 
                             <span className="retreat-eyebrow">
-                                Gran Canaria · Retiro creativo
+                                {retreat.location} · {t("retreat_label", "Retiro creativo")}
                             </span>
 
-                            <h1>{t(`room_${room.id}_name`, room.name)}.</h1>
+                            <h1>{room.name}.</h1>
 
                             <h3>
-                                {t(`room_${room.id}_subtitle`, room.subtitle)}
+                                {room.subtitle}
                             </h3>
 
                             <p>
-                                {t(`room_${room.id}_description`, room.description)}
+                                {room.description}
                             </p>
 
                             <div className="room-basic-info">
 
                                 <span>
-                                    {retreatConfig.duration} días
+                                    {retreat.duration_days ?? "—"} días
                                 </span>
 
                                 <span>
-                                    {retreatConfig.nights} noches
+                                    {retreat.nights ?? "—"} noches
                                 </span>
 
                                 <span>
@@ -190,8 +137,8 @@ export const RetreatRoom = () => {
 
                             </div>
 
-                            {retreatConfig.dates && (
-                                <p>{retreatConfig.dates}</p>
+                            {formatRetreatDates(retreat, i18n.language) && (
+                                <p>{formatRetreatDates(retreat, i18n.language)}</p>
                             )}
 
                             <a
@@ -205,7 +152,7 @@ export const RetreatRoom = () => {
 
                         <div className="col-12 col-md-6 retreat-hero-image">
 
-                            <button
+                            {room.image && <button
                                 type="button"
                                 className="room-photo-trigger"
                                 onClick={() => openGallery(room.gallery, 0)}
@@ -214,7 +161,7 @@ export const RetreatRoom = () => {
                                     src={room.image}
                                     alt={room.name}
                                 />
-                            </button>
+                            </button>}
 
                         </div>
 
@@ -227,7 +174,7 @@ export const RetreatRoom = () => {
 
             {/* THE HOUSE */}
 
-            <RetreatHouse onImageClick={openGallery} />
+            <RetreatHouse retreat={retreat} onImageClick={openGallery} />
 
 
             {/* ROOM INFORMATION */}
@@ -286,18 +233,18 @@ export const RetreatRoom = () => {
                         <div className="col-12 col-md-6 room-details-content">
 
                             <h3>
-                                {t(`room_${room.id}_name`, room.name)}
+                                {room.name}
                             </h3>
 
                             <p>
-                                {t(`room_${room.id}_description`, room.description)}
+                                {room.description}
                             </p>
 
                             <ul className="room-features">
 
-                                {room.features.map((feature, index) => (
+                                {features.map((feature, index) => (
                                     <li key={index}>
-                                        {t(`room_${room.id}_feature_${index}`, feature)}
+                                        {feature}
                                     </li>
                                 ))}
 
@@ -340,87 +287,30 @@ export const RetreatRoom = () => {
 
                     <div className="row justify-content-center gy-4 room-payment-grid">
 
-                        {showFullPayment && (
-
-                            <div className="col-12 col-md-5">
-
-                                <article className="room-payment-card">
-
-                                    <h3>
-                                        {t("retreat_full_payment", "Pago único")}
-                                    </h3>
-
+                        {paymentOptions.map(option => (
+                            <div className="col-12 col-md-5" key={option.id}>
+                                <article className={`room-payment-card ${option.installments > 1 ? "room-installment-card" : ""}`}>
+                                    <h3>{option.name}</h3>
                                     <div className="room-price">
-                                        {formatPrice(room.price)}
+                                        {option.installments === 1 ? formatPrice(option.total_price, option.currency) : formatPrice(option.installment_amounts[0], option.currency)}
                                     </div>
-
-                                    <p>
-                                        {t("retreat_one_payment", "Un solo pago")}
-                                    </p>
-
-                                    {renderBookingButton(
-                                        room.paymentOptions.full.checkoutUrl
-                                    )}
-
+                                    {option.installments > 1 ? <>
+                                        <p>{option.installments} {t("retreat_installments_label", "cuotas")}</p>
+                                        {option.installment_amounts.map((amount, index) => <p key={index}>{index + 1}. {formatPrice(amount, option.currency)}</p>)}
+                                        <p className="room-payment-total">Total: {formatPrice(option.total_price, option.currency)}</p>
+                                    </> : <p>{t("retreat_one_payment", "Un solo pago")}</p>}
+                                    <button type="button" className="retreat-button" disabled>{t("retreat_booking_soon", "Próximamente")}</button>
                                 </article>
-
                             </div>
-
-                        )}
-
-                        {showInstallments && (
-
-                            <div className="col-12 col-md-5">
-
-                                <article className="room-payment-card room-installment-card">
-
-                                    <h3>
-                                        {t("retreat_installments", "Pago fraccionado")}
-                                    </h3>
-
-                                    <div className="room-price">
-
-                                        {installmentPrice === null
-                                            ? formatPrice(null)
-                                            : `${installmentCount} × ${formatPrice(installmentPrice)}`
-                                        }
-
-                                    </div>
-
-                                    <p>
-                                        {installmentCount} cuotas
-                                    </p>
-
-                                    {lastInstallment !== installmentPrice && (
-                                        <p>
-                                            Última cuota: {formatPrice(lastInstallment)}
-                                        </p>
-                                    )}
-
-                                    <p className="room-payment-total">
-                                        Total: {formatPrice(room.price)}
-                                    </p>
-
-                                    {renderBookingButton(installmentUrl)}
-
-                                </article>
-
-                            </div>
-
-                        )}
-
-                        {!showFullPayment && !showInstallments && (
-                            <p>
-                                {t("retreat_booking_soon", "Próximamente")}
-                            </p>
-                        )}
+                        ))}
+                        {!paymentOptions.length && <p>{t("retreat_booking_soon", "Próximamente")}</p>}
 
                     </div>
 
                 </div>
 
             </section>
-            <RetreatContact />
+            <RetreatContact source={`Retiro creativo - ${room.name}`} />
 
             {/* PHOTO GALLERY */}
 

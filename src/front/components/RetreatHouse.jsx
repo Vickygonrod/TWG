@@ -5,7 +5,7 @@ import houseImage from "../images/terraza.png";
 import terraceImage from "../images/azotea.png";
 import livingRoomImage from "../images/livingroom.png";
 
-export const RetreatHouse = ({ onImageClick }) => {
+export const RetreatHouse = ({ retreat, onImageClick }) => {
     const { t } = useTranslation();
 
     const photos = [
@@ -34,14 +34,14 @@ export const RetreatHouse = ({ onImageClick }) => {
                     </span>
 
                     <h2>
-                        {t(
-                            "retreat_house_title",
-                            "Nuestra casa durante cuatro días."
+                        {retreat?.house_name || t(
+                            "retreat_house_title_generic",
+                            "Nuestra casa durante el retiro."
                         )}
                     </h2>
 
                     <p>
-                        {t(
+                        {retreat?.house_description || t(
                             "retreat_house_description",
                             "Un lugar para sentirnos en casa, disfrutar juntas y encontrar nuestros propios rincones de inspiración."
                         )}

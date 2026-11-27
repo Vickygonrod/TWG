@@ -126,25 +126,287 @@ class Subscriber(db.Model):
 
 class RetreatDetails(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), unique=True, nullable=False)
-    
-    # Ejemplo de campos para habitaciones y precios. Puedes agregar más según tus necesidades.
+
+    event_id = db.Column(
+        db.Integer,
+        db.ForeignKey('event.id'),
+        unique=True,
+        nullable=False
+    )
+
+    # Información general del retiro
+    end_date = db.Column(db.DateTime, nullable=True)
+    duration_days = db.Column(db.Integer, nullable=True)
+    nights = db.Column(db.Integer, nullable=True)
+
+    # Información de la casa
+    house_name = db.Column(db.String(255), nullable=True)
+    house_description = db.Column(db.Text, nullable=True)
+    house_address = db.Column(db.String(500), nullable=True)
+
+    # Campos antiguos (compatibilidad)
     room_type_1_name = db.Column(db.String(255), nullable=True)
     room_type_1_price = db.Column(db.Float, nullable=True)
     room_type_2_name = db.Column(db.String(255), nullable=True)
     room_type_2_price = db.Column(db.Float, nullable=True)
-    
+
+    # Relación con las habitaciones
+    rooms = db.relationship(
+        'RetreatRoom',
+        backref='retreat',
+        lazy=True
+    )
+
     def __repr__(self):
         return f'<RetreatDetails for Event ID: {self.event_id}>'
 
     def serialize(self):
         return {
+            "id": self.id,
+            "event_id": self.event_id,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "duration_days": self.duration_days,
+            "nights": self.nights,
+            "house_name": self.house_name,
+            "house_description": self.house_description,
+
+            # Compatibilidad
             "room_type_1_name": self.room_type_1_name,
             "room_type_1_price": self.room_type_1_price,
             "room_type_2_name": self.room_type_2_name,
-            "room_type_2_price": self.room_type_2_price
+            "room_type_2_price": self.room_type_2_price,
+
+            "rooms": [
+                room.serialize()
+                for room in self.rooms
+                if room.is_active
+            ]
         }
 
+class RetreatRoom(db.Model):
+    __tablename__ = 'retreat_rooms'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    retreat_id = db.Column(
+        db.Integer,
+        db.ForeignKey('retreat_details.id'),
+        nullable=False
+    )
+
+    # Identificador utilizado en las rutas de React
+    slug = db.Column(db.String(100), nullable=False)
+
+    name = db.Column(db.String(255), nullable=False)
+    subtitle = db.Column(db.String(255), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+
+    # Capacidad por habitación
+    capacity = db.Column(db.Integer, nullable=False)
+
+    # Número de habitaciones de este tipo
+    room_count = db.Column(
+        db.Integer,
+        nullable=False,
+        default=1
+    )
+
+    # Características
+    bed_type = db.Column(db.String(255), nullable=True)
+    private_bathroom = db.Column(db.Boolean, nullable=True)
+
+    # Fotografías
+    image_url = db.Column(db.String(500), nullable=True)
+    second_image_url = db.Column(db.String(500), nullable=True)
+    third_image_url = db.Column(db.String(500), nullable=True)
+
+    # Visibilidad y orden
+    is_active = db.Column(
+        db.Boolean,
+        default=True,
+        nullable=False
+    )
+
+    priority_order = db.Column(
+        db.Integer,
+        default=999,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    # Relaciones
+    payment_options = db.relationship(
+        'RetreatPaymentOption',
+        backref='room',
+        lazy=True
+    )
+
+    reservations = db.relationship(
+        'Reservation',
+        backref='retreat_room',
+        lazy=True
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            'retreat_id',
+            'slug',
+            name='uq_retreat_room_slug'
+        ),
+        db.CheckConstraint(
+            'capacity > 0',
+            name='ck_retreat_room_capacity'
+        ),
+        db.CheckConstraint(
+            'room_count > 0',
+            name='ck_retreat_room_count'
+        ),
+    )
+
+    @property
+    def total_spots(self):
+        return self.capacity * self.room_count
+
+    def __repr__(self):
+        return f'<RetreatRoom {self.name}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "retreat_id": self.retreat_id,
+            "slug": self.slug,
+            "name": self.name,
+            "subtitle": self.subtitle,
+            "description": self.description,
+            "capacity": self.capacity,
+            "room_count": self.room_count,
+            "total_spots": self.total_spots,
+            "bed_type": self.bed_type,
+            "private_bathroom": self.private_bathroom,
+            "image_url": self.image_url,
+            "second_image_url": self.second_image_url,
+            "third_image_url": self.third_image_url,
+            "is_active": self.is_active,
+            "priority_order": self.priority_order,
+            "payment_options": [
+                option.serialize()
+                for option in self.payment_options
+                if option.is_active
+            ]
+        }
+
+class RetreatPaymentOption(db.Model):
+    __tablename__ = 'retreat_payment_options'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    room_id = db.Column(
+        db.Integer,
+        db.ForeignKey('retreat_rooms.id'),
+        nullable=False
+    )
+
+    name = db.Column(db.String(255), nullable=False)
+
+    # 1 = pago único
+    # 2 = dos cuotas
+    # 3 = tres cuotas
+    installments = db.Column(
+        db.Integer,
+        nullable=False,
+        default=1
+    )
+
+    # Precio total en céntimos
+    total_price = db.Column(db.Integer, nullable=False)
+
+    currency = db.Column(
+        db.String(3),
+        nullable=False,
+        default='EUR'
+    )
+
+    # Frecuencia entre pagos
+    interval_months = db.Column(
+        db.Integer,
+        nullable=False,
+        default=1
+    )
+
+    # Integración con pagos
+    stripe_price_id = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    checkout_url = db.Column(
+        db.String(1000),
+        nullable=True
+    )
+
+    # Mostrar u ocultar en el frontend
+    is_active = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            'room_id',
+            'installments',
+            name='uq_room_payment_installments'
+        ),
+        db.CheckConstraint(
+            'installments IN (1, 2, 3)',
+            name='ck_payment_installments'
+        ),
+        db.CheckConstraint(
+            'total_price > 0',
+            name='ck_payment_total_price'
+        ),
+        db.CheckConstraint(
+            'interval_months > 0',
+            name='ck_payment_interval'
+        ),
+    )
+
+    @property
+    def installment_amounts(self):
+        base, remainder = divmod(
+            self.total_price,
+            self.installments
+        )
+
+        return (
+            [base] * (self.installments - 1)
+            + [base + remainder]
+        )
+
+    def __repr__(self):
+        return f'<RetreatPaymentOption {self.name}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "room_id": self.room_id,
+            "name": self.name,
+            "installments": self.installments,
+            "total_price": self.total_price,
+            "installment_amounts": self.installment_amounts,
+            "currency": self.currency,
+            "interval_months": self.interval_months,
+            "is_active": self.is_active
+        }
 # Modelo de Evento modificado
 class Event(db.Model):
     # Sin __tablename__, SQLAlchemy usará el nombre por defecto 'event'.
@@ -253,6 +515,50 @@ class Reservation(db.Model):
     payment_status = db.Column(db.String(50), default='pending') # Estado del pago en Stripe
     status = db.Column(db.String(50), default='pending') # Estado de la reserva
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    retreat_room_id = db.Column(db.Integer, db.ForeignKey('retreat_rooms.id'), nullable=True)
+    payment_option_id = db.Column(db.Integer, db.ForeignKey('retreat_payment_options.id'), nullable=True)
+    total_amount = db.Column(db.Integer, nullable=True)
+    installments = db.Column(db.Integer, nullable=True)
+    expires_at = db.Column(db.DateTime, nullable=True) # Fecha de expiración del bloqueo temporal de plaza
+    confirmed_at = db.Column(db.DateTime, nullable=True)  # Fecha de confirmación
+    stripe_customer_id = db.Column(db.String(255), nullable=True)     # Identificadores adicionales de Stripe
+    stripe_subscription_id = db.Column(db.String(255),nullable=True)
+    payment_option = db.relationship('RetreatPaymentOption') # Relaciones
+    payments = db.relationship('ReservationPayment', backref='reservation', lazy=True)
+    how_did_you_hear = db.Column(db.String(255), nullable=True)
+    artistic_expression = db.Column(db.Text, nullable=True)
+    why_interested = db.Column(db.Text, nullable=True)
+    comments = db.Column(db.Text, nullable=True)
+
+    # Consentimientos opcionales
+    subscribe_to_newsletter = db.Column(
+        db.Boolean, nullable=False, default=False,
+        server_default="false"
+    )
+
+    consent_for_image = db.Column(
+        db.Boolean, nullable=False, default=False,
+        server_default="false"
+    )
+
+    health_consent_at = db.Column(db.DateTime, nullable=True)
+    health_consent_version = db.Column(db.String(50), nullable=True)
+
+    # Condiciones de reserva
+    terms_accepted_at = db.Column(db.DateTime, nullable=True)
+    terms_version = db.Column(db.String(50), nullable=True)
+
+    language = db.Column(db.String(10), nullable=True)
+
+    @property
+    def remaining_amount(self):
+        if self.total_amount is None:
+            return None
+
+        return max(
+            0,
+            self.total_amount - (self.amount_paid or 0)
+        )
 
     def __repr__(self):
         return f'<Reservation {self.customer_name} for Event ID: {self.event_id}>'
@@ -270,7 +576,118 @@ class Reservation(db.Model):
             "currency": self.currency,
             "payment_status": self.payment_status,
             "status": self.status,
-            "created_at": self.created_at.isoformat() if self.created_at else None
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "retreat_room_id": self.retreat_room_id,
+            "payment_option_id": self.payment_option_id,
+            "total_amount": self.total_amount,
+            "installments": self.installments,
+            "remaining_amount": self.remaining_amount,
+            "confirmed_at": (
+                self.confirmed_at.isoformat()
+                if self.confirmed_at else None
+            ),  
+        }
+
+class ReservationPayment(db.Model):
+    __tablename__ = 'reservation_payments'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    reservation_id = db.Column(
+        db.Integer,
+        db.ForeignKey('reservation.id'),
+        nullable=False
+    )
+
+    installment_number = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    amount = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    currency = db.Column(
+        db.String(3),
+        default='EUR',
+        nullable=False
+    )
+
+    # pending, paid, failed, cancelled, refunded
+    status = db.Column(
+        db.String(50),
+        default='pending',
+        nullable=False
+    )
+
+    due_date = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
+    paid_at = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
+    stripe_payment_intent_id = db.Column(
+        db.String(255),
+        unique=True,
+        nullable=True
+    )
+
+    stripe_invoice_id = db.Column(
+        db.String(255),
+        unique=True,
+        nullable=True
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            'reservation_id',
+            'installment_number',
+            name='uq_reservation_installment'
+        ),
+        db.CheckConstraint(
+            'amount > 0',
+            name='ck_reservation_payment_amount'
+        ),
+        db.CheckConstraint(
+            'installment_number > 0',
+            name='ck_reservation_installment_number'
+        ),
+    )
+
+    def __repr__(self):
+        return (
+            f'<ReservationPayment '
+            f'{self.reservation_id} - '
+            f'Cuota {self.installment_number}>'
+        )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "reservation_id": self.reservation_id,
+            "installment_number": self.installment_number,
+            "amount": self.amount,
+            "currency": self.currency,
+            "status": self.status,
+            "due_date": (
+                self.due_date.isoformat()
+                if self.due_date else None
+            ),
+            "paid_at": (
+                self.paid_at.isoformat()
+                if self.paid_at else None
+            )
         }
 
 # Modelos que no cambian, por conveniencia los dejo.

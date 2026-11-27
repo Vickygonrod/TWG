@@ -2,126 +2,48 @@ import privateRoomImage from "../images/habIndi.png";
 import doubleRoomImage from "../images/hab2.png";
 import sharedRoomImage from "../images/hab4.png";
 
-export const retreatConfig = {
-    location: "Gran Canaria",
-    duration: 4,
-    nights: 3,
-    dates: null,
-    currency: "EUR",
-
-    // Cambiar manualmente a 3, 2 o 0.
-    installmentCount: 3
+const fallbackImages = {
+    private: privateRoomImage,
+    double: doubleRoomImage,
+    shared: sharedRoomImage
 };
 
-export const retreatRooms = {
-    private: {
-        id: "private",
-        name: "Habitación privada",
-        subtitle: "Un espacio solo para ti.",
-        description: "Disfruta de la tranquilidad de tener tu propio espacio durante el retiro.",
-        image: privateRoomImage,
+export const normalizeRoom = room => {
 
-        gallery: [
-            {
-                src: privateRoomImage,
-                caption: "Habitación privada"
-            }
-        ],
+    const photos = [...new Set([
+        room.image_url || fallbackImages[room.slug],
+        room.second_image_url,
+        room.third_image_url
+    ].filter(Boolean))];
 
-        capacity: 1,
-        features: [
-            "Uso individual",
-            "Alojamiento durante el retiro"
-        ],
+    return {
+        ...room,
+        image: photos[0],
+        gallery: photos.map(src => ({
+            src,
+            caption: room.name
+        }))
+    };
+};
 
-        price: null,
+export const formatRetreatDates = (retreat, locale) => {
 
-        paymentOptions: {
-            full: {
-                enabled: true,
-                checkoutUrl: null
-            },
-            installments: {
-                enabled: true,
-                checkoutUrls: {
-                    3: null,
-                    2: null
-                }
-            }
+    if (!retreat?.start_date) return "";
+
+    const format = value => new Intl.DateTimeFormat(
+        locale,
+        {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            timeZone: "UTC"
         }
-    },
+    ).format(
+        new Date(value.slice(0, 10) + "T00:00:00Z")
+    );
 
-    double: {
-        id: "double",
-        name: "Habitación doble",
-        subtitle: "Comparte la experiencia.",
-        description: "Un espacio para compartir, descansar y disfrutar de estos días en compañía.",
-        image: doubleRoomImage,
-
-        gallery: [
-            {
-                src: doubleRoomImage,
-                caption: "Habitación doble"
-            }
-        ],
-
-        capacity: 2,
-        features: [
-            "Habitación para dos personas",
-            "Alojamiento durante el retiro"
-        ],
-
-        price: null,
-
-        paymentOptions: {
-            full: {
-                enabled: true,
-                checkoutUrl: null
-            },
-            installments: {
-                enabled: true,
-                checkoutUrls: {
-                    3: null,
-                    2: null
-                }
-            }
-        }
-    },
-
-    shared: {
-        id: "shared",
-        name: "Habitación compartida",
-        subtitle: "Disfruta en compañía.",
-        description: "Una opción para compartir la experiencia con otras participantes del retiro.",
-        image: sharedRoomImage,
-
-        gallery: [
-            {
-                src: sharedRoomImage,
-                caption: "Habitación compartida"
-            }
-        ],
-
-        capacity: 4,
-        features: [
-            "Habitación compartida",
-            "Alojamiento durante el retiro"
-        ],
-
-        price: null,
-
-        paymentOptions: {
-            full: {
-                enabled: true,
-                checkoutUrl: null
-            },
-            installments: {
-                enabled: true,
-                checkoutUrls: {
-                    3: null,
-                    2: null
-                }
-            }
-        }
-    }
+    return [
+        retreat.start_date,
+        retreat.end_date
+    ].filter(Boolean).map(format).join(" – ");
 };

@@ -1,11 +1,8 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 import os
 import threading
 from flask import Flask, request, jsonify, url_for, Blueprint, send_from_directory, current_app
-from api.models import db, User, Subscriber, Admins, Contact, Order, EventParticipant, Event, InformationRequest, Reservation, RetreatDetails, Photo
-from datetime import datetime
+from api.models import db, User, Subscriber, Admins, Contact, Order, EventParticipant, Event, InformationRequest, Reservation, RetreatDetails, Photo, RetreatRoom, RetreatPaymentOption, ReservationPayment 
+from datetime import datetime, timedelta
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from api.config import Config
@@ -13,6 +10,9 @@ import stripe
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import re
+import calendar
+from sqlalchemy import or_, and_, func
 
 
 from api.services.email_service import (
@@ -382,6 +382,51 @@ def process_checkout_session(app_instance, session):
             db.session.rollback() 
             print(f"❌ ERROR procesando checkout.session.completed en background: {e}")
 
+@api.route('/retreats/current', methods=['GET'])
+def get_current_retreat():
+
+    event = Event.query.join(
+        RetreatDetails,
+        RetreatDetails.event_id == Event.id
+    ).filter(
+        Event.event_type == 'retiro',
+        Event.is_active == True
+    ).order_by(
+        Event.date.asc()
+    ).first()
+
+    if not event:
+        return jsonify({
+            "message": "No hay ningún retiro activo"
+        }), 404
+
+    retreat = event.retreat_details
+
+    rooms = RetreatRoom.query.filter_by(
+        retreat_id=retreat.id,
+        is_active=True
+    ).order_by(
+        RetreatRoom.priority_order.asc()
+    ).all()
+
+    return jsonify({
+        "id": event.id,
+        "name": event.name,
+        "short_description": event.short_description,
+        "long_description": event.long_description,
+        "start_date": event.date.isoformat() if event.date else None,
+        "end_date": retreat.end_date.isoformat() if retreat.end_date else None,
+        "location": event.location,
+        "max_participants": event.max_participants,
+        "duration_days": retreat.duration_days,
+        "nights": retreat.nights,
+        "house_name": retreat.house_name,
+        "house_description": retreat.house_description,
+        "image_url": event.image_url,
+        "rooms": [
+            room.serialize() for room in rooms
+        ]
+    }), 200
 
 @api.route("/stripe-webhook", methods=["POST"])
 def stripe_webhook():
@@ -1237,3 +1282,364 @@ def handle_reservation():
         db.session.rollback()
         print(f"ERROR: Fallo en la ruta /reservation: {str(e)}")
         return jsonify({"msg": "Ocurrió un error al procesar la reserva."}), 500
+
+
+# =====================================================
+# RETREAT REGISTRATION
+# =====================================================
+
+RETREAT_TERMS_VERSION = "1.0"
+RETREAT_HEALTH_CONSENT_VERSION = "1.0"
+
+
+def add_retreat_months(date, months):
+    month_index = date.month - 1 + months
+    year = date.year + month_index // 12
+    month = month_index % 12 + 1
+
+    day = min(
+        date.day,
+        calendar.monthrange(year, month)[1]
+    )
+
+    return date.replace(
+        year=year,
+        month=month,
+        day=day
+    )
+
+
+@api.route('/retreats/reservations', methods=['POST'])
+def create_retreat_reservation():
+
+    payload = request.get_json(silent=True)
+
+    if not isinstance(payload, dict):
+        return jsonify({"error": "Datos inválidos"}), 400
+
+    def get_text(key):
+        value = payload.get(key, "")
+        return value.strip() if isinstance(value, str) else ""
+
+    # -------------------------------------------------
+    # 1. DATOS PERSONALES
+    # -------------------------------------------------
+
+    first_name = get_text("firstName")
+    last_name = get_text("lastName")
+    full_name = f"{first_name} {last_name}".strip()
+
+    email = get_text("email").lower()
+    confirm_email = get_text("confirmEmail").lower()
+
+    phone = re.sub(r"[\s()-]", "", get_text("phone"))
+
+    if not first_name or not last_name:
+        return jsonify({
+            "error": "Introduce tu nombre y apellidos"
+        }), 400
+
+    if len(full_name) > 120:
+        return jsonify({
+            "error": "El nombre es demasiado largo"
+        }), 400
+
+    if len(email) > 120 or not re.fullmatch(
+        r"[^@\s]+@[^@\s]+\.[^@\s]+", email
+    ):
+        return jsonify({
+            "error": "Introduce un email válido"
+        }), 400
+
+    if email != confirm_email:
+        return jsonify({
+            "error": "Los emails no coinciden"
+        }), 400
+
+    if not re.fullmatch(r"\+[1-9]\d{6,14}", phone):
+        return jsonify({
+            "error": "Introduce un teléfono válido con prefijo internacional"
+        }), 400
+
+    # -------------------------------------------------
+    # 2. INFORMACIÓN ADICIONAL
+    # -------------------------------------------------
+
+    how_did_you_hear = get_text("howDidYouHear")
+    artistic_expression = get_text("artisticExpression")
+    why_interested = get_text("whyInterested")
+
+    dietary_requirements = get_text("dietaryRequirements")
+    health_conditions = get_text("healthConditions")
+    additional_comments = get_text("comments")
+
+    if len(how_did_you_hear) > 255:
+        return jsonify({
+            "error": "La respuesta es demasiado larga"
+        }), 400
+
+    if any(len(value) > 2000 for value in [
+        artistic_expression,
+        why_interested,
+        dietary_requirements,
+        health_conditions,
+        additional_comments
+    ]):
+        return jsonify({
+            "error": "Las respuestas no pueden superar los 2000 caracteres"
+        }), 400
+
+    comments = (
+        "RESTRICCIONES O PREFERENCIAS ALIMENTARIAS:\n"
+        f"{dietary_requirements or 'No indicado'}\n\n"
+        "CONDICIONES DE SALUD:\n"
+        f"{health_conditions or 'No indicado'}\n\n"
+        "COMENTARIOS ADICIONALES:\n"
+        f"{additional_comments or 'No indicado'}"
+    )
+
+    # -------------------------------------------------
+    # 3. CONSENTIMIENTOS
+    # -------------------------------------------------
+
+    terms_accepted = payload.get("acceptTerms") is True
+    health_consent = payload.get("healthConsent") is True
+
+    subscribe_to_newsletter = (
+        payload.get("subscribeToNewsletter") is True
+    )
+
+    consent_for_image = (
+        payload.get("consentForImage") is True
+    )
+
+    if not terms_accepted:
+        return jsonify({
+            "error": "Debes aceptar las condiciones de reserva"
+        }), 400
+
+    if (health_conditions or dietary_requirements) and not health_consent:
+        return jsonify({
+            "error": "Debes autorizar el tratamiento de la información compartida"
+        }), 400
+
+    language = get_text("language") or "es"
+    language = language.split("-")[0]
+
+    if language not in ["es", "en"]:
+        language = "es"
+
+    # -------------------------------------------------
+    # 4. VALIDAR RETIRO Y HABITACIÓN
+    # -------------------------------------------------
+
+    event_id = payload.get("eventId")
+    room_id = payload.get("roomId")
+    payment_option_id = payload.get("paymentOptionId")
+
+    if not all(
+        type(value) is int and value > 0
+        for value in [event_id, room_id, payment_option_id]
+    ):
+        return jsonify({
+            "error": "Selecciona un retiro, habitación y forma de pago"
+        }), 400
+
+    try:
+
+        # Bloqueamos el evento durante la transacción
+        # para evitar reservas simultáneas de la última plaza.
+
+        event = Event.query.filter_by(
+            id=event_id,
+            event_type="retiro",
+            is_active=True
+        ).with_for_update().first()
+
+        if not event:
+            return jsonify({
+                "error": "El retiro no está disponible"
+            }), 404
+
+        retreat = event.retreat_details
+
+        if not retreat:
+            return jsonify({
+                "error": "El retiro no está configurado"
+            }), 404
+
+        room = RetreatRoom.query.filter_by(
+            id=room_id,
+            retreat_id=retreat.id,
+            is_active=True
+        ).with_for_update().first()
+
+        if not room:
+            return jsonify({
+                "error": "La habitación no está disponible"
+            }), 404
+
+        payment_option = RetreatPaymentOption.query.filter_by(
+            id=payment_option_id,
+            room_id=room.id,
+            is_active=True
+        ).first()
+
+        if not payment_option:
+            return jsonify({
+                "error": "La modalidad de pago no está disponible"
+            }), 404
+
+        # -------------------------------------------------
+        # 5. VALIDAR FECHA LÍMITE DE PAGO
+        # -------------------------------------------------
+
+        now = datetime.utcnow()
+
+        payment_deadline = (
+            event.date.date() - timedelta(days=15)
+        )
+
+        last_payment_date = add_retreat_months(
+            now.date(),
+            (payment_option.installments - 1)
+            * payment_option.interval_months
+        )
+
+        if last_payment_date > payment_deadline:
+            return jsonify({
+                "error": "Esta modalidad de pago ya no está disponible por la proximidad del retiro"
+            }), 400
+
+        # -------------------------------------------------
+        # 6. COMPROBAR DISPONIBILIDAD
+        # -------------------------------------------------
+
+        active_reservations = Reservation.query.filter(
+            Reservation.event_id == event.id,
+            or_(
+                Reservation.status == "confirmed",
+                and_(
+                    Reservation.status == "pending",
+                    Reservation.expires_at > now
+                )
+            )
+        )
+
+        reserved_room_spots = active_reservations.filter(
+            Reservation.retreat_room_id == room.id
+        ).with_entities(
+            func.coalesce(
+                func.sum(Reservation.participants_count), 0
+            )
+        ).scalar()
+
+        reserved_event_spots = active_reservations.with_entities(
+            func.coalesce(
+                func.sum(Reservation.participants_count), 0
+            )
+        ).scalar()
+
+        if reserved_room_spots >= room.total_spots:
+            return jsonify({
+                "error": "Esta habitación está completa"
+            }), 409
+
+        if (
+            event.max_participants is not None
+            and reserved_event_spots >= event.max_participants
+        ):
+            return jsonify({
+                "error": "El retiro está completo"
+            }), 409
+
+        # -------------------------------------------------
+        # 7. EVITAR RESERVAS DUPLICADAS
+        # -------------------------------------------------
+
+        existing_reservation = active_reservations.filter(
+            func.lower(Reservation.customer_email) == email
+        ).first()
+
+        if existing_reservation:
+            return jsonify({
+                "error": "Ya existe una reserva activa o pendiente con este email"
+            }), 409
+
+        # -------------------------------------------------
+        # 8. CREAR RESERVA PENDIENTE
+        # -------------------------------------------------
+
+        reservation = Reservation(
+            event_id=event.id,
+            retreat_room_id=room.id,
+            payment_option_id=payment_option.id,
+
+            customer_name=full_name,
+            customer_email=email,
+            phone=phone,
+            participants_count=1,
+
+            total_amount=payment_option.total_price,
+            amount_paid=0,
+            currency=payment_option.currency,
+            installments=payment_option.installments,
+
+            payment_status="pending",
+            status="pending",
+
+            expires_at=now + timedelta(minutes=30),
+
+            how_did_you_hear=how_did_you_hear,
+            artistic_expression=artistic_expression,
+            why_interested=why_interested,
+            comments=comments,
+
+            subscribe_to_newsletter=subscribe_to_newsletter,
+            consent_for_image=consent_for_image,
+
+            health_consent_at=now if health_consent else None,
+            health_consent_version=(
+                RETREAT_HEALTH_CONSENT_VERSION
+                if health_consent else None
+            ),
+
+            terms_accepted_at=now,
+            terms_version=RETREAT_TERMS_VERSION,
+
+            language=language
+        )
+
+        db.session.add(reservation)
+        db.session.flush()
+
+        response_data = {
+            "message": "Inscripción guardada correctamente",
+            "reservation_id": reservation.id,
+            "status": reservation.status,
+            "total_amount": reservation.total_amount,
+            "currency": reservation.currency,
+            "installments": reservation.installments,
+            "expires_at": reservation.expires_at.isoformat() + "Z"
+        }
+
+        db.session.commit()
+
+        return jsonify(response_data), 201
+
+    except Exception as e:
+        db.session.rollback()
+
+        print(
+            "ERROR RETREAT RESERVATION:",
+            type(e).__name__,
+            str(e),
+            flush=True
+        )
+
+        import traceback
+        traceback.print_exc()
+
+        return jsonify({
+            "error": "No se pudo guardar la reserva"
+        }), 500

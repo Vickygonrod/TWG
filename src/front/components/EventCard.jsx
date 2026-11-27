@@ -24,20 +24,32 @@ export const EventCard = ({ event, isHero }) => {
     return text.substring(0, maxLength) + '...';
   };
 
+    const eventUrl = event.event_type === "retiro"
+    ? "/retiro"
+    : `/events/${event.id}`;
+
   return (
     <div className={`event-card ${isHero ? 'hero-event-card' : ''}`}>
-      <Link to={`/events/${event.id}`}>
+      <Link to={eventUrl}>
         <img
           src={event.image_url || 'https://via.placeholder.com/400x300'}
           alt={event.name}
           className="event-card-image"
         />
       </Link>
+
       <div className="event-card-content">
         <h3 className="event-card-title">{event.name}</h3>
-        <p className="event-card-date">{t('event_card_date_label')}: {formattedDate}</p>
-        <p className="event-card-description">{truncateText(event.short_description, 50)}</p>
-        <Link to={`/events/${event.id}`} className="event-card-link">
+
+        <p className="event-card-date">
+          {t('event_card_date_label')}: {formattedDate}
+        </p>
+
+        <p className="event-card-description">
+          {truncateText(event.short_description, 50)}
+        </p>
+
+        <Link to={eventUrl} className="event-card-link">
           {t('event_card_view_more')}
         </Link>
       </div>
